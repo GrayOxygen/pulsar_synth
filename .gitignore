@@ -1,0 +1,37 @@
+# 忽略 CLion 和 JetBrains 的 IDE 配置文件
+.idea/
+*.iml
+
+# 忽略 CMake 构建文件夹
+/cmake-build-*/
+
+# 忽略生成的二进制文件
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+*.out
+*.app
+
+# 忽略编译缓存
+CMakeCache.txt
+CMakeFiles/
+
+# 忽略 macOS 系统文件
+.DS_Store
+
+# 忽略 JUCE 的临时文件
+juce_build/
+
+# 忽略临时文件和日志
+*.log
+*.tmp
+
+# 忽略 Visual Studio 文件（如果你使用的是 Windows）
+.vs/
+*.vcxproj
+*.vcxproj.filters
+
+# 忽略 macOS 的临时文件
+*.swp
