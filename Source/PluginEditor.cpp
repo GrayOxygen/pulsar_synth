@@ -200,13 +200,13 @@ void AudioPluginAudioProcessorEditor::reloadPreset()
             juce::File file(sampleImpulsePath);
             if (file.existsAsFile())
             {
-                // 文件存在，则保存资源文件到convolution resource中
-                synth->getConvolutionResource()->saveLastSampleFileAsBlock(file);
+                // 文件存在，则保存资源文件到convolution resource中（全局的）
+                processorRef.getPulsarSynthEngine().getConvolutionResource()->saveLastSampleFileAsBlock(file);
 
                 //如果当前选中了sample impulse模式，则将资源文件加载为impulse
                 if (impulseSwitch == static_cast<int>(why::ImpulseSwitchEnum::Sample))
                 {
-                    synth->getConvolutionResource()->loadSampleImpulseFile();
+                    processorRef.getPulsarSynthEngine().getConvolutionResource()->loadSampleImpulseFile();
                 }
             }
             else
@@ -259,30 +259,6 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
         }
     }
 }
-
-// void AudioPluginAudioProcessorEditor::parameterChanged(const juce::String& parameterID, float newValue)
-// {
-//     if (processorRef.isLoadingPresetFlag())
-//     {
-//         return;
-//     }
-//
-//     //触发synth更新为最新状态：mapping所有parameter，property的值到synth中
-//     processorRef.getPulsarSynthEngine().executeEachPulsarSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
-//     {
-//         synth->parameterChanged(processorRef.apvts, parameterID, newValue);
-//
-//         //UI变更，生成stochastic mask时要展示出来
-//         //如果生成了随机mask，那就按照启动模式下第一个voice展示
-//         if (processorRef.getCurrentPlayModeEnum() == synth->getMyPlayModeEnum())
-//         {
-//             juce::String lastestStochasticMaskStr = synth->getStochasticMaskStr();
-//             //时刻关联到property，等到reload state时才会有值（因为texteditor没有attachment） TODO redo undo功能
-//             processorRef.apvts.state.setProperty(why::PropertyID::stochasticMask, lastestStochasticMaskStr, nullptr);
-//             stochasticMaskTextEditor.setText(lastestStochasticMaskStr, juce::dontSendNotification);
-//         }
-//     });
-// }
 
 //===================================核心逻辑 END===========================================
 
@@ -841,8 +817,9 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
         }
         // 监听 TextEditor 内容变化
         auto currentBurstMaskText = burstMaskTextEditor.getText(); // 获取编辑框中的文本
+
         //刷新synth的burst mask标记
-        processorRef.getPulsarSynthEngine().executeEachPulsarSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
+        processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
         {
             synth->refreshBurstMask(currentBurstMaskText);
         });
@@ -921,6 +898,8 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
         {
             return;
         }
+        //TODO 切换模式后，会走到prameterChanged重新设置train，直接重置train
+
         if (playModeCombobox.getSelectedId() == static_cast<int>(why::PlayModeEnum::Auto) + 1)
         {
             processorRef.getPulsarSynthEngine().setCurrentPlayModeEnum(processorRef.apvts, why::PlayModeEnum::Auto);
@@ -938,7 +917,7 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
         {
             return;
         }
-        processorRef.getPulsarSynthEngine().executeEachPulsarSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
+        processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
         {
             synth->forceRefreshBpm(bpmSlider.getValue());
         });
@@ -994,11 +973,8 @@ void AudioPluginAudioProcessorEditor::saveThenLoadAfterSelect(juce::String selec
 
     if (why::readFileFromResources(resourceName, fileSampleRate, bf))
     {
-        processorRef.getPulsarSynthEngine().executeEachPulsarSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
-        {
-            synth->getConvolutionResource()->saveLastTemplateImpulseData(
-                *bf, fileSampleRate, std::string(resourceName));
-        });
+        processorRef.getPulsarSynthEngine().getConvolutionResource()->saveLastTemplateImpulseData(
+            *bf, fileSampleRate, std::string(resourceName));
         loadTemplateImpulseWhenSelected();
     }
 }
@@ -1049,18 +1025,12 @@ void AudioPluginAudioProcessorEditor::loadSampleImpulseWhenSelected()
     {
         return;
     }
-    processorRef.getPulsarSynthEngine().executeEachPulsarSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
-    {
-        synth->getConvolutionResource()->loadSampleImpulseFile();
-    });
+    processorRef.getPulsarSynthEngine().getConvolutionResource()->loadSampleImpulseFile();
 }
 
 void AudioPluginAudioProcessorEditor::saveFileIntoSynth(const juce::File& file)
 {
-    processorRef.getPulsarSynthEngine().executeEachPulsarSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
-    {
-        synth->getConvolutionResource()->saveLastSampleFileAsBlock(file);
-    });
+    processorRef.getPulsarSynthEngine().getConvolutionResource()->saveLastSampleFileAsBlock(file);
 }
 
 void AudioPluginAudioProcessorEditor::loadTemplateImpulseWhenSelected()
@@ -1070,10 +1040,7 @@ void AudioPluginAudioProcessorEditor::loadTemplateImpulseWhenSelected()
     {
         return;
     }
-    processorRef.getPulsarSynthEngine().executeEachPulsarSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
-    {
-        synth->getConvolutionResource()->loadTemplateImpulseFile();
-    });
+    processorRef.getPulsarSynthEngine().getConvolutionResource()->loadTemplateImpulseFile();
 }
 
 void AudioPluginAudioProcessorEditor::initTemplateImpulseComboboxNames()
@@ -1092,14 +1059,15 @@ void AudioPluginAudioProcessorEditor::initTemplateImpulseComboboxNames()
     impulseTemplateFileComboBox.setSelectedId(1, juce::dontSendNotification);
 }
 
+//TODO  废弃，这种最好写到pluginprocessor，改用广播了目前
 void AudioPluginAudioProcessorEditor::valueTreePropertyChanged(ValueTree& treeWhosePropertyHasChanged,
                                                                const Identifier& property)
 {
     // apvts.state.addListener(*this);
-    std::string newValue = processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).toString().
-                                        toStdString();
-    if (property.toString() == why::PropertyID::stochasticMask && newValue != stochasticMaskTextEditor.getText())
-    {
-        stochasticMaskTextEditor.setText(newValue, juce::dontSendNotification);
-    }
+    // std::string newValue = processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).toString().
+    //                                     toStdString();
+    // if (property.toString() == why::PropertyID::stochasticMask && newValue != stochasticMaskTextEditor.getText())
+    // {
+    //     stochasticMaskTextEditor.setText(newValue, juce::dontSendNotification);
+    // }
 }

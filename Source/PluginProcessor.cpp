@@ -414,7 +414,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
 void AudioPluginAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
 {
     //触发synth更新为最新状态：mapping所有parameter，property的值到synth中
-    pulsarSynthEngine.executeEachPulsarSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
+    pulsarSynthEngine.executeCurSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
     {
         bool isGeneratedStochasticMaskFlag = false;
         synth->parameterChanged(apvts, parameterID, newValue, isGeneratedStochasticMaskFlag);

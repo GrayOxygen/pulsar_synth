@@ -15,6 +15,7 @@
 #include "PulsarSynthVoice.h"
 #include <PulsaretWaveformSingleton.h>
 #include <LfoWaveformSingleton.h>
+#include <CommonVoiceSate.h>
 //================================================重写方法================================================
 void PulsarSynthVoice::startNote(int midiNoteNumber,
                                  float velocity,
@@ -25,9 +26,9 @@ void PulsarSynthVoice::startNote(int midiNoteNumber,
 
     //公用一套fundamental frequency，不同voice可以修改其他参数
     //设置train为初始状态
-    resetTrain(static_cast<int>(trainDutyCycleLenParam->load()) * (ratio + 1),
-               static_cast<int>(trainSilenceParam->load()) * (ratio + 1), true,
-               static_cast<int>(trainLenParam->load()));
+    resetTrain(static_cast<int>(commonVoiceSate->trainDutyCycleLenParam->load()) * (ratio + 1),
+               static_cast<int>(commonVoiceSate->trainSilenceParam->load()) * (ratio + 1), true,
+               static_cast<int>(commonVoiceSate->trainLenParam->load()));
     juce::ADSR::Parameters param(0.0, 0.0, 1, 0.5);
     envelope.setParameters(param);
     envelope.noteOn();
@@ -89,8 +90,9 @@ void PulsarSynthVoice::renderNextBlockDirectly(juce::AudioSampleBuffer& outputBu
             // Transport just started
             isActive = true;
             //设置train为初始状态
-            resetTrain(static_cast<int>(trainDutyCycleLenParam->load()), trainSilenceParam->load(), true,
-                       trainLenParam->load());
+            resetTrain(static_cast<int>(commonVoiceSate->trainDutyCycleLenParam->load()),
+                       commonVoiceSate->trainSilenceParam->load(), true,
+                       commonVoiceSate->trainLenParam->load());
         }
 
         if (!isNowPlaying && wasPlayingLastFrame)
@@ -112,14 +114,15 @@ void PulsarSynthVoice::renderNextBlockDirectly(juce::AudioSampleBuffer& outputBu
 void PulsarSynthVoice::processSampleWithConvolution(juce::AudioSampleBuffer& outputBuffer, int startSample,
                                                     int numSamples, why::PlayModeEnum currentPlayModeEnum)
 {
-    pulseBuffer.clear();
-    if (this->pulseBuffer.getNumSamples() < numSamples || this->pulseBuffer.getNumChannels() < outputBuffer.
+    commonVoiceSate->pulseBuffer.clear();
+    if (commonVoiceSate->pulseBuffer.getNumSamples() < numSamples || commonVoiceSate->pulseBuffer.getNumChannels() <
+        outputBuffer.
         getNumChannels())
     {
-        this->pulseBuffer.setSize(outputBuffer.getNumChannels(), numSamples, false, true, true); // 自动释放并重新分配
+        commonVoiceSate->pulseBuffer.setSize(outputBuffer.getNumChannels(), numSamples, false, true, true); // 自动释放并重新分配
     }
-    auto* leftWritePtr = this->pulseBuffer.getWritePointer(0);
-    auto* rightWritePtr = this->pulseBuffer.getWritePointer(1);
+    auto* leftWritePtr = commonVoiceSate->pulseBuffer.getWritePointer(0);
+    auto* rightWritePtr = commonVoiceSate->pulseBuffer.getWritePointer(1);
     //卷积处理
     //创建一个临时的 AudioBuffer 来存放你生成的 pulse 信号
     for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
@@ -143,26 +146,27 @@ void PulsarSynthVoice::processSampleWithConvolution(juce::AudioSampleBuffer& out
     }
 
     //卷积处理
-    if (static_cast<int>(this->impulseSwitchParam->load()) != static_cast<int>(why::ImpulseSwitchEnum::Off))
+    if (static_cast<int>(commonVoiceSate->impulseSwitchParam->load()) != static_cast<int>(why::ImpulseSwitchEnum::Off))
     {
-        convolutionResource->processSample(this->pulseBuffer);
+        commonVoiceSate->convolutionResource->processSample(commonVoiceSate->pulseBuffer);
     }
 
     // 建议limiter：限制音量
-    float ceiling = 1.0f;
-    float peak = pulseBuffer.getMagnitude(0, pulseBuffer.getNumSamples());
+    float ceiling = 0.937f;
+    float peak = commonVoiceSate->pulseBuffer.getMagnitude(0, commonVoiceSate->pulseBuffer.getNumSamples());
     if (peak > ceiling)
     {
         float gain = ceiling / (peak + 1e-5f);
-        pulseBuffer.applyGain(gain);
+        commonVoiceSate->pulseBuffer.applyGain(gain);
     }
+
     for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
     {
         int i = sampleIndex - startSample;
         for (int chan = 0; chan < outputBuffer.getNumChannels(); chan++)
         {
             // The output sample is scaled by 0.2 so that it is not too loud by default
-            outputBuffer.addSample(chan, sampleIndex, pulseBuffer.getSample(0, i));
+            outputBuffer.addSample(chan, sampleIndex, commonVoiceSate->pulseBuffer.getSample(0, i));
         }
     }
 }
@@ -171,14 +175,14 @@ void PulsarSynthVoice::processSampleWithConvolution(juce::AudioSampleBuffer& out
 void PulsarSynthVoice::setPulsarSilence(float dutyCylce)
 {
     pulsarDutyCycleRatio = dutyCylce;
-    pulsarSilence = pulsarPeriodTime * (1 - pulsarDutyCycleRatioParam->load());
+    pulsarSilence = pulsarPeriodTime * (1 - commonVoiceSate->pulsarDutyCycleRatioParam->load());
 }
 
 void PulsarSynthVoice::changeToNewTrainAfterPulsarPeriodOrTrainEnd(float bpmChangedFlag)
 {
-    changeToNewTrainAfterPulsarPeriodOrTrainEnd(static_cast<int>(trainDutyCycleLenParam->load()),
-                                                trainSilenceParam->load(), true,
-                                                trainLenParam->load(), bpmChangedFlag);
+    changeToNewTrainAfterPulsarPeriodOrTrainEnd(static_cast<int>(commonVoiceSate->trainDutyCycleLenParam->load()),
+                                                commonVoiceSate->trainSilenceParam->load(), true,
+                                                commonVoiceSate->trainLenParam->load(), bpmChangedFlag);
 }
 
 void PulsarSynthVoice::changeToNewTrainAfterPulsarPeriodOrTrainEnd(int durationLen, int intervalSilenceLen,
@@ -194,12 +198,12 @@ void PulsarSynthVoice::changeToNewTrainAfterPulsarPeriodOrTrainEnd(int durationL
     //重置train的当前位置，改向后再改为false
     float oldTrainSilenceNum = this->trainSilenceNum;
     float oldTrainDutyCycleNum = this->trainDutyCycleNum;
-    float oldTrainLen = this->trainLen;
+    float oldTrainLen = commonVoiceSate->trainLen;
     this->trainSilenceNum = intervalSilenceLen;
     this->trainDutyCycleNum = durationLen;
-    this->trainLen = trainLen;
+    commonVoiceSate->trainLen = trainLen;
     isTheSameTrainConfig = oldTrainSilenceNum == this->trainSilenceNum && oldTrainDutyCycleNum == this->
-        trainDutyCycleNum && oldTrainLen == this->trainLen && !bpmChangedFlag;
+        trainDutyCycleNum && oldTrainLen == trainLen && !bpmChangedFlag;
     if (isTheSameTrainConfig)
     {
         return;
@@ -258,7 +262,7 @@ void PulsarSynthVoice::realChangeTrain()
     trainLenBlock = (60.0 / why::bpm.load());
     trainTime = newTrainLen * trainLenBlock;
     pulsarPeriodTime = trainTime / (newTrainIntervalSilenceLen + newTrainDurationLen);
-    setPulsarSilence(pulsarDutyCycleRatioParam->load());
+    setPulsarSilence(commonVoiceSate->pulsarDutyCycleRatioParam->load());
     fundamentalFreq = 1.0 / pulsarPeriodTime;
     trainSilenceTime = newTrainIntervalSilenceLen * pulsarPeriodTime;
     trainDutyCycleTime = newTrainDurationLen * pulsarPeriodTime;
@@ -269,7 +273,7 @@ void PulsarSynthVoice::realChangeTrain()
     pulsaretPhase = 0.0;
 
     //更新pulsaret adsr
-    refreshPulsaretAdsr(pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
+    refreshPulsaretAdsr(commonVoiceSate->pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
 }
 
 void PulsarSynthVoice::initSynth(double sampleRate, std::unique_ptr<juce::AudioBuffer<float>>& sampleBuffer,
@@ -279,28 +283,29 @@ void PulsarSynthVoice::initSynth(double sampleRate, std::unique_ptr<juce::AudioB
     refreshBpm(audioPlayHead);
 
     why::sampleRate.store(sampleRate);
-    this->sampleBuffer = std::move(sampleBuffer);
+    commonVoiceSate->sampleBuffer = std::move(sampleBuffer);
 
-    initTrain(static_cast<int>(trainDutyCycleLenParam->load()), trainSilenceParam->load(), true,
-              trainLenParam->load());
+    initTrain(static_cast<int>(commonVoiceSate->trainDutyCycleLenParam->load()),
+              commonVoiceSate->trainSilenceParam->load(), true,
+              commonVoiceSate->trainLenParam->load());
     //根据train长度生成对应随机mask
     generateStochasticMask();
 
     //刷新adsr
-    refreshPulsaretAdsr(pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
+    refreshPulsaretAdsr(commonVoiceSate->pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
 }
 
 void PulsarSynthVoice::generateStochasticMask()
 {
     //generate random mask, 它的长度是train duty cycle（即pulsar period个数）长度的两倍
-    int totalPeriodNum = trainDutyCycleLenParam->load();
+    int totalPeriodNum = commonVoiceSate->trainDutyCycleLenParam->load();
     //控制长度，random mask超过64个就限制
     while (totalPeriodNum > 64)
     {
         totalPeriodNum = totalPeriodNum / 2;
     }
     int num = static_cast<int>(2 * totalPeriodNum);
-    stochasticMaskStr = why::generateBinaryString(num);
+    commonVoiceSate->stochasticMaskStr = why::generateBinaryString(num);
 }
 
 void PulsarSynthVoice::connectParameters(juce::AudioProcessorValueTreeState& apvts)
@@ -311,61 +316,65 @@ void PulsarSynthVoice::connectParameters(juce::AudioProcessorValueTreeState& apv
 void PulsarSynthVoice::mappingParams(const juce::AudioProcessorValueTreeState& apvts)
 {
     //output
-    this->outputGainParam = apvts.getRawParameterValue(why::ParameterID::outputGain);
+    commonVoiceSate->outputGainParam = apvts.getRawParameterValue(why::ParameterID::outputGain);
 
     //play mode
-    this->playModeParam = apvts.getRawParameterValue(why::ParameterID::playMode);
+    commonVoiceSate->playModeParam = apvts.getRawParameterValue(why::ParameterID::playMode);
 
     //train
-    this->trainLenParam = apvts.getRawParameterValue(why::ParameterID::trainLen);
-    this->trainDutyCycleLenParam = apvts.getRawParameterValue(why::ParameterID::trainDutyCycleLen);
-    this->trainSilenceParam = apvts.getRawParameterValue(why::ParameterID::trainSilenceLen);
+    commonVoiceSate->trainLenParam = apvts.getRawParameterValue(why::ParameterID::trainLen);
+    commonVoiceSate->trainDutyCycleLenParam = apvts.getRawParameterValue(why::ParameterID::trainDutyCycleLen);
+    commonVoiceSate->trainSilenceParam = apvts.getRawParameterValue(why::ParameterID::trainSilenceLen);
 
     //pulsar basic info
-    this->pulsarWaveformParam = apvts.getRawParameterValue(why::ParameterID::pulsarWaveform);
-    this->pulsarDutyCycleClusterLenParam = apvts.getRawParameterValue(why::ParameterID::pulsarDutyCycleClusterLen);
-    this->pulsarDutyCycleRatioParam = apvts.getRawParameterValue(why::ParameterID::pulsarDutyCycleRatio);
+    commonVoiceSate->pulsarWaveformParam = apvts.getRawParameterValue(why::ParameterID::pulsarWaveform);
+    commonVoiceSate->pulsarDutyCycleClusterLenParam = apvts.getRawParameterValue(
+        why::ParameterID::pulsarDutyCycleClusterLen);
+    commonVoiceSate->pulsarDutyCycleRatioParam = apvts.getRawParameterValue(why::ParameterID::pulsarDutyCycleRatio);
 
     //pulsar modulation
-    this->formantFreqLfoParam = apvts.getRawParameterValue(why::ParameterID::formantFreqLfoWaveform);
-    this->ampLfoParam = apvts.getRawParameterValue(why::ParameterID::ampLfoWaveform);
+    commonVoiceSate->formantFreqLfoParam = apvts.getRawParameterValue(why::ParameterID::formantFreqLfoWaveform);
+    commonVoiceSate->ampLfoParam = apvts.getRawParameterValue(why::ParameterID::ampLfoWaveform);
 
     //pulsar envelope
-    this->attackParam = apvts.getRawParameterValue(why::ParameterID::pulsarAttack);
-    this->decayParam = apvts.getRawParameterValue(why::ParameterID::pulsarDecay);
-    this->sustainParam = apvts.getRawParameterValue(why::ParameterID::pulsarSustain);
-    this->releaseParam = apvts.getRawParameterValue(why::ParameterID::pulsarRelease);
+    commonVoiceSate->attackParam = apvts.getRawParameterValue(why::ParameterID::pulsarAttack);
+    commonVoiceSate->decayParam = apvts.getRawParameterValue(why::ParameterID::pulsarDecay);
+    commonVoiceSate->sustainParam = apvts.getRawParameterValue(why::ParameterID::pulsarSustain);
+    commonVoiceSate->releaseParam = apvts.getRawParameterValue(why::ParameterID::pulsarRelease);
 
     //masking
-    this->maskOptionParam = apvts.getRawParameterValue(why::ParameterID::maskOption);
-    maskOption = static_cast<why::MaskOptionEnum>(static_cast<int>(maskOptionParam->load()));
+    commonVoiceSate->maskOptionParam = apvts.getRawParameterValue(why::ParameterID::maskOption);
+    commonVoiceSate->maskOption = static_cast<why::MaskOptionEnum>(static_cast<int>(commonVoiceSate->maskOptionParam->
+        load()));
 
     //burst mask
     //texteditor必须通过property传递，没有attachment直接绑定
     if (!apvts.state.getProperty(why::PropertyID::burstMask).isVoid())
     {
         //get texteditor value from property because juce can't bind texteditor with parameter automatally
-        burstMask = apvts.state.getProperty(why::PropertyID::burstMask).toString().toStdString();
+        commonVoiceSate->burstMask = apvts.state.getProperty(why::PropertyID::burstMask).toString().toStdString();
     }
 
     //stochastic mask
     if (!apvts.state.getProperty(why::PropertyID::stochasticMask).isVoid())
     {
-        stochasticMaskStr = apvts.state.getProperty(why::PropertyID::stochasticMask).toString().toStdString();
+        commonVoiceSate->stochasticMaskStr = apvts.state.getProperty(why::PropertyID::stochasticMask).toString().
+                                                   toStdString();
     }
 
     //euclid mask
-    this->euclidStepsParam = apvts.getRawParameterValue(why::ParameterID::euclidSteps);
-    this->euclidHitsParam = apvts.getRawParameterValue(why::ParameterID::euclidHits);
+    commonVoiceSate->euclidStepsParam = apvts.getRawParameterValue(why::ParameterID::euclidSteps);
+    commonVoiceSate->euclidHitsParam = apvts.getRawParameterValue(why::ParameterID::euclidHits);
 
-    if (this->euclidStepsParam->load() > 0 && this->euclidHitsParam->load() > 0)
+    if (commonVoiceSate->euclidStepsParam->load() > 0 && commonVoiceSate->euclidHitsParam->load() > 0)
     {
         //generate euclid rhythm pattern
-        this->euclids = why::generateEuclidRhythm(this->euclidStepsParam->load(), this->euclidHitsParam->load());
+        commonVoiceSate->euclids = why::generateEuclidRhythm(commonVoiceSate->euclidStepsParam->load(),
+                                                             commonVoiceSate->euclidHitsParam->load());
     }
 
     //impulse switch
-    this->impulseSwitchParam = apvts.getRawParameterValue(why::ParameterID::impulseSwitch);
+    commonVoiceSate->impulseSwitchParam = apvts.getRawParameterValue(why::ParameterID::impulseSwitch);
 }
 
 
@@ -375,111 +384,114 @@ void PulsarSynthVoice::mappingOneParam(const juce::AudioProcessorValueTreeState&
     //output
     if (parameterID == why::ParameterID::outputGain)
     {
-        this->outputGainParam->store(newValue);
+        commonVoiceSate->outputGainParam->store(newValue);
     }
 
     //play mode
     if (parameterID == why::ParameterID::playMode)
     {
-        this->playModeParam->store(newValue);
+        commonVoiceSate->playModeParam->store(newValue);
     }
 
     //train
     if (parameterID == why::ParameterID::trainLen)
     {
-        this->trainLenParam->store(newValue);
+        commonVoiceSate->trainLenParam->store(newValue);
     }
     if (parameterID == why::ParameterID::trainDutyCycleLen)
     {
-        this->trainDutyCycleLenParam->store(newValue);
+        commonVoiceSate->trainDutyCycleLenParam->store(newValue);
     }
     if (parameterID == why::ParameterID::trainSilenceLen)
     {
-        this->trainSilenceParam->store(newValue);
+        commonVoiceSate->trainSilenceParam->store(newValue);
     }
 
     //pulsar basic info
     if (parameterID == why::ParameterID::pulsarWaveform)
     {
-        this->pulsarWaveformParam->store(newValue);
+        commonVoiceSate->pulsarWaveformParam->store(newValue);
     }
     if (parameterID == why::ParameterID::pulsarDutyCycleClusterLen)
     {
-        this->pulsarDutyCycleClusterLenParam->store(newValue);
+        commonVoiceSate->pulsarDutyCycleClusterLenParam->store(newValue);
     }
     if (parameterID == why::ParameterID::pulsarDutyCycleRatio)
     {
-        this->pulsarDutyCycleRatioParam->store(newValue);
+        commonVoiceSate->pulsarDutyCycleRatioParam->store(newValue);
     }
 
     //pulsar modulation
     if (parameterID == why::ParameterID::formantFreqLfoWaveform)
     {
-        this->formantFreqLfoParam->store(newValue);
+        commonVoiceSate->formantFreqLfoParam->store(newValue);
     }
     if (parameterID == why::ParameterID::ampLfoWaveform)
     {
-        this->ampLfoParam->store(newValue);
+        commonVoiceSate->ampLfoParam->store(newValue);
     }
 
     //pulsar envelope
     if (parameterID == why::ParameterID::pulsarAttack)
     {
-        this->attackParam->store(newValue);
+        commonVoiceSate->attackParam->store(newValue);
     }
     if (parameterID == why::ParameterID::pulsarDecay)
     {
-        this->decayParam->store(newValue);
+        commonVoiceSate->decayParam->store(newValue);
     }
     if (parameterID == why::ParameterID::pulsarSustain)
     {
-        this->sustainParam->store(newValue);
+        commonVoiceSate->sustainParam->store(newValue);
     }
     if (parameterID == why::ParameterID::pulsarRelease)
     {
-        this->releaseParam->store(newValue);
+        commonVoiceSate->releaseParam->store(newValue);
     }
 
     //masking
     if (parameterID == why::ParameterID::maskOption)
     {
-        this->maskOptionParam->store(newValue);
-        maskOption = static_cast<why::MaskOptionEnum>(static_cast<int>(maskOptionParam->load()));
+        commonVoiceSate->maskOptionParam->store(newValue);
+        commonVoiceSate->maskOption = static_cast<why::MaskOptionEnum>(static_cast<int>(commonVoiceSate->maskOptionParam
+            ->load()));
     }
 
     //burst mask
     //texteditor必须通过property传递，没有attachment直接绑定
     if (!apvts.state.getProperty(why::PropertyID::burstMask).isVoid())
     {
-        this->burstMask = apvts.state.getProperty(why::PropertyID::burstMask).toString().toStdString();
+        commonVoiceSate->burstMask = apvts.state.getProperty(why::PropertyID::burstMask).toString().toStdString();
     }
 
     //stochastic mask
     if (!apvts.state.getProperty(why::PropertyID::stochasticMask).isVoid())
     {
-        stochasticMaskStr = apvts.state.getProperty(why::PropertyID::stochasticMask).toString().toStdString();
+        commonVoiceSate->stochasticMaskStr = apvts.state.getProperty(why::PropertyID::stochasticMask).toString().
+                                                   toStdString();
     }
 
     //euclid mask
     if (parameterID == why::ParameterID::euclidSteps)
     {
-        this->euclidStepsParam->store(newValue);
+        commonVoiceSate->euclidStepsParam->store(newValue);
     }
     if (parameterID == why::ParameterID::euclidHits)
     {
-        this->euclidHitsParam->store(newValue);
+        commonVoiceSate->euclidHitsParam->store(newValue);
     }
 
-    if (this->euclidStepsParam->load() > 0 && this->euclidHitsParam->load() > 0)
+    if (commonVoiceSate->euclidStepsParam->load() > 0 && commonVoiceSate->euclidHitsParam->load() > 0)
     {
         //generate euclid rhythm pattern
-        this->euclids = why::generateEuclidRhythm(this->euclidStepsParam->load(), this->euclidHitsParam->load());
+        commonVoiceSate->euclids = why::generateEuclidRhythm(commonVoiceSate->euclidStepsParam->load(),
+                                                             commonVoiceSate->euclidHitsParam->load());
     }
 
     //impulse switch
     if (parameterID == why::ParameterID::impulseSwitch)
     {
-        this->impulseSwitchParam->store(newValue);
+        commonVoiceSate->impulseSwitchParam->store(newValue);
     }
 }
 
@@ -493,19 +505,18 @@ void PulsarSynthVoice::parameterChanged(juce::AudioProcessorValueTreeState& apvt
     {
         updateBpmDirectly(newValue);
     }
-
-    //TODO 可以考虑，暂不实现：若train参数变更，则限制当前train序列结束后才应用的新配置
+    //train相关参数变了，pulsar频率也会变化，此时等待下一个pulsar silence or train interval silence就开始走新的train
     if (parameterID == why::ParameterID::trainDutyCycleLen || parameterID == why::ParameterID::trainSilenceLen ||
         parameterID == why::ParameterID::trainLen || parameterID == why::ParameterID::bpm)
     {
-        changeToNewTrainAfterPulsarPeriodOrTrainEnd(static_cast<int>(trainDutyCycleLenParam->load()),
-                                                    trainSilenceParam->load(), true,
-                                                    trainLenParam->load(),
+        changeToNewTrainAfterPulsarPeriodOrTrainEnd(static_cast<int>(commonVoiceSate->trainDutyCycleLenParam->load()),
+                                                    commonVoiceSate->trainSilenceParam->load(), true,
+                                                    commonVoiceSate->trainLenParam->load(),
                                                     parameterID == why::ParameterID::bpm
                                                         ? newValue != why::bpm
                                                         : false);
         //loading preset时，不生成随机mask，只有手动调整UI才会触发
-        if (parameterID != why::ParameterID::trainSilenceLen || parameterID != why::ParameterID::bpm)
+        if (parameterID == why::ParameterID::trainDutyCycleLen)
         {
             //根据train长度生成对应随机mask
             generateStochasticMask();
@@ -514,8 +525,8 @@ void PulsarSynthVoice::parameterChanged(juce::AudioProcessorValueTreeState& apvt
     }
 
     //刷新pulsar
-    setPulsarSilence(pulsarDutyCycleRatioParam->load());
-    refreshPulsaretAdsr(pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
+    setPulsarSilence(commonVoiceSate->pulsarDutyCycleRatioParam->load());
+    refreshPulsaretAdsr(commonVoiceSate->pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
 }
 
 //重载一整个preset
@@ -523,19 +534,20 @@ void PulsarSynthVoice::reloadPreset(juce::AudioProcessorValueTreeState& apvts)
 {
     mappingParams(apvts);
 
-    initTrain(static_cast<int>(trainDutyCycleLenParam->load()), trainSilenceParam->load(), true,
-              trainLenParam->load());
+    initTrain(static_cast<int>(commonVoiceSate->trainDutyCycleLenParam->load()),
+              commonVoiceSate->trainSilenceParam->load(), true,
+              commonVoiceSate->trainLenParam->load());
 
     //刷新pulsar adsr
-    refreshPulsaretAdsr(pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
+    refreshPulsaretAdsr(commonVoiceSate->pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
 }
 
 void PulsarSynthVoice::refreshPulsaretAdsr(float pulsarDutyCycleTime)
 {
     pulsarAdsr.setSampleRate(why::sampleRate);
-    float attack = attackParam->load();
-    float decay = decayParam->load();
-    float release = releaseParam->load();
+    float attack = commonVoiceSate->attackParam->load();
+    float decay = commonVoiceSate->decayParam->load();
+    float release = commonVoiceSate->releaseParam->load();
 
     //控制比例<=1
     if (attack + decay + release > 1 && attack + decay >= 1)
@@ -557,7 +569,7 @@ void PulsarSynthVoice::refreshPulsaretAdsr(float pulsarDutyCycleTime)
 
     pulsarAdsrParams.attack = pulsarDutyCycleTime * attack;
     pulsarAdsrParams.decay = pulsarDutyCycleTime * decay;
-    pulsarAdsrParams.sustain = sustainParam->load();
+    pulsarAdsrParams.sustain = commonVoiceSate->sustainParam->load();
     pulsarAdsrParams.release = pulsarDutyCycleTime * release;
 
     pulsarAdsr.setParameters(pulsarAdsrParams);
@@ -565,7 +577,7 @@ void PulsarSynthVoice::refreshPulsaretAdsr(float pulsarDutyCycleTime)
 
 void PulsarSynthVoice::mask(bool& maskPassFlag, bool& existMask)
 {
-    if (maskOption == why::MaskOptionEnum::Off)
+    if (commonVoiceSate->maskOption == why::MaskOptionEnum::Off)
     {
         existMask = false;
         //不做mask处理，按原有pulsaret返回
@@ -573,29 +585,32 @@ void PulsarSynthVoice::mask(bool& maskPassFlag, bool& existMask)
         return;
     }
     //burst masking
-    if (maskOption == why::MaskOptionEnum::BurstMask && !burstMask.empty() && pulsarStageIndexInTrainDutyCycle > 0)
+    if (commonVoiceSate->maskOption == why::MaskOptionEnum::BurstMask && !commonVoiceSate->burstMask.empty() &&
+        pulsarStageIndexInTrainDutyCycle > 0)
     {
         existMask = true;
         //如果设置了masking，则重新设置
-        int index = fmod(pulsarStageIndexInTrainDutyCycle - 1, burstMask.size());
-        maskPassFlag = burstMask[index] == '1';
+        int index = fmod(pulsarStageIndexInTrainDutyCycle - 1, commonVoiceSate->burstMask.size());
+        maskPassFlag = commonVoiceSate->burstMask[index] == '1';
     }
     //euclid masking
-    if (maskOption == why::MaskOptionEnum::EuclidMask && !euclids.empty() && pulsarStageIndexInTrainDutyCycle > 0)
+    if (commonVoiceSate->maskOption == why::MaskOptionEnum::EuclidMask && !commonVoiceSate->euclids.empty() &&
+        pulsarStageIndexInTrainDutyCycle > 0)
     {
         existMask = true;
         //如果设置了masking，则重新设置
-        int index = fmod(pulsarStageIndexInTrainDutyCycle - 1, euclids.size());
-        maskPassFlag = euclids[index] == '1';
+        int index = fmod(pulsarStageIndexInTrainDutyCycle - 1, commonVoiceSate->euclids.size());
+        maskPassFlag = commonVoiceSate->euclids[index] == '1';
     }
     //stochastic masking
-    if (maskOption == why::MaskOptionEnum::StochasticMask && !stochasticMaskStr.empty() &&
+    if (commonVoiceSate->maskOption == why::MaskOptionEnum::StochasticMask && !commonVoiceSate->stochasticMaskStr.
+        empty() &&
         pulsarStageIndexInTrainDutyCycle > 0)
     {
         //每次修改train lenth，pulsar个数等都修改stochastic mask
         existMask = true;
-        int index = fmod(pulsarStageIndexInTrainDutyCycle - 1, stochasticMaskStr.size());
-        maskPassFlag = stochasticMaskStr[index] == '1';
+        int index = fmod(pulsarStageIndexInTrainDutyCycle - 1, commonVoiceSate->stochasticMaskStr.size());
+        maskPassFlag = commonVoiceSate->stochasticMaskStr[index] == '1';
     }
 }
 
@@ -663,15 +678,15 @@ void PulsarSynthVoice::calcNewPulsarFreq(float& pulsarModFreq, bool silenceToPul
 {
     //最终决定pulse的频率，因为一个pulsar dutycyle中可以是包含多个pulse的cluster
     pulsarModFreq =
-        pulsarDutyCycleClusterLenParam->load() *
-        1.0 / (pulsarDutyCycleRatioParam->load() * pulsarPeriodTime)
+        commonVoiceSate->pulsarDutyCycleClusterLenParam->load() *
+        1.0 / (commonVoiceSate->pulsarDutyCycleRatioParam->load() * pulsarPeriodTime)
         + 5 * calcFormantLfoInterpolation();
 
     if (silenceToPulseFlag)
     {
         pulsarModFreq =
-            pulsarDutyCycleClusterLenParam->load() *
-            1.0 / ((1 - pulsarDutyCycleRatioParam->load()) * pulsarPeriodTime)
+            commonVoiceSate->pulsarDutyCycleClusterLenParam->load() *
+            1.0 / ((1 - commonVoiceSate->pulsarDutyCycleRatioParam->load()) * pulsarPeriodTime)
             + 5 * calcFormantLfoInterpolation();
     }
 }
@@ -705,8 +720,9 @@ float PulsarSynthVoice::calSampleByState(bool passMaskFlag, bool existMask, floa
 
 void PulsarSynthVoice::resetTrainRelatedSamples4Location()
 {
-    pulsarSamples = pulsarDutyCycleRatioParam->load() * pulsarPeriodTime * why::sampleRate.load();
-    intraSilenceSamples = (1 - pulsarDutyCycleRatioParam->load()) * pulsarPeriodTime * why::sampleRate.load();
+    pulsarSamples = commonVoiceSate->pulsarDutyCycleRatioParam->load() * pulsarPeriodTime * why::sampleRate.load();
+    intraSilenceSamples = (1 - commonVoiceSate->pulsarDutyCycleRatioParam->load()) * pulsarPeriodTime * why::sampleRate.
+        load();
     interTrainSilenceSamples = trainSilenceTime * why::sampleRate.load();
     trainDutyCycleSamples = trainDutyCycleTime * why::sampleRate.load();
 }
@@ -714,7 +730,7 @@ void PulsarSynthVoice::resetTrainRelatedSamples4Location()
 float PulsarSynthVoice::processSample()
 {
     //once playback
-    if (!isLoop && trainCounter >= 1)
+    if (!commonVoiceSate->isLoop && trainCounter >= 1)
     {
         return 0;
     }
@@ -849,7 +865,7 @@ float PulsarSynthVoice::calcActualPulse(float pulsarModFreq)
 
     float s =
         //计算pulsaret waveform sample
-        PulsaretWaveformSingleton::getInstance().calcSample(pulsarWaveformParam->load(), pulsaretPhase)
+        PulsaretWaveformSingleton::getInstance().calcSample(commonVoiceSate->pulsarWaveformParam->load(), pulsaretPhase)
         * calcAmpLfoInterpolation() * pulsarAdsr.getNextSample();
     //必须放在计算sample之后，而不是之前，否则起始点phase偏移了
     // 1/samplerate除不尽，每次相加都会加上误差，累积下来phase会偏移，其他合成器也都不处理，要么就按照bpm来定合成器相关频率
@@ -865,35 +881,32 @@ float PulsarSynthVoice::calcActualPulse(float pulsarModFreq)
 
 float PulsarSynthVoice::calcFormantLfoInterpolation()
 {
-    if (formantFreqLfoParam->load() <= 0.0)
+    if (commonVoiceSate->formantFreqLfoParam->load() <= 0.0)
     {
         return 0.0;
     }
     // 获取单例并设置频率
     LfoWaveformSingleton& lfo = LfoWaveformSingleton::getInstance(why::sampleRate.load(), fundamentalFreq);
-    return lfo.calcSampleAfterFM(formantFreqLfoParam->load(), pulsaretPhase);
+    return lfo.calcSampleAfterFM(commonVoiceSate->formantFreqLfoParam->load(), pulsaretPhase);
 }
 
 float PulsarSynthVoice::calcAmpLfoInterpolation()
 {
-    if (ampLfoParam->load() <= 0.0)
+    if (commonVoiceSate->ampLfoParam->load() <= 0.0)
     {
         return 1.0;
     }
     // 获取单例并设置频率
     LfoWaveformSingleton& lfo = LfoWaveformSingleton::getInstance(why::sampleRate.load(), fundamentalFreq);
-    return lfo.calcSampleAfterAM(ampLfoParam->load(), pulsaretPhase);
+    return lfo.calcSampleAfterAM(commonVoiceSate->ampLfoParam->load(), pulsaretPhase);
 }
 
 float PulsarSynthVoice::getOutputGain()
 {
     //db转为gain值返回
-    return outputGainParam == nullptr ? 1 : std::pow(10.0f, outputGainParam->load() / 20.0f);
-}
-
-void PulsarSynthVoice::refreshBurstMask(juce::String burstMask)
-{
-    this->burstMask = burstMask.toStdString();
+    return commonVoiceSate->outputGainParam == nullptr
+               ? 1
+               : std::pow(10.0f, commonVoiceSate->outputGainParam->load() / 20.0f);
 }
 
 int PulsarSynthVoice::refreshBpm(juce::AudioPlayHead* audioPlayHead)
@@ -920,14 +933,3 @@ bool PulsarSynthVoice::updateBpmDirectly(float bpm)
     }
     return false;
 }
-
-// void PulsarSynthVoice::rebuildTrainByBpm(juce::AudioPlayHead* audioPlayHead)
-// {
-//     //不在DAW中运行，bpm则为NULL
-//     if (1 == refreshBpm(audioPlayHead))
-//     {
-//         changeToNewTrainAfterPulsarPeriodOrTrainEnd(static_cast<int>(trainDutyCycleLenParam->load()),
-//                                                     trainSilenceParam->load(), true,
-//                                                     trainLenParam->load(), TODO);
-//     }
-// }

@@ -44,6 +44,18 @@ public:
     {
         return pulsarSynths;
     }
+    
+    void executeCurSynthCallback(const std::function<void(std::shared_ptr<PulsarSynth>&)>& func)
+    {
+        if (currentPlayModeEnum == why::PlayModeEnum::Auto)
+        {
+            func(pulsarSynthForAuto);
+        }
+        if (currentPlayModeEnum == why::PlayModeEnum::Midi)
+        {
+            func(pulsarSynthForMidi);
+        }
+    }
 
     void executeEachPulsarSynthCallback(const std::function<void(std::shared_ptr<PulsarSynth>&)>& func)
     {
@@ -56,33 +68,50 @@ public:
     // 在切换模式时，采用共享voice的模式
     void changePlayMode(why::PlayModeEnum destPlayModeEnum)
     {
-        if (currentPlayModeEnum == why::PlayModeEnum::Auto && why::PlayModeEnum::Midi == destPlayModeEnum)
+        // if (currentPlayModeEnum == why::PlayModeEnum::Auto && why::PlayModeEnum::Midi == destPlayModeEnum)
+        // {
+        //     int voiceNum = pulsarSynthForMidi->getNumVoices();
+        //     pulsarSynthForMidi->clearVoices();
+        //     for (int i = 0; i < voiceNum; i++)
+        //     {
+        //         SynthesiserVoice* voice = pulsarSynthForAuto->getVoice(0);
+        //         PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
+        //         pulsarSynthForAuto.cop
+        //         pulsarSynthForMidi->addVoice(pulsarVoice);
+        //     };
+        // }
+        // if (currentPlayModeEnum == why::PlayModeEnum::Midi && why::PlayModeEnum::Auto == destPlayModeEnum)
+        // {
+        //     int voiceNum = pulsarSynthForAuto->getNumVoices();
+        //     pulsarSynthForAuto->clearVoices();
+        //     for (int i = 0; i < voiceNum; i++)
+        //     {
+        //         SynthesiserVoice* voice = pulsarSynthForMidi->getVoice(i);
+        //         PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
+        //         pulsarSynthForAuto->addVoice(new PulsarSynthVoice(pulsarSynthForMidi->getVoice(0)));
+        //     };
+        // }
+    }
+
+    void initConvolution(double sampleRate, int samplesPerBlock, int numChannels)
+    {
+        this->convolutionResource = std::make_shared<ConvolutionResource>(sampleRate, samplesPerBlock, numChannels);
+        for (std::shared_ptr<PulsarSynth> tempSynth : pulsarSynths)
         {
-            int voiceNum = pulsarSynthForMidi->getNumVoices();
-            pulsarSynthForMidi->clearVoices();
-            for (int i = 0; i < voiceNum; i++)
+            for (int i = 0; i < tempSynth->getNumVoices(); ++i)
             {
-                SynthesiserVoice* voice = pulsarSynthForAuto->getVoice(0);
+                juce::SynthesiserVoice* voice = tempSynth->getVoice(i);
+                // 将其转换为自定义的 PulsarSynthVoice
                 PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-                pulsarSynthForAuto.cop
-                pulsarSynthForMidi->addVoice(pulsarVoice);
-            };
-        }
-        if (currentPlayModeEnum == why::PlayModeEnum::Midi && why::PlayModeEnum::Auto == destPlayModeEnum)
-        {
-            int voiceNum = pulsarSynthForAuto->getNumVoices();
-            pulsarSynthForAuto->clearVoices();
-            for (int i = 0; i < voiceNum; i++)
-            {
-                SynthesiserVoice* voice = pulsarSynthForMidi->getVoice(i);
-                PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-                pulsarSynthForAuto->addVoice(new PulsarSynthVoice(pulsarSynthForMidi->getVoice(0)));
-            };
+                pulsarVoice->getCommonVoiceSate()->convolutionResource = convolutionResource;
+            }
         }
     }
 
     void init(juce::AudioProcessorValueTreeState& apvts)
     {
+        std::shared_ptr<CommonVoiceSate> commonVoiceSate = std::make_shared<CommonVoiceSate>();
+
         pulsarSynthForMidi->addSound(new PulsarSynthSound());
         //不允许同时输入多个note，听觉上没意义
         for (int i = 0; i < 4; i++)
@@ -90,6 +119,7 @@ public:
             pulsarSynthForMidi->addVoice(new PulsarSynthVoice());
 
             PulsarSynthVoice* v = dynamic_cast<PulsarSynthVoice*>(pulsarSynthForMidi->getVoice(i));
+            v->setCommonVoiceSate(commonVoiceSate);
             v->connectParameters(apvts);
         }
 
@@ -97,6 +127,7 @@ public:
         pulsarSynthForAuto->addVoice(new PulsarSynthVoice());
 
         PulsarSynthVoice* v = dynamic_cast<PulsarSynthVoice*>(pulsarSynthForAuto->getVoice(0));
+        v->setCommonVoiceSate(commonVoiceSate);
         v->connectParameters(apvts);
 
         pulsarSynths.push_back(pulsarSynthForMidi);
@@ -106,10 +137,12 @@ public:
     void buildTrain(double sampleRate, int samplesPerBlock, int numChannels, juce::AudioPlayHead* playHead)
     {
         pulsarSynthForMidi->setCurrentPlaybackSampleRate(sampleRate);
-        pulsarSynthForMidi->initConvolution(sampleRate, samplesPerBlock, numChannels);
-
         pulsarSynthForAuto->setCurrentPlaybackSampleRate(sampleRate);
-        pulsarSynthForAuto->initConvolution(sampleRate, samplesPerBlock, numChannels);
+
+        this->initConvolution(sampleRate, samplesPerBlock, numChannels);
+        // pulsarSynthForMidi->initConvolution(sampleRate, samplesPerBlock, numChannels);
+        // pulsarSynthForAuto->initConvolution(sampleRate, samplesPerBlock, numChannels);
+
         // audioFormatManager->registerBasicFormats();
         // 创建一个 JUCE String 对象，包含路径
         // juce::String path = "/Users/blueear/Documents/Samples/test dd/rim.wav";
@@ -184,6 +217,12 @@ public:
         }
     }
 
+    //获取convolution resource的统一入口
+    [[nodiscard]] std::shared_ptr<ConvolutionResource>& getConvolutionResource()
+    {
+        return convolutionResource;
+    }
+
 private:
     //两种播放模式下的synth，对用户来说只是一个
     std::shared_ptr<PulsarSynth> pulsarSynthForMidi = std::make_unique<PulsarSynth>(why::PlayModeEnum::Midi);
@@ -193,6 +232,9 @@ private:
     //一个pluginprocessor对应一个track；复制track时，这里的playmode必须要设置为对应值
     //当前触发播放的方式：实际上所有synth都遵守同一个播放状态
     why::PlayModeEnum currentPlayModeEnum;
+
+    //所有synth，所有voice，共享一个impulse source
+    std::shared_ptr<ConvolutionResource> convolutionResource;
 
     //TODO  准备废弃
     //TODO 存储采样的buffer，准备废弃

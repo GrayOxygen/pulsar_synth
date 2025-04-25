@@ -4,19 +4,31 @@
 #include "Commons.h"
 #include "ConvolutionResource.h"
 #include "PulsarSynthSound.h"
+#include "CommonVoiceSate.h"
 
 //在plugineditor去修改voice、sound的值要注意线程安全
 class PulsarSynthVoice : public juce::SynthesiserVoice
 {
 private:
-    //====================================Auto 参数 DAW PLAY, STOP control====================================
+    //AUTO模式====================================参数 DAW PLAY, STOP control====================================
     bool wasPlayingLastFrame;
+
+    //===========================midi按键的envelope===========================
+    //按下的midi键盘
+    bool playing = false;
+    juce::ADSR envelope;
 
     //====================================train====================================
     //默认1/32 拍的时间
     double trainLenBlock;
     //默认1个bar
     double trainTime;
+
+    //=======================
+    //train duty cycle长度：多少个pulsar period
+    float trainDutyCycleNum = 0.0f;
+    //train silence长度：多少个pulsar period
+    float trainSilenceNum = 0.0f;
 
     //train周期长，秒
     float trainPeriodTime = 0.0f;
@@ -27,15 +39,6 @@ private:
 
     //已走完的train数，非循环模式则播放一次就结束
     int trainCounter = 0;
-    //tain结束后是否循环
-    bool isLoop = true;
-
-    //train duty cycle长度：多少个pulsar period
-    float trainDutyCycleNum = 0.0f;
-    //train silence长度：多少个pulsar period
-    float trainSilenceNum = 0.0f;
-    //train len：多少个trainLenBlock
-    float trainLen = 0.0f;
 
     //=====控制DAW play stop控制train变更走向=====
     bool changeTrainTrace = false;
@@ -77,76 +80,20 @@ private:
     //pulsar phase
     float pulsaretPhase = 0.0f;
 
-    //===========================masking===========================
-    why::MaskOptionEnum maskOption = why::MaskOptionEnum::Off;
-    //burst
-    //比如111010表示pulse pulse pulse silence pulse silence
-    //假设一个train有1个pulsar period的train duty cycle构成，2个pulsar period长的train silence构成
-    //那么01101则表示原来的train duty cycle为pulse silence变为silence pulse
-    //如果train duty cycle有两个pulsar period，即pulse silence pulse silence将变成silence pulse pulse silence
-    std::string burstMask = "";
-    //euclid
-    //表示几个pulsar duty cycle的长度
-    std::string euclids;
-    //stochastic
-    std::string stochasticMaskStr = "";
-
     //===========================pulsaret envelope===========================
     juce::ADSR pulsarAdsr;
     juce::ADSR::Parameters pulsarAdsrParams;
     //是否触发release阶段，用来判断某个envelope阶段内只触发一次release阶段
     bool isTriggeredReleaseFlag;
 
-    //===========================mapping parameter of plugin processor===========================
-    //parameters to receive values from AudioProcessorValueTreeState，线程安全
-    std::atomic<float>* outputGainParam;
-    std::atomic<float>* playModeParam;
-    std::atomic<float>* trainDutyCycleLenParam;
-    std::atomic<float>* trainSilenceParam;
-    //1 beat为单位，4表示1个bar
-    std::atomic<float>* trainLenParam;
-
-    std::atomic<float>* pulsarDutyCycleRatioParam;
-    std::atomic<float>* pulsarWaveformParam;
-    //一个pulse区域可以设置为多个pulse，长度以原本的pulse width为单位
-    std::atomic<float>* pulsarDutyCycleClusterLenParam;
-
-    std::atomic<float>* formantFreqLfoParam;
-    std::atomic<float>* ampLfoParam;
-
-    std::atomic<float>* attackParam;
-    std::atomic<float>* decayParam;
-    std::atomic<float>* sustainParam;
-    std::atomic<float>* releaseParam;
-    std::atomic<float>* maskOptionParam;
-
-    //欧几里得节奏，也相当于一种mask
-    std::atomic<float>* euclidStepsParam;
-    std::atomic<float>* euclidHitsParam;
-
-    //菜单选择
-    std::atomic<float>* impulseSwitchParam;
-
-    //===========================TODO 扫描采样，采样作为pulsaret===========================
-    std::unique_ptr<juce::AudioBuffer<float>> sampleBuffer;
-    float readHead = 0;
-
-    //===========================卷积===========================
-    //初始voice时初始convolution，共享synth同一个ConvolutionResource
-    //线程安全，因为只有一处写（由plugineditor触发在PulsarSynth类中修改，无写的并发），其余都是读
-    std::shared_ptr<ConvolutionResource> convolutionResource;
-
-    //===========================midi按键的envelope===========================
-    //按下的midi键盘
-    bool playing = false;
-    juce::ADSR envelope;
-    //===========================pulse buffer：用来批量处理convolution===========================
-    juce::AudioBuffer<float> pulseBuffer;
+    //===========================公用属性===========================
+    std::shared_ptr<CommonVoiceSate> commonVoiceSate;
 
 public:
     PulsarSynthVoice()
     {
     }
+
     //==============================重写方法==============================
     void startNote(int midiNoteNumber,
                    float velocity,
@@ -253,40 +200,30 @@ public:
 
     [[nodiscard]] std::atomic<float>*& getTrainDutyCycleLenParam()
     {
-        return trainDutyCycleLenParam;
+        return commonVoiceSate->trainDutyCycleLenParam;
     }
 
     void setTrainDutyCycleLenParam(std::atomic<float>* trainDutyCycleLenParam)
     {
-        this->trainDutyCycleLenParam = trainDutyCycleLenParam;
-    }
-
-    [[nodiscard]] std::string& getStochasticMaskStr()
-    {
-        return stochasticMaskStr;
-    }
-
-    void setStochasticMaskStr(const std::string& stochasticMaskStr)
-    {
-        this->stochasticMaskStr = stochasticMaskStr;
+        commonVoiceSate->trainDutyCycleLenParam = trainDutyCycleLenParam;
     }
 
     float getOutputGain();
 
-    void refreshBurstMask(juce::String burstMask);
+    // void refreshBurstMask(juce::String burstMask);
 
     int refreshBpm(juce::AudioPlayHead* audioPlayHead);
     bool updateBpmDirectly(float bpm);
 
     // void rebuildTrainByBpm(juce::AudioPlayHead* audioPlayHead);
 
-    [[nodiscard]] std::shared_ptr<ConvolutionResource>& getConvolutionResource()
+    [[nodiscard]] std::shared_ptr<CommonVoiceSate>& getCommonVoiceSate()
     {
-        return convolutionResource;
+        return commonVoiceSate;
     }
 
-    void setConvolutionResource(const std::shared_ptr<ConvolutionResource>& convolutionResource)
+    void setCommonVoiceSate(const std::shared_ptr<CommonVoiceSate>& commonVoiceSate)
     {
-        this->convolutionResource = convolutionResource;
+        this->commonVoiceSate = commonVoiceSate;
     }
 };

@@ -67,7 +67,7 @@ public:
     //监听控件参数变化:在这里（音频线程）中调用juce::AudioProcessorValueTreeState的apvts.getRawParameterValue并非最新
     //解决方案：每次单个parameter更新时都更新全部parameters和用到的property
     //automation不会触发这里，会直接修改apvts中的参数值
-    void parameterChanged(const juce::String& parameterID, float newValue);
+    void parameterChanged(const juce::String& parameterID, float newValue) override;
 
     [[nodiscard]] bool& isLoadingPresetFlag()
     {

@@ -15,7 +15,6 @@
 #include "Commons.h"
 #include "PulsarSynthVoice.h"
 #include "Commons.h"
-#include "ConvolutionResource.h"
 #include "PluginProcessor.h"
 
 //自定义合成器入口，放所有自定义的方法
@@ -31,16 +30,6 @@ public:
         this->myPlayModeEnum = myPlayModeEnum;
     };
 
-    [[nodiscard]] std::shared_ptr<ConvolutionResource>& getConvolutionResource()
-    {
-        return convolutionResource;
-    }
-
-    void setConvolutionResource(const std::shared_ptr<ConvolutionResource>& convolutionResource)
-    {
-        this->convolutionResource = convolutionResource;
-    }
-
     [[nodiscard]] why::PlayModeEnum& getMyPlayModeEnum()
     {
         return myPlayModeEnum;
@@ -50,24 +39,6 @@ public:
     {
         this->myPlayModeEnum = myPlayModeEnum;
     }
-
-    // //废弃：DAW中，修改bpm，同时更新train配置，速度都从插件里控制，精简些
-    // void refreshBpm(juce::AudioPlayHead* audioPlayHead)
-    // {
-    //     for (int i = 0; i < getNumVoices(); ++i)
-    //     {
-    //         juce::SynthesiserVoice* voice = getVoice(i);
-    //         // 将其转换为自定义的 PulsarSynthVoice
-    //         PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-    //
-    //         int r = pulsarVoice->refreshBpm(audioPlayHead);
-    //         //不在DAW中运行，则为NULL
-    //         if (1 == r)
-    //         {
-    //             pulsarVoice->changeToNewTrainAfterPulsarPeriodOrTrainEnd(TODO);
-    //         }
-    //     }
-    // }
 
     //与DAW的速度无关，改了插件的速度直接修改synth基于的bpm值，会直接改变train
     void forceRefreshBpm(float bpm)
@@ -92,18 +63,6 @@ public:
             // 将其转换为自定义的 PulsarSynthVoice
             PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
             pulsarVoice->initSynth(sampleRate, sampleBuffer, audio_play_head);
-        }
-    }
-
-    void initConvolution(double sampleRate, int samplesPerBlock, int numChannels)
-    {
-        convolutionResource = std::make_shared<ConvolutionResource>(sampleRate, samplesPerBlock, numChannels);
-        for (int i = 0; i < getNumVoices(); ++i)
-        {
-            juce::SynthesiserVoice* voice = getVoice(i);
-            // 将其转换为自定义的 PulsarSynthVoice
-            PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-            pulsarVoice->setConvolutionResource(convolutionResource);
         }
     }
 
@@ -133,12 +92,12 @@ public:
 
     void refreshBurstMask(juce::String burstMask)
     {
-        for (int i = 0; i < getNumVoices(); ++i)
+        if (getNumVoices() > 0)
         {
-            juce::SynthesiserVoice* voice = getVoice(i);
+            juce::SynthesiserVoice* voice = getVoice(0);
             // 将其转换为自定义的 PulsarSynthVoice
             PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-            pulsarVoice->refreshBurstMask(burstMask);
+            pulsarVoice->getCommonVoiceSate()->burstMask = burstMask.toStdString();
         }
     }
 
@@ -153,7 +112,7 @@ public:
         }
         juce::SynthesiserVoice* voice = getVoice(0);
         PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-        result = pulsarVoice->getStochasticMaskStr();
+        result = pulsarVoice->getCommonVoiceSate()->stochasticMaskStr;
         return result;
     }
 
@@ -172,7 +131,5 @@ public:
     }
 
 private:
-    //所有voice共享一个impulse source
-    std::shared_ptr<ConvolutionResource> convolutionResource;
     why::PlayModeEnum myPlayModeEnum;
 };
