@@ -1,14 +1,34 @@
+//
+// Created by Mr. Wang on 2025/4/20.
+//
 #include "Commons.h"
 
 namespace why
 {
-    juce::StringArray get_impulse_switch_array()
+    // 定义它们
+    std::atomic<float> bpm(120);
+    std::atomic<double> sampleRate(44100.0);
+
+    juce::StringArray getPlayModeArray()
+    {
+        juce::StringArray names = {"Auto", "Midi"};
+        return names;
+    }
+
+    //由plugineditor初始化数据
+    juce::StringArray getEmptyChoiceArray()
+    {
+        juce::StringArray names = {"Loading...", "Empty"};
+        return names;
+    }
+
+    juce::StringArray getImpulseSwitchArray()
     {
         juce::StringArray names = {"Off", "Template", "Sample"};
         return names;
     }
 
-    juce::StringArray get_mask_option_array()
+    juce::StringArray getMaskOptionArray()
     {
         juce::StringArray names = {"Off", "BurstMask", "EuclidMask", "StochasticMask"};
         return names;
@@ -20,7 +40,7 @@ namespace why
      * @param pulses 划分的等分
      * @return
      */
-    std::string euclidean_rhythm(int steps, int pulses)
+    std::string generateEuclidRhythm(int steps, int pulses)
     {
         //如果是全是0或全是1，就没有意义构成数组
         if (pulses <= 0)
@@ -122,10 +142,42 @@ namespace why
         return result;
     }
 
-    std::string get_thread_id_str()
+    std::string getThreadIdStr()
     {
         std::ostringstream oss;
-        oss << std::this_thread::get_id();  // 将线程ID转为字符串
+        oss << std::this_thread::get_id(); // 将线程ID转为字符串
         return oss.str();
+    }
+
+    bool readFileFromResources(const char* resourceName, double& sampleRate,
+                               std::unique_ptr<juce::AudioBuffer<float>>& bf)
+    {
+        //读取template文件
+        int dataSize = 0;
+        const void* data = BinaryData::getNamedResource(resourceName, dataSize);
+
+        // data 是二进制数据的起始地址，dataSize 是它的大小
+        if (data != nullptr)
+        {
+            std::unique_ptr<juce::MemoryInputStream> stream;
+            stream.reset(new juce::MemoryInputStream(data, static_cast<size_t>(dataSize), false));
+            // 例如加载成 AudioBuffer
+            juce::AudioFormatManager formatManager;
+            formatManager.registerBasicFormats(); // 支持 WAV, AIFF 等常见格式
+
+            std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(std::move(stream)));
+
+            if (reader != nullptr)
+            {
+                juce::AudioBuffer<float> buffer(reader->numChannels, static_cast<int>(reader->lengthInSamples));
+                reader->read(&buffer, 0, static_cast<int>(reader->lengthInSamples), 0, true, true);
+                // 现在 buffer 就是你加载好的 impulse data
+
+                bf = std::make_unique<juce::AudioBuffer<float>>(buffer);
+                sampleRate = reader->sampleRate;
+            }
+            return true;
+        }
+        return false;
     }
 }

@@ -145,10 +145,10 @@ target_link_libraries(pulsar_synth
 )
 
 
-#
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    # 在 Debug 模式下启用 -O1 优化（比 -O0 快，但仍保留调试信息）
-    target_compile_options(pulsar_synth PRIVATE -O1)
-    # 或者使用 -O2（更高的优化级别，但可能影响调试）
-    # target_compile_options(${PROJECT_NAME} PRIVATE -O2)
-endif ()
+##
+#if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+#    # 在 Debug 模式下启用 -O1 优化（比 -O0 快，但仍保留调试信息）
+#    target_compile_options(pulsar_synth PRIVATE -O1)
+#    # 或者使用 -O2（更高的优化级别，但可能影响调试）
+#    # target_compile_options(${PROJECT_NAME} PRIVATE -O2)
+#endif ()

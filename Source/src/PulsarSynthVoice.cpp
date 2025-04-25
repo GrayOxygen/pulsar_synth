@@ -1,0 +1,933 @@
+//
+// Created by Mr. Wang on 2025/4/20.
+//
+#pragma once
+
+#include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_audio_devices/juce_audio_devices.h>
+#include <juce_audio_formats/juce_audio_formats.h>
+#include <juce_audio_plugin_client/juce_audio_plugin_client.h>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_audio_utils/juce_audio_utils.h>
+#include <juce_core/juce_core.h>
+#include <juce_data_structures/juce_data_structures.h>
+#include <juce_dsp/juce_dsp.h>
+#include "PulsarSynthVoice.h"
+#include <PulsaretWaveformSingleton.h>
+#include <LfoWaveformSingleton.h>
+//================================================重写方法================================================
+void PulsarSynthVoice::startNote(int midiNoteNumber,
+                                 float velocity,
+                                 SynthesiserSound* sound,
+                                 int currentPitchWheelPosition)
+{
+    float ratio = midiNoteNumber - 60;
+
+    //公用一套fundamental frequency，不同voice可以修改其他参数
+    //设置train为初始状态
+    resetTrain(static_cast<int>(trainDutyCycleLenParam->load()) * (ratio + 1),
+               static_cast<int>(trainSilenceParam->load()) * (ratio + 1), true,
+               static_cast<int>(trainLenParam->load()));
+    juce::ADSR::Parameters param(0.0, 0.0, 1, 0.5);
+    envelope.setParameters(param);
+    envelope.noteOn();
+    playing = true;
+}
+
+//allowTailOff true，不会立即停止声音，走envelope noteoff停止；在此期间，renderNextBlock() 仍会继续跑，虽然 envelope 音量很小，但还是在输出 sample。
+void PulsarSynthVoice::stopNote(float, bool allowTailOff)
+{
+    // envelope.noteOff();
+    clearCurrentNote();
+    playing = false; // 防止 render 再进来
+}
+
+void PulsarSynthVoice::pitchWheelMoved(int)
+{
+}
+
+void PulsarSynthVoice::controllerMoved(int, int)
+{
+}
+
+bool PulsarSynthVoice::canPlaySound(juce::SynthesiserSound* sound)
+{
+    return dynamic_cast<PulsarSynthSound*>(sound) != nullptr;
+}
+
+void PulsarSynthVoice::renderNextBlock(juce::AudioSampleBuffer& outputBuffer, int startSample, int numSamples)
+{
+    realTotalSampleCount++;
+    if (!playing)
+    {
+        return;
+    }
+
+    processSampleWithConvolution(outputBuffer, startSample, numSamples, why::PlayModeEnum::Midi);
+
+    if (!envelope.isActive())
+    {
+        playing = false;
+        clearCurrentNote();
+    }
+}
+
+// ================================================自定义方法================================================
+//auto模式下绕过startnote，直接调用，直接播放sample
+void PulsarSynthVoice::renderNextBlockDirectly(juce::AudioSampleBuffer& outputBuffer,
+                                               juce::AudioPlayHead* audioPlayHead, int startSample, int numSamples,
+                                               why::PlayModeEnum currentPlayModeEnum)
+{
+    //控制DAW播放和停止，分别触发pulsar process的开始和停止
+    AudioPlayHead::CurrentPositionInfo pos;
+    if (audioPlayHead != nullptr && audioPlayHead->getCurrentPosition(pos))
+    {
+        bool isNowPlaying = pos.isPlaying;
+
+        if (isNowPlaying && !wasPlayingLastFrame)
+        {
+            // Transport just started
+            isActive = true;
+            //设置train为初始状态
+            resetTrain(static_cast<int>(trainDutyCycleLenParam->load()), trainSilenceParam->load(), true,
+                       trainLenParam->load());
+        }
+
+        if (!isNowPlaying && wasPlayingLastFrame)
+        {
+            // Transport just stopped
+            isActive = false;
+        }
+
+        wasPlayingLastFrame = isNowPlaying;
+    }
+
+    //正在播放
+    if (isActive)
+    {
+        processSampleWithConvolution(outputBuffer, startSample, numSamples, currentPlayModeEnum);
+    }
+}
+
+void PulsarSynthVoice::processSampleWithConvolution(juce::AudioSampleBuffer& outputBuffer, int startSample,
+                                                    int numSamples, why::PlayModeEnum currentPlayModeEnum)
+{
+    pulseBuffer.clear();
+    if (this->pulseBuffer.getNumSamples() < numSamples || this->pulseBuffer.getNumChannels() < outputBuffer.
+        getNumChannels())
+    {
+        this->pulseBuffer.setSize(outputBuffer.getNumChannels(), numSamples, false, true, true); // 自动释放并重新分配
+    }
+    auto* leftWritePtr = this->pulseBuffer.getWritePointer(0);
+    auto* rightWritePtr = this->pulseBuffer.getWritePointer(1);
+    //卷积处理
+    //创建一个临时的 AudioBuffer 来存放你生成的 pulse 信号
+    for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
+    {
+        int i = sampleIndex - startSample;
+
+        float pulse = this->processSample();
+        //相对化音量
+        pulse = (!this->isCurrentCacluatedPulse()) ? pulse * 0.0 : pulse;
+        float currentSample = pulse * getOutputGain();
+
+        //auto输出原始值，midi模式针对每个按键都应用envelope
+        if (currentPlayModeEnum == why::PlayModeEnum::Midi)
+        {
+            //按键包络
+            currentSample = currentSample * envelope.getNextSample();
+        }
+
+        leftWritePtr[i] = currentSample;
+        rightWritePtr[i] = currentSample;
+    }
+
+    //卷积处理
+    if (static_cast<int>(this->impulseSwitchParam->load()) != static_cast<int>(why::ImpulseSwitchEnum::Off))
+    {
+        convolutionResource->processSample(this->pulseBuffer);
+    }
+
+    // 建议limiter：限制音量
+    float ceiling = 1.0f;
+    float peak = pulseBuffer.getMagnitude(0, pulseBuffer.getNumSamples());
+    if (peak > ceiling)
+    {
+        float gain = ceiling / (peak + 1e-5f);
+        pulseBuffer.applyGain(gain);
+    }
+    for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
+    {
+        int i = sampleIndex - startSample;
+        for (int chan = 0; chan < outputBuffer.getNumChannels(); chan++)
+        {
+            // The output sample is scaled by 0.2 so that it is not too loud by default
+            outputBuffer.addSample(chan, sampleIndex, pulseBuffer.getSample(0, i));
+        }
+    }
+}
+
+
+void PulsarSynthVoice::setPulsarSilence(float dutyCylce)
+{
+    pulsarDutyCycleRatio = dutyCylce;
+    pulsarSilence = pulsarPeriodTime * (1 - pulsarDutyCycleRatioParam->load());
+}
+
+void PulsarSynthVoice::changeToNewTrainAfterPulsarPeriodOrTrainEnd(float bpmChangedFlag)
+{
+    changeToNewTrainAfterPulsarPeriodOrTrainEnd(static_cast<int>(trainDutyCycleLenParam->load()),
+                                                trainSilenceParam->load(), true,
+                                                trainLenParam->load(), bpmChangedFlag);
+}
+
+void PulsarSynthVoice::changeToNewTrainAfterPulsarPeriodOrTrainEnd(int durationLen, int intervalSilenceLen,
+                                                                   float isLoop, int trainLen, bool bpmChangedFlag)
+{
+    //train长度由BPM确定，则可以计算缩放后的pulsar period
+    if (intervalSilenceLen + durationLen <= 0)
+    {
+        return;
+    }
+
+    //改变train轨迹：等到当前PulsarStateEnum阶段结束（会按新频率走pulsaret的sample生成），就进入新的train
+    //重置train的当前位置，改向后再改为false
+    float oldTrainSilenceNum = this->trainSilenceNum;
+    float oldTrainDutyCycleNum = this->trainDutyCycleNum;
+    float oldTrainLen = this->trainLen;
+    this->trainSilenceNum = intervalSilenceLen;
+    this->trainDutyCycleNum = durationLen;
+    this->trainLen = trainLen;
+    isTheSameTrainConfig = oldTrainSilenceNum == this->trainSilenceNum && oldTrainDutyCycleNum == this->
+        trainDutyCycleNum && oldTrainLen == this->trainLen && !bpmChangedFlag;
+    if (isTheSameTrainConfig)
+    {
+        return;
+    }
+
+    changeTrainTrace = true;
+    //新的train配置
+    newTrainIntervalSilenceLen = intervalSilenceLen;
+    newTrainDurationLen = durationLen;
+    newTrainLen = trainLen;
+    //processSample时再更新
+}
+
+void PulsarSynthVoice::resetTrainInitialSate()
+{
+    currentState = why::PulsarStateEnum::IntraSilence;
+    //清空process sample状态
+    totalSampleCount = 0;
+    hasPassedSampleNumInsideTrain = -999;
+    trainCounter = 0.0;
+    currentStateDurationSampleNum = 0;
+    trainPositionSamples = 0;
+    pulsarStageIndexInTrainDutyCycle = 0;
+    currentSampleInPulse = false;
+}
+
+void PulsarSynthVoice::resetTrain(int durationLen, int intervalSilenceLen, float isLoop, int trainLen)
+{
+    //重新构建train配置
+    initTrain(durationLen, intervalSilenceLen, isLoop, trainLen);
+    //恢复train初始的状态
+    //pulsar行走过程中用来判断位置的相关samples，即长度即位置
+    resetTrainRelatedSamples4Location();
+    //train初始化状态
+    resetTrainInitialSate();
+}
+
+void PulsarSynthVoice::initTrain(int durationLen, int intervalSilenceLen, float isLoop, int trainLen)
+{
+    //train长度由BPM确定，则可以计算缩放后的pulsar period
+    if (intervalSilenceLen + durationLen <= 0)
+    {
+        return;
+    }
+    //新的train配置
+    newTrainIntervalSilenceLen = intervalSilenceLen;
+    newTrainDurationLen = durationLen;
+    newTrainLen = trainLen;
+
+    realChangeTrain();
+}
+
+void PulsarSynthVoice::realChangeTrain()
+{
+    //延迟修改
+    trainLenBlock = (60.0 / why::bpm.load());
+    trainTime = newTrainLen * trainLenBlock;
+    pulsarPeriodTime = trainTime / (newTrainIntervalSilenceLen + newTrainDurationLen);
+    setPulsarSilence(pulsarDutyCycleRatioParam->load());
+    fundamentalFreq = 1.0 / pulsarPeriodTime;
+    trainSilenceTime = newTrainIntervalSilenceLen * pulsarPeriodTime;
+    trainDutyCycleTime = newTrainDurationLen * pulsarPeriodTime;
+
+    //train period = pulsar time ( = n*(pulsar duty cyle duration + pulsar silence) ) + train interval silence
+    trainPeriodTime = trainDutyCycleTime + trainSilenceTime;
+    //fundamental freq发生变化，必须归位phase，否则波形偏移了
+    pulsaretPhase = 0.0;
+
+    //更新pulsaret adsr
+    refreshPulsaretAdsr(pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
+}
+
+void PulsarSynthVoice::initSynth(double sampleRate, std::unique_ptr<juce::AudioBuffer<float>>& sampleBuffer,
+                                 juce::AudioPlayHead* audioPlayHead)
+{
+    // DBG("HOW MANY TIMES" <<why::get_thread_id_str());
+    refreshBpm(audioPlayHead);
+
+    why::sampleRate.store(sampleRate);
+    this->sampleBuffer = std::move(sampleBuffer);
+
+    initTrain(static_cast<int>(trainDutyCycleLenParam->load()), trainSilenceParam->load(), true,
+              trainLenParam->load());
+    //根据train长度生成对应随机mask
+    generateStochasticMask();
+
+    //刷新adsr
+    refreshPulsaretAdsr(pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
+}
+
+void PulsarSynthVoice::generateStochasticMask()
+{
+    //generate random mask, 它的长度是train duty cycle（即pulsar period个数）长度的两倍
+    int totalPeriodNum = trainDutyCycleLenParam->load();
+    //控制长度，random mask超过64个就限制
+    while (totalPeriodNum > 64)
+    {
+        totalPeriodNum = totalPeriodNum / 2;
+    }
+    int num = static_cast<int>(2 * totalPeriodNum);
+    stochasticMaskStr = why::generateBinaryString(num);
+}
+
+void PulsarSynthVoice::connectParameters(juce::AudioProcessorValueTreeState& apvts)
+{
+    mappingParams(apvts);
+}
+
+void PulsarSynthVoice::mappingParams(const juce::AudioProcessorValueTreeState& apvts)
+{
+    //output
+    this->outputGainParam = apvts.getRawParameterValue(why::ParameterID::outputGain);
+
+    //play mode
+    this->playModeParam = apvts.getRawParameterValue(why::ParameterID::playMode);
+
+    //train
+    this->trainLenParam = apvts.getRawParameterValue(why::ParameterID::trainLen);
+    this->trainDutyCycleLenParam = apvts.getRawParameterValue(why::ParameterID::trainDutyCycleLen);
+    this->trainSilenceParam = apvts.getRawParameterValue(why::ParameterID::trainSilenceLen);
+
+    //pulsar basic info
+    this->pulsarWaveformParam = apvts.getRawParameterValue(why::ParameterID::pulsarWaveform);
+    this->pulsarDutyCycleClusterLenParam = apvts.getRawParameterValue(why::ParameterID::pulsarDutyCycleClusterLen);
+    this->pulsarDutyCycleRatioParam = apvts.getRawParameterValue(why::ParameterID::pulsarDutyCycleRatio);
+
+    //pulsar modulation
+    this->formantFreqLfoParam = apvts.getRawParameterValue(why::ParameterID::formantFreqLfoWaveform);
+    this->ampLfoParam = apvts.getRawParameterValue(why::ParameterID::ampLfoWaveform);
+
+    //pulsar envelope
+    this->attackParam = apvts.getRawParameterValue(why::ParameterID::pulsarAttack);
+    this->decayParam = apvts.getRawParameterValue(why::ParameterID::pulsarDecay);
+    this->sustainParam = apvts.getRawParameterValue(why::ParameterID::pulsarSustain);
+    this->releaseParam = apvts.getRawParameterValue(why::ParameterID::pulsarRelease);
+
+    //masking
+    this->maskOptionParam = apvts.getRawParameterValue(why::ParameterID::maskOption);
+    maskOption = static_cast<why::MaskOptionEnum>(static_cast<int>(maskOptionParam->load()));
+
+    //burst mask
+    //texteditor必须通过property传递，没有attachment直接绑定
+    if (!apvts.state.getProperty(why::PropertyID::burstMask).isVoid())
+    {
+        //get texteditor value from property because juce can't bind texteditor with parameter automatally
+        burstMask = apvts.state.getProperty(why::PropertyID::burstMask).toString().toStdString();
+    }
+
+    //stochastic mask
+    if (!apvts.state.getProperty(why::PropertyID::stochasticMask).isVoid())
+    {
+        stochasticMaskStr = apvts.state.getProperty(why::PropertyID::stochasticMask).toString().toStdString();
+    }
+
+    //euclid mask
+    this->euclidStepsParam = apvts.getRawParameterValue(why::ParameterID::euclidSteps);
+    this->euclidHitsParam = apvts.getRawParameterValue(why::ParameterID::euclidHits);
+
+    if (this->euclidStepsParam->load() > 0 && this->euclidHitsParam->load() > 0)
+    {
+        //generate euclid rhythm pattern
+        this->euclids = why::generateEuclidRhythm(this->euclidStepsParam->load(), this->euclidHitsParam->load());
+    }
+
+    //impulse switch
+    this->impulseSwitchParam = apvts.getRawParameterValue(why::ParameterID::impulseSwitch);
+}
+
+
+void PulsarSynthVoice::mappingOneParam(const juce::AudioProcessorValueTreeState& apvts, juce::String parameterID,
+                                       float newValue)
+{
+    //output
+    if (parameterID == why::ParameterID::outputGain)
+    {
+        this->outputGainParam->store(newValue);
+    }
+
+    //play mode
+    if (parameterID == why::ParameterID::playMode)
+    {
+        this->playModeParam->store(newValue);
+    }
+
+    //train
+    if (parameterID == why::ParameterID::trainLen)
+    {
+        this->trainLenParam->store(newValue);
+    }
+    if (parameterID == why::ParameterID::trainDutyCycleLen)
+    {
+        this->trainDutyCycleLenParam->store(newValue);
+    }
+    if (parameterID == why::ParameterID::trainSilenceLen)
+    {
+        this->trainSilenceParam->store(newValue);
+    }
+
+    //pulsar basic info
+    if (parameterID == why::ParameterID::pulsarWaveform)
+    {
+        this->pulsarWaveformParam->store(newValue);
+    }
+    if (parameterID == why::ParameterID::pulsarDutyCycleClusterLen)
+    {
+        this->pulsarDutyCycleClusterLenParam->store(newValue);
+    }
+    if (parameterID == why::ParameterID::pulsarDutyCycleRatio)
+    {
+        this->pulsarDutyCycleRatioParam->store(newValue);
+    }
+
+    //pulsar modulation
+    if (parameterID == why::ParameterID::formantFreqLfoWaveform)
+    {
+        this->formantFreqLfoParam->store(newValue);
+    }
+    if (parameterID == why::ParameterID::ampLfoWaveform)
+    {
+        this->ampLfoParam->store(newValue);
+    }
+
+    //pulsar envelope
+    if (parameterID == why::ParameterID::pulsarAttack)
+    {
+        this->attackParam->store(newValue);
+    }
+    if (parameterID == why::ParameterID::pulsarDecay)
+    {
+        this->decayParam->store(newValue);
+    }
+    if (parameterID == why::ParameterID::pulsarSustain)
+    {
+        this->sustainParam->store(newValue);
+    }
+    if (parameterID == why::ParameterID::pulsarRelease)
+    {
+        this->releaseParam->store(newValue);
+    }
+
+    //masking
+    if (parameterID == why::ParameterID::maskOption)
+    {
+        this->maskOptionParam->store(newValue);
+        maskOption = static_cast<why::MaskOptionEnum>(static_cast<int>(maskOptionParam->load()));
+    }
+
+    //burst mask
+    //texteditor必须通过property传递，没有attachment直接绑定
+    if (!apvts.state.getProperty(why::PropertyID::burstMask).isVoid())
+    {
+        this->burstMask = apvts.state.getProperty(why::PropertyID::burstMask).toString().toStdString();
+    }
+
+    //stochastic mask
+    if (!apvts.state.getProperty(why::PropertyID::stochasticMask).isVoid())
+    {
+        stochasticMaskStr = apvts.state.getProperty(why::PropertyID::stochasticMask).toString().toStdString();
+    }
+
+    //euclid mask
+    if (parameterID == why::ParameterID::euclidSteps)
+    {
+        this->euclidStepsParam->store(newValue);
+    }
+    if (parameterID == why::ParameterID::euclidHits)
+    {
+        this->euclidHitsParam->store(newValue);
+    }
+
+    if (this->euclidStepsParam->load() > 0 && this->euclidHitsParam->load() > 0)
+    {
+        //generate euclid rhythm pattern
+        this->euclids = why::generateEuclidRhythm(this->euclidStepsParam->load(), this->euclidHitsParam->load());
+    }
+
+    //impulse switch
+    if (parameterID == why::ParameterID::impulseSwitch)
+    {
+        this->impulseSwitchParam->store(newValue);
+    }
+}
+
+//针对单个参数调节
+void PulsarSynthVoice::parameterChanged(juce::AudioProcessorValueTreeState& apvts, juce::String parameterID,
+                                        float newValue, bool& isGeneratedStochasticMask)
+{
+    mappingOneParam(apvts, parameterID, newValue);
+    //如果修改了速度
+    if (parameterID == why::ParameterID::bpm)
+    {
+        updateBpmDirectly(newValue);
+    }
+
+    //TODO 可以考虑，暂不实现：若train参数变更，则限制当前train序列结束后才应用的新配置
+    if (parameterID == why::ParameterID::trainDutyCycleLen || parameterID == why::ParameterID::trainSilenceLen ||
+        parameterID == why::ParameterID::trainLen || parameterID == why::ParameterID::bpm)
+    {
+        changeToNewTrainAfterPulsarPeriodOrTrainEnd(static_cast<int>(trainDutyCycleLenParam->load()),
+                                                    trainSilenceParam->load(), true,
+                                                    trainLenParam->load(),
+                                                    parameterID == why::ParameterID::bpm
+                                                        ? newValue != why::bpm
+                                                        : false);
+        //loading preset时，不生成随机mask，只有手动调整UI才会触发
+        if (parameterID != why::ParameterID::trainSilenceLen || parameterID != why::ParameterID::bpm)
+        {
+            //根据train长度生成对应随机mask
+            generateStochasticMask();
+            isGeneratedStochasticMask = true;
+        }
+    }
+
+    //刷新pulsar
+    setPulsarSilence(pulsarDutyCycleRatioParam->load());
+    refreshPulsaretAdsr(pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
+}
+
+//重载一整个preset
+void PulsarSynthVoice::reloadPreset(juce::AudioProcessorValueTreeState& apvts)
+{
+    mappingParams(apvts);
+
+    initTrain(static_cast<int>(trainDutyCycleLenParam->load()), trainSilenceParam->load(), true,
+              trainLenParam->load());
+
+    //刷新pulsar adsr
+    refreshPulsaretAdsr(pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
+}
+
+void PulsarSynthVoice::refreshPulsaretAdsr(float pulsarDutyCycleTime)
+{
+    pulsarAdsr.setSampleRate(why::sampleRate);
+    float attack = attackParam->load();
+    float decay = decayParam->load();
+    float release = releaseParam->load();
+
+    //控制比例<=1
+    if (attack + decay + release > 1 && attack + decay >= 1)
+    {
+        release = 0;
+        if (attack >= 1)
+        {
+            decay = 0;
+        }
+        if (attack < 1)
+        {
+            decay = 1 - attack;
+        }
+    }
+    if (attack + decay + release > 1 && attack + decay < 1)
+    {
+        release = 1 - attack - decay;
+    }
+
+    pulsarAdsrParams.attack = pulsarDutyCycleTime * attack;
+    pulsarAdsrParams.decay = pulsarDutyCycleTime * decay;
+    pulsarAdsrParams.sustain = sustainParam->load();
+    pulsarAdsrParams.release = pulsarDutyCycleTime * release;
+
+    pulsarAdsr.setParameters(pulsarAdsrParams);
+}
+
+void PulsarSynthVoice::mask(bool& maskPassFlag, bool& existMask)
+{
+    if (maskOption == why::MaskOptionEnum::Off)
+    {
+        existMask = false;
+        //不做mask处理，按原有pulsaret返回
+        maskPassFlag = true;
+        return;
+    }
+    //burst masking
+    if (maskOption == why::MaskOptionEnum::BurstMask && !burstMask.empty() && pulsarStageIndexInTrainDutyCycle > 0)
+    {
+        existMask = true;
+        //如果设置了masking，则重新设置
+        int index = fmod(pulsarStageIndexInTrainDutyCycle - 1, burstMask.size());
+        maskPassFlag = burstMask[index] == '1';
+    }
+    //euclid masking
+    if (maskOption == why::MaskOptionEnum::EuclidMask && !euclids.empty() && pulsarStageIndexInTrainDutyCycle > 0)
+    {
+        existMask = true;
+        //如果设置了masking，则重新设置
+        int index = fmod(pulsarStageIndexInTrainDutyCycle - 1, euclids.size());
+        maskPassFlag = euclids[index] == '1';
+    }
+    //stochastic masking
+    if (maskOption == why::MaskOptionEnum::StochasticMask && !stochasticMaskStr.empty() &&
+        pulsarStageIndexInTrainDutyCycle > 0)
+    {
+        //每次修改train lenth，pulsar个数等都修改stochastic mask
+        existMask = true;
+        int index = fmod(pulsarStageIndexInTrainDutyCycle - 1, stochasticMaskStr.size());
+        maskPassFlag = stochasticMaskStr[index] == '1';
+    }
+}
+
+void PulsarSynthVoice::changeStage(int pulsarSamples, int intraSilenceSamples, int interTrainSilenceSamples,
+                                   int trainDutyCycleSamples)
+{
+    hasPassedSampleNumInsideTrain = 0;
+    pulsaretPhase = 0.0f; //针对单个pulse才有phase，注意mask的silence也可能会变成pulse
+
+    //更新状态，train的位置等信息
+    switch (currentState)
+    {
+    case why::PulsarStateEnum::Pulse: //当前已走完pulsar的duty cycle阶段
+        //检查是否还有时间继续这个train
+        if (trainPositionSamples + intraSilenceSamples <= trainDutyCycleSamples)
+        {
+            currentState = why::PulsarStateEnum::IntraSilence;
+            currentStateDurationSampleNum = intraSilenceSamples;
+            //新状态对应的总历时
+            trainPositionSamples += intraSilenceSamples;
+
+            pulsarStageIndexInTrainDutyCycle++;
+        }
+        else
+        {
+            // train结束，进入train间静音
+            currentState = why::PulsarStateEnum::InterTrainSilence;
+            //剩余不再继续进行pulsar period的部分，则直接silence，然后再加上下个周期时长
+            currentStateDurationSampleNum = interTrainSilenceSamples;
+            trainPositionSamples = 0;
+            pulsarStageIndexInTrainDutyCycle = 0;
+        }
+        break;
+    case why::PulsarStateEnum::IntraSilence: //当前已走完pulsar的silence阶段
+        // 检查是否还能容纳下一个完整周期
+        if ((trainPositionSamples + pulsarSamples) <= trainDutyCycleSamples)
+        {
+            currentState = why::PulsarStateEnum::Pulse;
+            currentStateDurationSampleNum = pulsarSamples;
+            trainPositionSamples += pulsarSamples;
+            pulsarStageIndexInTrainDutyCycle++;
+        }
+        else
+        {
+            // 剩余时间不足完整周期，直接结束train
+            currentState = why::PulsarStateEnum::InterTrainSilence;
+            //剩余不再继续进行pulsar period的部分，则直接silence，再加上train interval time
+            currentStateDurationSampleNum = interTrainSilenceSamples;
+            trainPositionSamples = 0;
+            pulsarStageIndexInTrainDutyCycle = 0;
+        }
+        break;
+    case why::PulsarStateEnum::InterTrainSilence: //train结束后，在train和train之间的silence阶段
+        trainCounter++;
+    //恢复到train的初始状态
+        currentState = why::PulsarStateEnum::IntraSilence;
+        currentStateDurationSampleNum = 0.0f;
+        trainPositionSamples = 0;
+        pulsarStageIndexInTrainDutyCycle = 0;
+        break;
+    }
+}
+
+void PulsarSynthVoice::calcNewPulsarFreq(float& pulsarModFreq, bool silenceToPulseFlag)
+{
+    //最终决定pulse的频率，因为一个pulsar dutycyle中可以是包含多个pulse的cluster
+    pulsarModFreq =
+        pulsarDutyCycleClusterLenParam->load() *
+        1.0 / (pulsarDutyCycleRatioParam->load() * pulsarPeriodTime)
+        + 5 * calcFormantLfoInterpolation();
+
+    if (silenceToPulseFlag)
+    {
+        pulsarModFreq =
+            pulsarDutyCycleClusterLenParam->load() *
+            1.0 / ((1 - pulsarDutyCycleRatioParam->load()) * pulsarPeriodTime)
+            + 5 * calcFormantLfoInterpolation();
+    }
+}
+
+float PulsarSynthVoice::calSampleByState(bool passMaskFlag, bool existMask, float pulsarModFreq)
+{
+    // 生成当前样本
+    switch (currentState)
+    {
+    case why::PulsarStateEnum::Pulse:
+    case why::PulsarStateEnum::IntraSilence: //如果存在mask，则silence阶段可能发出声音，否则全是0
+        if (!existMask && currentState == why::PulsarStateEnum::IntraSilence)
+        {
+            currentSampleInPulse = false;
+            return 0;
+        }
+    //mask status approve passing
+        if (!passMaskFlag)
+        {
+            currentSampleInPulse = false;
+            return 0;
+        }
+        currentSampleInPulse = true;
+        return calcActualPulse(pulsarModFreq);
+    case why::PulsarStateEnum::InterTrainSilence:
+        currentSampleInPulse = false;
+        return 0.0f;
+    }
+    return 0.0f;
+}
+
+void PulsarSynthVoice::resetTrainRelatedSamples4Location()
+{
+    pulsarSamples = pulsarDutyCycleRatioParam->load() * pulsarPeriodTime * why::sampleRate.load();
+    intraSilenceSamples = (1 - pulsarDutyCycleRatioParam->load()) * pulsarPeriodTime * why::sampleRate.load();
+    interTrainSilenceSamples = trainSilenceTime * why::sampleRate.load();
+    trainDutyCycleSamples = trainDutyCycleTime * why::sampleRate.load();
+}
+
+float PulsarSynthVoice::processSample()
+{
+    //once playback
+    if (!isLoop && trainCounter >= 1)
+    {
+        return 0;
+    }
+
+    //train长度为0不处理
+    if (trainDutyCycleTime <= 0)
+    {
+        return 0.0;
+    }
+
+    resetTrainRelatedSamples4Location();
+
+    // 状态切换：每次达到当前状态的时间最大值，就会进入下一个阶段
+    if (hasPassedSampleNumInsideTrain == -999 || hasPassedSampleNumInsideTrain == currentStateDurationSampleNum)
+    {
+        //是否改变train的走向：train长度始终是pulsar period(pulse+silence)的整数倍，所以刚走完silence时，就一定是pulsar period刚结束
+        //或整个train的结束，此时重新走向新的train
+        if (changeTrainTrace && (currentState == why::PulsarStateEnum::IntraSilence || currentState ==
+            why::PulsarStateEnum::InterTrainSilence))
+        {
+            //按照新配来初始化
+            resetTrain(newTrainDurationLen, newTrainIntervalSilenceLen, true, newTrainLen);
+            changeTrainTrace = false;
+        }
+
+        changeStage(pulsarSamples, intraSilenceSamples, interTrainSilenceSamples, trainDutyCycleSamples);
+        //如果某个状态的长度，为0个samples，那意味着当前process的过程应当自动跳入下个阶段
+        //因为随着阶段的变更，一定会出现阶段长度不为0的部分，所以不会死循环
+        while (currentStateDurationSampleNum == 0)
+        {
+            //继续change stage，以免无需存在的部分，占据sample，尽管是返回0值的sample
+            changeStage(pulsarSamples, intraSilenceSamples, interTrainSilenceSamples, trainDutyCycleSamples);
+        }
+        pulsarAdsr.reset();
+        //对pulse和silence都应用envelope，方便后续masking处理（如pulsar的silence转为pulse，这里不开启envelope就是0，那么转换后直接是0了）
+        pulsarAdsr.noteOn();
+        isTriggeredReleaseFlag = false;
+    }
+
+    bool passMaskFlag = true;
+    bool existMask = false;
+    mask(passMaskFlag, existMask);
+
+    //曾经是pulsar silence，现在变成了pulse，需要用该长度确认pulsar的最终频率和adsr比例值
+    bool silenceToPulseFlag = existMask && currentState == why::PulsarStateEnum::IntraSilence && passMaskFlag;
+
+    //pulse duty cycle调制后的频率大小，将会影响pulse的长度
+    float pulsarModFreq;
+    calcNewPulsarFreq(pulsarModFreq, silenceToPulseFlag);
+
+    // 修改adsr时间:注意经过mask后，silence可能也是pulse，要实时调整adsr的比例基准值，即用pulsar dutycycle还是pulsar silence的时长
+    if (silenceToPulseFlag)
+    {
+        //应用于pulse（cluster）
+        refreshPulsaretAdsr((1 - this->pulsarDutyCycleRatio) * this->pulsarPeriodTime);
+    }
+    else
+    {
+        refreshPulsaretAdsr((this->pulsarDutyCycleRatio) * this->pulsarPeriodTime);
+    }
+    //触发release阶段：注意在应用的时长内，要还有空间可以应用release否则不触发
+    if (!isTriggeredReleaseFlag && pulsarAdsr.isActive() && currentStateDurationSampleNum -
+        hasPassedSampleNumInsideTrain <= pulsarAdsrParams.release * why::sampleRate)
+    {
+        pulsarAdsr.noteOff();
+        isTriggeredReleaseFlag = true;
+    }
+
+    //计算当前状态的sample值
+    float s = calSampleByState(passMaskFlag, existMask, pulsarModFreq);
+
+    hasPassedSampleNumInsideTrain++;
+    totalSampleCount++;
+
+    // DBG(juce::String::formatted(
+    //     "hasPassedSampleNumInsideTrain:%d ; totalSampleCount:%d ; sample:%.5f",
+    //     (int)hasPassedSampleNumInsideTrain,
+    //     (int)sinceLastTransitionSamplesTotal,
+    //     s));
+    return s;
+}
+
+float PulsarSynthVoice::calcActualPulse(float pulsarModFreq)
+{
+    //扫描sample播放
+    // float s;
+    // if (sampleBuffer != nullptr)
+    // {
+    //     int index1 = static_cast<int>(readHead);
+    //     int index2 = index1 + 1;
+    //     float frac = readHead - index1;
+    //
+    //     if (index1 >= 0 && index2 < sampleBuffer->getNumSamples())
+    //     {
+    //         float s1 = sampleBuffer->getReadPointer(0)[index1];
+    //         float s2 = sampleBuffer->getReadPointer(0)[index2];
+    //         s = (1.0f - frac) * s1 + frac * s2; // 线性插值
+    //     }
+    //     //根据当前pulse duty cycle长度，来判断sample需要以什么速度播放，从而确认以多少step读取samples
+    //     //readHea按2个steps读取就是倍速，3个就是3倍速
+    //     //pulse如果是2hz，就表示1秒2次，所以速度就2倍速
+    //     //在指定时长内播完采样
+    //     //调制后的频率得到新的duty cycle长度
+    //     readHead += sampleBuffer->getNumSamples() / ((1.0 / pulsarModFreq) * why::sampleRate.load());
+    //     readHead = std::fmod(readHead, sampleBuffer->getNumSamples());
+    //     //扫描sample播放
+    // }
+    //==============hann window实现每个pulse两头衰减为0==============
+    // 计算衰减的起始和结束点
+    // float fadeStart = 0.95; // 衰减开始的位置
+    // float fadeEnd = 1.0f - fadeStart; // 衰减结束的位置
+    // 计算窗口位置
+    // float hann = 1.0f; // 默认值为 1 (没有衰减)
+    //
+    // // 在衰减范围内计算窗口
+    // if (pulsaretPhase < fadeStart)
+    // {
+    //     // 衰减部分（前 10%）
+    //     hann = 0.5f *
+    //         (1.0f - std::cos(2.0f * juce::MathConstants<float>::pi * (pulsaretPhase / fadeStart)));
+    // }
+    // else if (pulsaretPhase > fadeEnd)
+    // {
+    //     // 衰减部分（后 10%）
+    //     hann = 0.5f * (1.0f - std::cos(
+    //         2.0f * juce::MathConstants<float>::pi * ((1.0f - pulsaretPhase) / (1.0f - fadeEnd))));
+    // }
+    //float hann = 0.5f * (1.0f - std::cos(juce::MathConstants<float>::twoPi * pulsaretPhase));
+
+    //========================================================
+    //return ((s + calcSample()) / 2.0) * calcAmpLfoInterpolation() * adsr.getNextSample() * hann;
+
+    float s =
+        //计算pulsaret waveform sample
+        PulsaretWaveformSingleton::getInstance().calcSample(pulsarWaveformParam->load(), pulsaretPhase)
+        * calcAmpLfoInterpolation() * pulsarAdsr.getNextSample();
+    //必须放在计算sample之后，而不是之前，否则起始点phase偏移了
+    // 1/samplerate除不尽，每次相加都会加上误差，累积下来phase会偏移，其他合成器也都不处理，要么就按照bpm来定合成器相关频率
+    pulsaretPhase += pulsarModFreq / why::sampleRate.load();
+    // pulsaretPhase = std::fmod(pulsaretPhase, 1.0f); //这种没有减法快
+    if (pulsaretPhase > 1.0)
+    {
+        pulsaretPhase = pulsaretPhase - 1.0;
+    }
+
+    return s;
+}
+
+float PulsarSynthVoice::calcFormantLfoInterpolation()
+{
+    if (formantFreqLfoParam->load() <= 0.0)
+    {
+        return 0.0;
+    }
+    // 获取单例并设置频率
+    LfoWaveformSingleton& lfo = LfoWaveformSingleton::getInstance(why::sampleRate.load(), fundamentalFreq);
+    return lfo.calcSampleAfterFM(formantFreqLfoParam->load(), pulsaretPhase);
+}
+
+float PulsarSynthVoice::calcAmpLfoInterpolation()
+{
+    if (ampLfoParam->load() <= 0.0)
+    {
+        return 1.0;
+    }
+    // 获取单例并设置频率
+    LfoWaveformSingleton& lfo = LfoWaveformSingleton::getInstance(why::sampleRate.load(), fundamentalFreq);
+    return lfo.calcSampleAfterAM(ampLfoParam->load(), pulsaretPhase);
+}
+
+float PulsarSynthVoice::getOutputGain()
+{
+    //db转为gain值返回
+    return outputGainParam == nullptr ? 1 : std::pow(10.0f, outputGainParam->load() / 20.0f);
+}
+
+void PulsarSynthVoice::refreshBurstMask(juce::String burstMask)
+{
+    this->burstMask = burstMask.toStdString();
+}
+
+int PulsarSynthVoice::refreshBpm(juce::AudioPlayHead* audioPlayHead)
+{
+    //不在DAW中运行，则为NULL
+    if (auto* temp = audioPlayHead)
+    {
+        juce::AudioPlayHead::CurrentPositionInfo posInfo;
+        if (audioPlayHead->getCurrentPosition(posInfo) && why::bpm.load() != posInfo.bpm)
+        {
+            why::bpm.store(posInfo.bpm);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+bool PulsarSynthVoice::updateBpmDirectly(float bpm)
+{
+    if (why::bpm.load() != bpm)
+    {
+        why::bpm.store(bpm);
+        return true;
+    }
+    return false;
+}
+
+// void PulsarSynthVoice::rebuildTrainByBpm(juce::AudioPlayHead* audioPlayHead)
+// {
+//     //不在DAW中运行，bpm则为NULL
+//     if (1 == refreshBpm(audioPlayHead))
+//     {
+//         changeToNewTrainAfterPulsarPeriodOrTrainEnd(static_cast<int>(trainDutyCycleLenParam->load()),
+//                                                     trainSilenceParam->load(), true,
+//                                                     trainLenParam->load(), TODO);
+//     }
+// }

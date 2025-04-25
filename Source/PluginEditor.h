@@ -4,128 +4,97 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor, public juce::Timer
-                                              //这里实现apvts监听，而不是Slider::Listener，因为automation这类参数变化，后者好像不会监听到
-                                              , public juce::AudioProcessorValueTreeState::Listener
+class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor
+                                              // , public juce::Timer
+                                              // 这里实现apvts监听，不要用Slider::Listener，因为不会监听到automation这类参数变化
+                                              , public juce::ValueTree::Listener
+                                              // , public juce::AudioProcessorValueTreeState::Listener
+                                              , public juce::ChangeListener //监听juce::ChangeBroadcaster的广播
 
 {
 public:
+    // void bindParameterListener();
+    void makeVisible();
+    void setUIStyle();
+    void connectUIAndAudioParameter();
+    void initUITriggerEvent();
+    void setWindowSize();
     explicit AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor&);
 
     ~AudioPluginAudioProcessorEditor() override;
 
     //==============================================================================
     void paint(juce::Graphics&) override;
+    void topFlexBox(juce::FlexBox& flexBoxTop, std::shared_ptr<FlexBox> row1, std::shared_ptr<FlexBox> row2,
+                    std::shared_ptr<FlexBox> row3, std::shared_ptr<FlexBox> row4, std::shared_ptr<FlexBox> row5,
+                    std::shared_ptr<FlexBox>
+                    row6, std::shared_ptr<FlexBox> row7);
+    void bottomFlexBox(juce::FlexBox& bottomFlexBox, std::shared_ptr<juce::FlexBox> column1,
+                       std::shared_ptr<juce::FlexBox> column2, std::shared_ptr<juce::FlexBox> column3,
+                       std::shared_ptr<juce::FlexBox> column4, std::shared_ptr<juce::FlexBox> column5,
+                       std::shared_ptr<juce::FlexBox> column6, std::shared_ptr<juce::FlexBox> column7,
+                       std::shared_ptr<juce::FlexBox> column8, std::shared_ptr<juce::FlexBox> column9);
+    void midFlexBox(juce::FlexBox& midFlexBox, std::shared_ptr<juce::FlexBox> row11,
+                    std::shared_ptr<juce::FlexBox> row12,
+                    std::shared_ptr<juce::FlexBox> row13, std::shared_ptr<juce::FlexBox> row14,
+                    std::shared_ptr<juce::FlexBox> row15);
 
     void resized() override;
 
+    //===自定义===
     // 更新波形的函数
-    void updateWaveform(const juce::AudioBuffer<float>& buffer);
-    void timerCallback() override;
-    //监听参数变化
-    void parameterChanged(const juce::String& parameterID, float newValue) override;
+    // void updateWaveform(const juce::AudioBuffer<float>& buffer);
+    //定时回调
+    // void timerCallback() override;
+    void valueTreePropertyChanged(ValueTree& treeWhosePropertyHasChanged, const Identifier& property) override;
 
+    //====================自定义函数和函数重写====================
+    //重载preset，所有reload preset在这里统一更新，不要在别的地方如ui event里同时更新
+    void reloadPreset();
+
+    //监听广播
+    //reload preset时，如果数据变化也会体现在ui element event中
+    //parameterChanged是音频线程，不操作UI，实时，优先级最高，changeListenerCallback是消息线程（主线程）
+    //实际情况是parameterChanged会先执行，接着是changeListenerCallback
+    void changeListenerCallback(juce::ChangeBroadcaster* source) override;
+
+    //===卷积处理：加载impulse文件数据===
     //文件选择
-    void openFileChooser()
-    {
-        // 创建一个文件选择器
-        chooser = std::make_unique<juce::FileChooser>("Select a file to upload",
-                                                      juce::File::getSpecialLocation(juce::File::userDesktopDirectory),
-                                                      "*.wav;*.mp3");
+    void openFileChooser();
+    //保存file到synth中
+    void saveFileIntoSynth(const juce::File& file);
+    //convolution加载sample impulse
+    void loadSampleImpulseWhenSelected();
 
-        //读取窗口所选文件
-        chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-                             [this](const juce::FileChooser& chooser)
-                             {
-                                 juce::File selectedFile = chooser.getResult();
-                                 if (selectedFile.exists())
-                                 {
-                                     juce::Logger::writeToLog("File selected: " + selectedFile.getFullPathName());
-                                     loadFileIntoSynth(selectedFile);
-                                     //展示路径
-                                     impulsePathTextEditor.setText(selectedFile.getFullPathName());
+    //初始化template impulse下拉框内容
+    void initTemplateImpulseComboboxNames();
+    //convolution加载来自template设置的impulse
+    void loadTemplateImpulseWhenSelected();
+    void saveThenLoadAfterSelect(juce::String selectedId);
+    //===卷积处理：加载impulse文件数据===
 
-                                     //当前如果是随机模式则直接加载
-
-                                     loadSampleImpulse();
-                                 }
-                             });
-    }
-
-    void loadSampleImpulse()
-    {
-        if (impulseSwitchComboBox.getSelectedId() != static_cast<int>(why::ImpulseSwitchEnum::Sample) + 1)
-        {
-            return;
-        }
-        if (processorRef.get_last_sample_impulse_memory_block()->getSize() <= 0)
-        {
-            //当前还没记载采样，也要清空template播放的卷积
-            processorRef.set_should_use_convolution(false);
-            return;
-        }
-        processorRef.set_should_use_convolution(true);
-
-        //更新impulse file
-        processorRef.get_convolution()->loadImpulseResponse(
-            processorRef.get_last_sample_impulse_memory_block()->getData(),
-            processorRef.get_last_sample_impulse_memory_block()->getSize(),
-            juce::dsp::Convolution::Stereo::yes,
-            juce::dsp::Convolution::Trim::yes,
-            0,
-            juce::dsp::Convolution::Normalise::yes); // 0 = full IR
-    }
-
-    void loadFileIntoSynth(const juce::File& file)
-    {
-        if (file.getSize() <= 0)
-        {
-            return;
-        }
-        // std::unique_ptr<juce::File> filePtr = std::make_unique<juce::File>(file);
-        // processorRef.set_convolution_file(filePtr);
-        juce::MemoryBlock memBlock;
-        file.loadFileAsData(memBlock);
-        std::unique_ptr<juce::MemoryBlock> memBlockPtr = std::make_unique<juce::MemoryBlock>(memBlock);
-        processorRef.set_last_sample_impulse_memory_block(memBlockPtr);
-    }
-
-    void loadTemplateImpulse()
-    {
-        //当前如果是template模式则直接加载
-        if (impulseSwitchComboBox.getSelectedId() != static_cast<int>(why::ImpulseSwitchEnum::Template) + 1)
-        {
-            return;
-        }
-        if (processorRef.get_last_template_data_size() <= 0)
-        {
-            //当前不使用卷积
-            processorRef.set_should_use_convolution(false);
-            return;
-        }
-        processorRef.set_should_use_convolution(true);
-
-        //避免move后指针内部的数据变空，因为buffer的数据被move了
-        auto clonedBuffer = std::make_unique<juce::AudioBuffer<float>>(
-            *processorRef.get_last_template_buffer()
-        );
-
-        processorRef.get_convolution()->loadImpulseResponse(
-            std::move(*clonedBuffer),
-            processorRef.get_last_template_data_size(),
-            juce::dsp::Convolution::Stereo::yes,
-            juce::dsp::Convolution::Trim::yes,
-            juce::dsp::Convolution::Normalise::yes); // 0 = full IR
-    }
-
-    void buildImpulseComboboxNames();
+    void rebalanceStepHitValueDisplay();
 
 private:
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
+    // This reference is provided as a quick way for your editor to access the processor object that created it.
     juce::AudioVisualiserComponent visualiser = juce::AudioVisualiserComponent(0); // 波形显示组件
 
     //自定义控件
+
+    //output gain
+    juce::Label outputGainLabel;
+    juce::Slider outputGainSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputGainAttachment;
+
+    //bpm
+    juce::Slider bpmSlider;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpmAttachment;
+
+    //播放模式
+    juce::Label playModeLabel;
+    juce::ComboBox playModeCombobox;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> playModeComboxAttachment;
+
     //train
     juce::Slider trainLenSlider;
     juce::Label trainLenLabel;
@@ -199,27 +168,24 @@ private:
     juce::TextEditor stochasticMaskTextEditor;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> maskOptionComboBoxAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> euclidStepAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> euclidHitAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> euclidStepDialAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> euclidHitDialAttachment;
 
-    //convolution
+    //convolution impulse
     juce::Label impulseSwitchLabel;
     juce::ComboBox impulseSwitchComboBox; //0禁用 1使用
-    juce::TextEditor impulsePathTextEditor; //impulse file path
 
-    juce::TextButton selectImpulseButton;
     juce::Label impulseTemplateLabel;
-    juce::ComboBox impulseTemplateComboBox;
+    juce::ComboBox impulseTemplateFileComboBox;
 
-    juce::Label outputGainLabel;
-    juce::Slider outputGainSlider;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputGainAttachment;
+    juce::TextEditor sampleImpulsePathTextEditor; //impulse file path
+    juce::TextButton selectSampleImpulseFileButton;
+
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> impulseSwitchComboBoxAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> impulseTemplateFileComboBoxAttachment;
 
-    // std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trainLenAttachment;
-    std::unique_ptr<juce::FileChooser> chooser;
-    //默认的binarydata文件名
-    std::map<juce::String, juce::String> binaryIdFileNameMap;
+    //文件选择
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     AudioPluginAudioProcessor& processorRef;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)
