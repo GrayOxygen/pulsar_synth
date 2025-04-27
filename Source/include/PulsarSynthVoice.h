@@ -1,9 +1,8 @@
 //
 // Created by Mr. Wang on 2025/4/20.
 //
+#pragma once
 #include "Commons.h"
-#include "ConvolutionResource.h"
-#include "PulsarSynthSound.h"
 #include "CommonVoiceSate.h"
 
 //在plugineditor去修改voice、sound的值要注意线程安全
@@ -11,13 +10,15 @@ class PulsarSynthVoice : public juce::SynthesiserVoice
 {
 private:
     //AUTO模式====================================参数 DAW PLAY, STOP control====================================
+    //上一次是否处于播放状态
     bool wasPlayingLastFrame;
-
-    //===========================midi按键的envelope===========================
+    //true：因为切换模式需要静音，false不需要，用来控制切换模式暂停声音，让用户再次重新播放
+    bool soundOffWhenSwitchPlayMode;
+    //===========================midi相关===========================
     //按下的midi键盘
     bool playing = false;
     juce::ADSR envelope;
-
+    float currentVelocity = 1.0;
     //====================================train====================================
     //默认1/32 拍的时间
     double trainLenBlock;
@@ -25,10 +26,12 @@ private:
     double trainTime;
 
     //=======================
-    //train duty cycle长度：多少个pulsar period
-    float trainDutyCycleNum = 0.0f;
-    //train silence长度：多少个pulsar period
-    float trainSilenceNum = 0.0f;
+    //上一次的train duty cycle长度：多少个pulsar period
+    int previousTrainDutyCycleNum = 0;
+    //上一次的train silence长度：多少个pulsar period
+    int previousTrainSilenceNum = 0;
+    //上一次的train长度：多少个trainLenBlock
+    int previousTrainLen = 0;
 
     //train周期长，秒
     float trainPeriodTime = 0.0f;
@@ -118,19 +121,9 @@ public:
 
     //=============================老的===================================
     void setPulsarSilence(float dutyCylce);
-    void changeToNewTrainAfterPulsarPeriodOrTrainEnd(float bpmChangedFlag);
+    void changeToNewTrainAfterPulsarPeriodOrTrainEnd(bool bpmChangedFlag);
     void realChangeTrain();
     void initTrain(int durationLen, int intervalSilenceLen, float isLoop, int trainLen);
-
-    /**
-     * 设置脉冲串持续时间：freq比fundamentalFreq要小，才能装下pulsar到train上
-     * @param durationLen 一个train中包含的pulse个数(1就是一个pulsar period的长度，2就是2个)
-     * @param intervalSilenceLen train与train之间间隔的silence长度（1就是一个pulsar period长度，2就是2个）
-     * @param isLoop 是否循环播放train
-     * @param bpmChangedFlag
-     */
-    void changeToNewTrainAfterPulsarPeriodOrTrainEnd(int durationLen, int intervalSilenceLen, float isLoop,
-                                                     int trainLen, bool bpmChangedFlag);
     void resetTrainInitialSate();
     void resetTrain(int durationLen, int intervalSilenceLen, float isLoop, int trainLen);
 
@@ -187,9 +180,9 @@ public:
     float calcActualPulse(float pulsarModFreq);
 
     //将slider值映射到数组中的两个相邻波形之间
-    float calcFormantLfoInterpolation();
+    float calcFormantLfoInterpolation(float pulsarModFreq, float amount);
 
-    float calcAmpLfoInterpolation();
+    float calcAmpLfoInterpolation(float pulsarModFreq, float amount);
 
     float calcSample();
 
@@ -222,8 +215,18 @@ public:
         return commonVoiceSate;
     }
 
-    void setCommonVoiceSate(const std::shared_ptr<CommonVoiceSate>& commonVoiceSate)
+    void setCommonVoiceSate(std::shared_ptr<CommonVoiceSate>& commonVoiceSate)
     {
         this->commonVoiceSate = commonVoiceSate;
+    }
+
+    [[nodiscard]] bool& isSoundOffWhenSwitchPlayMode()
+    {
+        return soundOffWhenSwitchPlayMode;
+    }
+
+    void setSoundOffWhenSwitchPlayMode(bool soundOffWhenSwitchPlayMode)
+    {
+        this->soundOffWhenSwitchPlayMode = soundOffWhenSwitchPlayMode;
     }
 };

@@ -14,7 +14,7 @@ namespace why
 {
     // 声明原子类型的全局变量
     extern std::atomic<float> bpm;
-    extern std::atomic<double> sampleRate;
+    // extern std::atomic<double> sampleRate;
 
     enum class PulsarStateEnum
     {
@@ -40,8 +40,9 @@ namespace why
 
     enum class PlayModeEnum
     {
-        Auto = 0,
-        Midi = 1
+        NotSelected = 0,
+        Auto = 1,
+        Midi = 2
     };
 
     struct ParameterID

@@ -14,8 +14,6 @@
 #include <juce_dsp/juce_dsp.h>
 #include "Commons.h"
 #include "PulsarSynthVoice.h"
-#include "Commons.h"
-#include "PluginProcessor.h"
 
 //自定义合成器入口，放所有自定义的方法
 class PulsarSynth : public juce::Synthesiser
@@ -40,8 +38,19 @@ public:
         this->myPlayModeEnum = myPlayModeEnum;
     }
 
+    void triggerSoundOffWhenSwitchPlayMode()
+    {
+        for (int i = 0; i < getNumVoices(); ++i)
+        {
+            juce::SynthesiserVoice* voice = getVoice(i);
+            // 将其转换为自定义的 PulsarSynthVoice
+            PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
+            pulsarVoice->setSoundOffWhenSwitchPlayMode(true);
+        }
+    }
+
     //与DAW的速度无关，改了插件的速度直接修改synth基于的bpm值，会直接改变train
-    void forceRefreshBpm(float bpm)
+    void forceRefreshBpmAndRebuildTrain(float bpm)
     {
         for (int i = 0; i < getNumVoices(); ++i)
         {
@@ -110,10 +119,14 @@ public:
             result = std::string("");
             return result;
         }
-        juce::SynthesiserVoice* voice = getVoice(0);
-        PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-        result = pulsarVoice->getCommonVoiceSate()->stochasticMaskStr;
-        return result;
+
+        if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
+        {
+            auto state = voice->getCommonVoiceSate();
+            if (state && !state->stochasticMaskStr.empty())
+                return state->stochasticMaskStr;
+        }
+        return "";
     }
 
     //play mode为auto时直接计算sample

@@ -18,14 +18,6 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     //value tree监听
     processorRef.apvts.state.addListener(this);
 
-    //apvts的监听
-    //DAW打开工程时，可能会多次调用setStateInformation，但plugineditor还没生成，导致广播changelistener监听函数没执行
-    //如果标记还是loading preset则继续处理完，直到打开插件窗口才会初始化plugineditor
-    if (processorRef.isLoadingPresetFlag())
-    {
-        changeListenerCallback(&processorRef);
-    }
-
     //将parameter绑定到当前对象，监听参数变化
     // bindParameterListener();
 
@@ -63,6 +55,14 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
         //get texteditor value from property because juce can't bind texteditor with parameter automatally
         sampleImpulsePathTextEditor.setText(
             processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString().toStdString());
+    }
+
+    //apvts的监听，放到最后保证修改不会被前面逻辑覆盖
+    //DAW打开工程时，可能会多次调用setStateInformation，但plugineditor还没生成，导致广播changelistener监听函数没执行
+    //如果标记还是loading preset则继续处理完，直到打开插件窗口才会初始化plugineditor
+    if (processorRef.isLoadingPresetFlag())
+    {
+        changeListenerCallback(&processorRef);
     }
 }
 
@@ -156,21 +156,14 @@ void AudioPluginAudioProcessorEditor::resized()
     mainFlexBox.performLayout(area);
 }
 
-void AudioPluginAudioProcessorEditor::reloadPreset()
+void AudioPluginAudioProcessorEditor::reloadPresetUI()
 {
     //load preset时触发，更新一些无法设置attachment的UI，如texteditor，impulse file的加载逻辑
     if (!processorRef.isLoadingPresetFlag())
     {
         return;
     }
-
-    //触发synth更新为最新状态：mapping所有parameter，property的值到synth中
-    processorRef.getPulsarSynthEngine().executeEachPulsarSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
-    {
-        synth->reloadPreset(processorRef.apvts);
-    });
-
-    //加载texteditor
+    //刷新texteditor展示
     String burstMask = processorRef.apvts.state.getProperty(why::PropertyID::burstMask).toString();
     String stochasticMask = processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).toString();
     String sampleImpulsePath = processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
@@ -185,52 +178,16 @@ void AudioPluginAudioProcessorEditor::reloadPreset()
         stochasticMaskTextEditor.setText(stochasticMask, juce::dontSendNotification);
     }
 
-    //加载impulse file, texteditor
-    //判断当前preset中，选中的是哪一个impulse模式
-    int impulseSwitch = static_cast<int>(*processorRef.apvts.getRawParameterValue(why::ParameterID::impulseSwitch));
-
-    //当前选中的sample impulse与preset中的不同，则更新
-    if (sampleImpulsePathTextEditor.getTextValue() != sampleImpulsePath)
+    //展示最新的sample impulse选项展示
+    if (sampleImpulsePath.isNotEmpty())
     {
         sampleImpulsePathTextEditor.setText(sampleImpulsePath, juce::dontSendNotification);
-        //没加载过impulse resouce则加载一次
-        processorRef.getPulsarSynthEngine().executeEachPulsarSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
+        juce::File file(sampleImpulsePath);
+        if (!file.existsAsFile())
         {
-            //加载资源
-            juce::File file(sampleImpulsePath);
-            if (file.existsAsFile())
-            {
-                // 文件存在，则保存资源文件到convolution resource中（全局的）
-                processorRef.getPulsarSynthEngine().getConvolutionResource()->saveLastSampleFileAsBlock(file);
-
-                //如果当前选中了sample impulse模式，则将资源文件加载为impulse
-                if (impulseSwitch == static_cast<int>(why::ImpulseSwitchEnum::Sample))
-                {
-                    processorRef.getPulsarSynthEngine().getConvolutionResource()->loadSampleImpulseFile();
-                }
-            }
-            else
-            {
-                sampleImpulsePathTextEditor.setText("File does not exist.", juce::dontSendNotification);
-            }
-        });
-    }
-
-    //template impulse方式
-    int index = static_cast<int>(*processorRef.apvts.getRawParameterValue(why::ParameterID::impulseTemplateFile));
-
-    //当前选中的template impulse与preset中的不同，则更新
-    if (impulseTemplateFileComboBox.getSelectedItemIndex() != index)
-    {
-        saveThenLoadAfterSelect(juce::String(index + 1));
-    }
-
-    int currentPlayModeEnumInt = processorRef.apvts.state.getProperty(why::PropertyID::currentPlayModeEnum).toString().
-                                              getIntValue();
-
-    if (playModeCombobox.getSelectedItemIndex() != currentPlayModeEnumInt)
-    {
-        playModeCombobox.setSelectedItemIndex(currentPlayModeEnumInt);
+            sampleImpulsePathTextEditor.setText("File does not exist: " + sampleImpulsePath,
+                                                juce::dontSendNotification);
+        }
     }
 }
 
@@ -239,12 +196,12 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
     //reload preset
     if (source == &processorRef && processorRef.isLoadingPresetFlag())
     {
-        reloadPreset();
+        reloadPresetUI();
         processorRef.setLoadingPresetFlag(false);
         return;
     }
 
-    //非reloa preset触发（reload preset一般只发生在打开daw或打开插件窗口时）
+    //非reload preset触发（reload preset一般只发生在打开daw或打开插件窗口时），parameterChanged触发
     if (source == &processorRef)
     {
         //当train参数改变后，随机mask展示要刷新
@@ -255,6 +212,7 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
         {
             //property将会被存为state information，用来恢复参数
             processorRef.apvts.state.setProperty(why::PropertyID::stochasticMask, currentStochasticMaskStr, nullptr);
+            //展示最新stochastic mask
             stochasticMaskTextEditor.setText(currentStochasticMaskStr);
         }
     }
@@ -450,13 +408,13 @@ void AudioPluginAudioProcessorEditor::midFlexBox(juce::FlexBox& midFlexBox, std:
     row13->justifyContent = juce::FlexBox::JustifyContent::flexStart;
     row13->items.add(juce::FlexItem(euclidStepLabel).withFlex(1.0).withMaxWidth(100).withMaxHeight(20));
     row13->items.add(
-        juce::FlexItem(euclidStepDial).withFlex(1.0).withMaxWidth(50).withMaxHeight(150));
+        juce::FlexItem(euclidStepSlider).withFlex(1.0).withMaxWidth(50).withMaxHeight(150));
     midFlexBox.items.add(juce::FlexItem(*row13).withFlex(0.9f));
 
     row14->flexDirection = juce::FlexBox::Direction::row;
     row14->justifyContent = juce::FlexBox::JustifyContent::flexStart;
     row14->items.add(juce::FlexItem(euclidHitLabel).withFlex(1.0).withMaxWidth(100).withMaxHeight(20));
-    row14->items.add(juce::FlexItem(euclidHitDial).withFlex(1.0).withMaxWidth(50).withMaxHeight(150));
+    row14->items.add(juce::FlexItem(euclidHitSlider).withFlex(1.0).withMaxWidth(50).withMaxHeight(150));
     midFlexBox.items.add(juce::FlexItem(*row14).withFlex(0.9f));
 
     row15->flexDirection = juce::FlexBox::Direction::row;
@@ -538,9 +496,9 @@ void AudioPluginAudioProcessorEditor::makeVisible()
     addAndMakeVisible(maskOptionComboBox);
     addAndMakeVisible(burstMaskLabel);
     addAndMakeVisible(burstMaskTextEditor);
-    addAndMakeVisible(euclidStepDial);
+    addAndMakeVisible(euclidStepSlider);
     addAndMakeVisible(euclidStepLabel);
-    addAndMakeVisible(euclidHitDial);
+    addAndMakeVisible(euclidHitSlider);
     addAndMakeVisible(euclidHitLabel);
     addAndMakeVisible(stochasticMaskLabel);
     addAndMakeVisible(stochasticMaskTextEditor);
@@ -564,10 +522,12 @@ void AudioPluginAudioProcessorEditor::setUIStyle()
     outputGainLabel.setText("Output", juce::dontSendNotification);
 
     //play mode
+    playModeCombobox.addItem("Off", static_cast<int>(why::PlayModeEnum::NotSelected) + 1);
     playModeCombobox.addItem("Auto", static_cast<int>(why::PlayModeEnum::Auto) + 1);
     //item id不能为0，但是parameter获取到的值是从0开始
     playModeCombobox.addItem("Midi", static_cast<int>(why::PlayModeEnum::Midi) + 1);
-    playModeCombobox.setSelectedId(1); // 默认选中第一个选项
+    //setSelectId也会触发该回调方法，所以打开窗口时，setUIStyle设置默认选项会进来，所以setUIStyle不要设置id，绑定了attachment会有默认值
+    // playModeCombobox.setSelectedId(1); // 默认选中第一个选项
 
     playModeLabel.setText("Trigger", juce::dontSendNotification);
 
@@ -604,7 +564,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle()
     pulsarWaveformSlider.setSliderStyle(juce::Slider::LinearVertical);
     pulsarWaveformSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     pulsarWaveformSlider.setTextValueSuffix("");
-    pulsarWaveformSlider.setRange(0, 1, 0);
+    pulsarWaveformSlider.setRange(0.0, 1.0, 0.001);
 
     pulsarWaveformLabel.setText("Pulsar Waveform", juce::dontSendNotification);
     // pulsarWaveformLabel.attachToComponent(&pulsarWaveformSlider, true);
@@ -628,6 +588,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle()
     ampLfoSlider.setSliderStyle(juce::Slider::LinearVertical);
     ampLfoSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     ampLfoSlider.setTextValueSuffix("");
+    ampLfoSlider.setRange(0.0, 1.0, 0.001);
 
     ampLfoLabel.setText("AM Waveform", juce::dontSendNotification);
 
@@ -635,6 +596,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle()
     formantFreqLfoSlider.setSliderStyle(juce::Slider::LinearVertical);
     formantFreqLfoSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     formantFreqLfoSlider.setTextValueSuffix("");
+    formantFreqLfoSlider.setRange(0.0, 1.0, 0.001);
 
     formantFreqLfoLabel.setText("FM Waveform", juce::dontSendNotification);
 
@@ -674,7 +636,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle()
     maskOptionComboBox.addItem("Burst Mask", static_cast<int>(why::MaskOptionEnum::BurstMask) + 1);
     maskOptionComboBox.addItem("Euclid Mask", static_cast<int>(why::MaskOptionEnum::EuclidMask) + 1);
     maskOptionComboBox.addItem("Stochastic Mask", static_cast<int>(why::MaskOptionEnum::StochasticMask) + 1);
-    maskOptionComboBox.setSelectedId(1); // 默认选中第一个选项
+    // maskOptionComboBox.setSelectedId(1); // 默认选中第一个选项
 
     impulseTemplateLabel.setText("Template", juce::dontSendNotification);
     // impulseTemplateFileComboBox.setSelectedId(1); // 默认选中第一个选项
@@ -694,17 +656,17 @@ void AudioPluginAudioProcessorEditor::setUIStyle()
 
     euclidStepLabel.setText("Euclid Step", juce::dontSendNotification);
 
-    euclidStepDial.setSliderStyle(juce::Slider::LinearVertical);
-    euclidStepDial.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-    euclidStepDial.setRange(1, 32, 1);
-    euclidStepDial.setNumDecimalPlacesToDisplay(0); // 不显示小数
+    euclidStepSlider.setSliderStyle(juce::Slider::LinearVertical);
+    euclidStepSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    euclidStepSlider.setRange(1, 32, 1);
+    euclidStepSlider.setNumDecimalPlacesToDisplay(0); // 不显示小数
 
     euclidHitLabel.setText("Euclid Hit", juce::dontSendNotification);
 
-    euclidHitDial.setSliderStyle(juce::Slider::LinearVertical);
-    euclidHitDial.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-    euclidHitDial.setRange(1, 32, 1);
-    euclidHitDial.setNumDecimalPlacesToDisplay(0); // 不显示小数
+    euclidHitSlider.setSliderStyle(juce::Slider::LinearVertical);
+    euclidHitSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+    euclidHitSlider.setRange(1, 32, 1);
+    euclidHitSlider.setNumDecimalPlacesToDisplay(0); // 不显示小数
 
     stochasticMaskLabel.setText("Random Mask", juce::dontSendNotification);
 
@@ -723,7 +685,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle()
     impulseSwitchComboBox.addItem("Off", static_cast<int>(why::ImpulseSwitchEnum::Off) + 1);
     impulseSwitchComboBox.addItem("Template Impluse", static_cast<int>(why::ImpulseSwitchEnum::Template) + 1);
     impulseSwitchComboBox.addItem("Sample Impulse", static_cast<int>(why::ImpulseSwitchEnum::Sample) + 1);
-    impulseSwitchComboBox.setSelectedId(1);
+    // impulseSwitchComboBox.setSelectedId(1);
 
     impulseSwitchLabel.setText("Convolution", juce::dontSendNotification);
 
@@ -746,7 +708,7 @@ void AudioPluginAudioProcessorEditor::connectUIAndAudioParameter()
     outputGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
         processorRef.apvts, why::ParameterID::outputGain, outputGainSlider);
 
-    playModeComboxAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
+    playModeComboboxAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
         processorRef.apvts, why::ParameterID::playMode, playModeCombobox);
 
     bpmAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
@@ -785,9 +747,9 @@ void AudioPluginAudioProcessorEditor::connectUIAndAudioParameter()
     maskOptionComboBoxAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
         processorRef.apvts, why::ParameterID::maskOption, maskOptionComboBox);
     euclidStepDialAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-        processorRef.apvts, why::ParameterID::euclidSteps, euclidStepDial);
+        processorRef.apvts, why::ParameterID::euclidSteps, euclidStepSlider);
     euclidHitDialAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-        processorRef.apvts, why::ParameterID::euclidHits, euclidHitDial);
+        processorRef.apvts, why::ParameterID::euclidHits, euclidHitSlider);
 
     //impulse file
     impulseSwitchComboBoxAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
@@ -801,20 +763,12 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
     //选择sample impulse的按钮，点击事件
     selectSampleImpulseFileButton.onClick = [this]
     {
-        if (processorRef.isLoadingPresetFlag())
-        {
-            return;
-        }
         openFileChooser();
     };
 
     //burst mask text editor回车，没有attachment，需要手动更新synth状态
     burstMaskTextEditor.onReturnKey = [&]
     {
-        if (processorRef.isLoadingPresetFlag())
-        {
-            return;
-        }
         // 监听 TextEditor 内容变化
         auto currentBurstMaskText = burstMaskTextEditor.getText(); // 获取编辑框中的文本
 
@@ -835,7 +789,7 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
         burstMaskTextEditor.repaint(); // 强制重绘
 
         //还原
-        juce::Timer::callAfterDelay(500, [&, originalColour]()
+        juce::Timer::callAfterDelay(300, [&, originalColour]()
         {
             burstMaskTextEditor.setColour(juce::TextEditor::backgroundColourId, originalColour);
             burstMaskTextEditor.repaint();
@@ -843,46 +797,30 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
     };
 
     //euclid联动设置
-    euclidStepDial.onValueChange = [&]
+    euclidStepSlider.onValueChange = [&]
     {
-        if (processorRef.isLoadingPresetFlag())
-        {
-            return;
-        }
         rebalanceStepHitValueDisplay();
     };
 
-    euclidHitDial.onValueChange = [&]
+    euclidHitSlider.onValueChange = [&]
     {
-        if (processorRef.isLoadingPresetFlag())
-        {
-            return;
-        }
         rebalanceStepHitValueDisplay();
     };
 
     //选择template impulse下拉框
     impulseTemplateFileComboBox.onChange = [&]
     {
-        if (processorRef.isLoadingPresetFlag())
-        {
-            return;
-        }
-        saveThenLoadAfterSelect(juce::String(impulseTemplateFileComboBox.getSelectedId()));
+        saveTemplateImpulseThenLoadAfterSelect(juce::String(impulseTemplateFileComboBox.getSelectedId()));
     };
 
     //reload preset时，如果数据变化也会体现在event
     impulseSwitchComboBox.onChange = [&]
     {
-        if (processorRef.isLoadingPresetFlag())
-        {
-            return;
-        }
         //选择了template impulse或sample impulse选项，直接加载impulse file
         if (impulseSwitchComboBox.getSelectedId() == static_cast<int>(why::ImpulseSwitchEnum::Template) + 1)
         {
             //如果资源没加载（比如默认选中的第一个文件，是没做初始化的），要先加载，避免reload preset进来时，资源还没有加载
-            saveThenLoadAfterSelect(juce::String(impulseTemplateFileComboBox.getSelectedId()));
+            saveTemplateImpulseThenLoadAfterSelect(juce::String(impulseTemplateFileComboBox.getSelectedId()));
         }
         if (impulseSwitchComboBox.getSelectedId() == static_cast<int>(why::ImpulseSwitchEnum::Sample) + 1)
         {
@@ -894,41 +832,24 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
 
     playModeCombobox.onChange = [&]
     {
-        if (processorRef.isLoadingPresetFlag())
-        {
-            return;
-        }
-        //TODO 切换模式后，会走到prameterChanged重新设置train，直接重置train
-
-        if (playModeCombobox.getSelectedId() == static_cast<int>(why::PlayModeEnum::Auto) + 1)
-        {
-            processorRef.getPulsarSynthEngine().setCurrentPlayModeEnum(processorRef.apvts, why::PlayModeEnum::Auto);
-        }
-        if (playModeCombobox.getSelectedId() == static_cast<int>(why::PlayModeEnum::Midi) + 1)
-        {
-            processorRef.getPulsarSynthEngine().setCurrentPlayModeEnum(processorRef.apvts, why::PlayModeEnum::Midi);
-        }
+        //setSelectId也会触发该回调方法，所以打开窗口时，setUIStyle设置默认选项会进来，所以setUIStyle不要设置id
+        // 停止当前所有声音
+        processorRef.getPulsarSynthEngine().stopTheWorld();
+        processorRef.getPulsarSynthEngine().setCurrentPlayModeEnum(processorRef.apvts,
+                                                                   playModeCombobox.getSelectedItemIndex());
     };
 
     //强制更新synth依赖的bpm
     bpmSlider.onValueChange = [&]
     {
-        if (processorRef.isLoadingPresetFlag())
-        {
-            return;
-        }
         processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
         {
-            synth->forceRefreshBpm(bpmSlider.getValue());
+            synth->forceRefreshBpmAndRebuildTrain(bpmSlider.getValue());
         });
     };
 
     maskOptionComboBox.onChange = [&]
     {
-        if (processorRef.isLoadingPresetFlag())
-        {
-            return;
-        }
         //默认采用第一个展示，所有synth都一样
         std::string maskStrStd = processorRef.getPulsarSynthEngine().getCurrentPulsarSynth(processorRef.apvts)->
                                               getStochasticMaskStr();
@@ -943,28 +864,28 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
 
 void AudioPluginAudioProcessorEditor::rebalanceStepHitValueDisplay()
 {
-    double stepValue = euclidStepDial.getValue();
-    double hitValue = euclidHitDial.getValue();
+    double stepValue = euclidStepSlider.getValue();
+    double hitValue = euclidHitSlider.getValue();
 
     // 更新 sliderB 的最大值
     if (stepValue <= 1)
     {
         //juce的逻辑：range不可以设置为1，1，必须满足max>min
         //所以step为1，hit不设为1了，直接禁用
-        euclidHitDial.setValue(1);
-        euclidHitDial.setEnabled(false);
+        euclidHitSlider.setValue(1);
+        euclidHitSlider.setEnabled(false);
     }
     else
     {
-        euclidHitDial.setEnabled(true);
-        euclidHitDial.setRange(euclidHitDial.getMinimum(), stepValue);
+        euclidHitSlider.setEnabled(true);
+        euclidHitSlider.setRange(euclidHitSlider.getMinimum(), stepValue);
     }
 
     if (hitValue > stepValue)
-        euclidHitDial.setValue(stepValue, juce::dontSendNotification); // 避免无限触发
+        euclidHitSlider.setValue(stepValue, juce::dontSendNotification); // 避免无限触发
 }
 
-void AudioPluginAudioProcessorEditor::saveThenLoadAfterSelect(juce::String selectedId)
+void AudioPluginAudioProcessorEditor::saveTemplateImpulseThenLoadAfterSelect(juce::String selectedId)
 {
     const char* resourceName = (BinaryResourceSingleton::getInstance().getBinaryIdFileNameMap()[selectedId]).
         toRawUTF8();
@@ -986,7 +907,7 @@ void AudioPluginAudioProcessorEditor::setWindowSize()
     // 允许窗口被用户调整大小
     setResizable(true, true);
     // 设置最小和最大尺寸
-    setResizeLimits(1200, 600, 2560, 1440);
+    setResizeLimits(1024, 600, 1920, 1080);
 }
 
 

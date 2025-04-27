@@ -3,8 +3,10 @@
 //
 #ifndef PULSARSYNTHENGINE_H
 #define PULSARSYNTHENGINE_H
+#include <ResourceSingleton.h>
 #include "Commons.h"
 #include "PulsarSynth.h"
+#include "PulsarSynthSound.h"
 
 class PulsarSynthEngine
 {
@@ -32,11 +34,22 @@ public:
         return currentPlayModeEnum;
     }
 
-    void setCurrentPlayModeEnum(juce::AudioProcessorValueTreeState& apvts, why::PlayModeEnum currentPlayModeEnum)
+    void setCurrentPlayModeEnum(juce::AudioProcessorValueTreeState& apvts, int index)
     {
-        this->currentPlayModeEnum = currentPlayModeEnum;
+        if (index == static_cast<int>(why::PlayModeEnum::Auto))
+        {
+            this->currentPlayModeEnum = why::PlayModeEnum::Auto;
+        }
+        if (index == static_cast<int>(why::PlayModeEnum::Midi))
+        {
+            this->currentPlayModeEnum = why::PlayModeEnum::Midi;
+        }
+        if (index == static_cast<int>(why::PlayModeEnum::NotSelected))
+        {
+            this->currentPlayModeEnum = why::PlayModeEnum::NotSelected;
+        }
         apvts.state.setProperty(why::PropertyID::currentPlayModeEnum,
-                                juce::String(static_cast<int>(currentPlayModeEnum)), nullptr);
+                                juce::String(static_cast<int>(this->currentPlayModeEnum)), nullptr);
     }
 
     //如果需要修改synth的状态，则统一修改，共享一套声音状态
@@ -44,7 +57,14 @@ public:
     {
         return pulsarSynths;
     }
-    
+
+    //切换模式转换，就让用户重新触发，midi模式会自动随着下一个音符播放而触发，auto模式需要用户再次点击播放
+    void stopTheWorld()
+    {
+        pulsarSynthForMidi->allNotesOff(0, false);
+        pulsarSynthForAuto->triggerSoundOffWhenSwitchPlayMode();
+    }
+
     void executeCurSynthCallback(const std::function<void(std::shared_ptr<PulsarSynth>&)>& func)
     {
         if (currentPlayModeEnum == why::PlayModeEnum::Auto)
@@ -57,7 +77,57 @@ public:
         }
     }
 
-    void executeEachPulsarSynthCallback(const std::function<void(std::shared_ptr<PulsarSynth>&)>& func)
+    void reloadSynthPreset(juce::AudioProcessorValueTreeState& apvts)
+    {
+        //刷新并加载impulse file,
+        int impulseSwitchIndex = static_cast<int>(*apvts.getRawParameterValue(why::ParameterID::impulseSwitch));
+
+        //展示最新的template impulse选项展示，并加载文件到convolution resource
+        int index = static_cast<int>(*apvts.getRawParameterValue(why::ParameterID::impulseTemplateFile));
+
+        if (impulseSwitchIndex == static_cast<int>(why::ImpulseSwitchEnum::Template))
+        {
+            getConvolutionResource()->saveTemplateImpulse(juce::String(index + 1));
+        }
+        //必须直接加载到convolution resource，否则在impulse file菜单切换时，不会再去获取数据源
+        String sampleImpulsePath = apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
+        //展示最新的sample impulse选项展示，并直接加载文件到convolution resource
+        //更新sample impulse path展示
+        if (sampleImpulsePath.isNotEmpty())
+        {
+            //如果当前选中了sample impulse模式，则将资源文件加载为impulse
+            //没加载过impulse resouce则加载一次
+            juce::File file(sampleImpulsePath);
+            if (file.existsAsFile())
+            {
+                // 文件存在，则保存资源文件到convolution resource中（全局的）
+                getConvolutionResource()->saveLastSampleFileAsBlock(file);
+                if (impulseSwitchIndex == static_cast<int>(why::ImpulseSwitchEnum::Sample))
+                {
+                    //加载impulse response
+                    getConvolutionResource()->loadSampleImpulseFile();
+                }
+            }
+        }
+
+        //更新当前播放模式
+
+        if (!apvts.state.getProperty(why::PropertyID::currentPlayModeEnum).isVoid())
+        {
+            int currentPlayModeEnumInt = apvts.state.getProperty(why::PropertyID::currentPlayModeEnum).toString().
+                                               getIntValue();
+            setCurrentPlayModeEnum(apvts, currentPlayModeEnumInt);
+        }
+
+        //触发synth更新为最新状态：mapping所有parameter，property的值到synth中
+        executeCurSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
+        {
+            synth->reloadPreset(apvts);
+        });
+    }
+
+
+    void executeAllSynthCallback(const std::function<void(std::shared_ptr<PulsarSynth>&)>& func)
     {
         for (std::shared_ptr<PulsarSynth>& synth : pulsarSynths)
         {
@@ -65,37 +135,13 @@ public:
         }
     }
 
-    // 在切换模式时，采用共享voice的模式
-    void changePlayMode(why::PlayModeEnum destPlayModeEnum)
-    {
-        // if (currentPlayModeEnum == why::PlayModeEnum::Auto && why::PlayModeEnum::Midi == destPlayModeEnum)
-        // {
-        //     int voiceNum = pulsarSynthForMidi->getNumVoices();
-        //     pulsarSynthForMidi->clearVoices();
-        //     for (int i = 0; i < voiceNum; i++)
-        //     {
-        //         SynthesiserVoice* voice = pulsarSynthForAuto->getVoice(0);
-        //         PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-        //         pulsarSynthForAuto.cop
-        //         pulsarSynthForMidi->addVoice(pulsarVoice);
-        //     };
-        // }
-        // if (currentPlayModeEnum == why::PlayModeEnum::Midi && why::PlayModeEnum::Auto == destPlayModeEnum)
-        // {
-        //     int voiceNum = pulsarSynthForAuto->getNumVoices();
-        //     pulsarSynthForAuto->clearVoices();
-        //     for (int i = 0; i < voiceNum; i++)
-        //     {
-        //         SynthesiserVoice* voice = pulsarSynthForMidi->getVoice(i);
-        //         PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-        //         pulsarSynthForAuto->addVoice(new PulsarSynthVoice(pulsarSynthForMidi->getVoice(0)));
-        //     };
-        // }
-    }
-
     void initConvolution(double sampleRate, int samplesPerBlock, int numChannels)
     {
-        this->convolutionResource = std::make_shared<ConvolutionResource>(sampleRate, samplesPerBlock, numChannels);
+        //防止prepareToPlay多次触发更新
+        if (!convolutionResource)
+        {
+            this->convolutionResource = std::make_shared<ConvolutionResource>(sampleRate, samplesPerBlock, numChannels);
+        }
         for (std::shared_ptr<PulsarSynth> tempSynth : pulsarSynths)
         {
             for (int i = 0; i < tempSynth->getNumVoices(); ++i)
@@ -110,7 +156,11 @@ public:
 
     void init(juce::AudioProcessorValueTreeState& apvts)
     {
-        std::shared_ptr<CommonVoiceSate> commonVoiceSate = std::make_shared<CommonVoiceSate>();
+        //防止prepareToPlay多次触发更新
+        if (!commonVoiceSate)
+        {
+            this->commonVoiceSate = std::make_shared<CommonVoiceSate>();
+        }
 
         pulsarSynthForMidi->addSound(new PulsarSynthSound());
         //不允许同时输入多个note，听觉上没意义
@@ -140,8 +190,6 @@ public:
         pulsarSynthForAuto->setCurrentPlaybackSampleRate(sampleRate);
 
         this->initConvolution(sampleRate, samplesPerBlock, numChannels);
-        // pulsarSynthForMidi->initConvolution(sampleRate, samplesPerBlock, numChannels);
-        // pulsarSynthForAuto->initConvolution(sampleRate, samplesPerBlock, numChannels);
 
         // audioFormatManager->registerBasicFormats();
         // 创建一个 JUCE String 对象，包含路径
@@ -155,6 +203,7 @@ public:
         // audioFormatReader.reset(audioFormatManager->createReaderFor(file));
         // sampleBuffer->setSize(audioFormatReader->numChannels, audioFormatReader->lengthInSamples);
         // audioFormatReader->read(sampleBuffer.get(), 0, audioFormatReader->lengthInSamples, 0, true, true);
+
         pulsarSynthForMidi->initTrain(sampleRate, sampleBuffer, playHead);
         pulsarSynthForAuto->initTrain(sampleRate, sampleBuffer, playHead);
     }
@@ -165,50 +214,7 @@ public:
         {
             pulsarSynthForAuto->renderNextBlockDirectly(buffer, playHead, midiMessages, 0, buffer.getNumSamples(),
                                                         getCurrentPlayModeEnum());
-            // AudioPlayHead::CurrentPositionInfo pos;
-            // if (getPlayHead() != nullptr && getPlayHead()->getCurrentPosition(pos))
-            // {
-            //     bool isNowPlaying = pos.isPlaying;
-            //
-            //     if (isNowPlaying && !wasPlayingLastFrame)
-            //     {
-            //         // Transport just started
-            //         isActive = true;
-            //     }
-            //
-            //     if (!isNowPlaying && wasPlayingLastFrame)
-            //     {
-            //         // Transport just stopped
-            //         isActive = false;
-            //     }
-            //
-            //     wasPlayingLastFrame = isNowPlaying;
-            // }
-            //
-            // if (isActive)
-            // {
-            //     float bpm = 120.0f;
-            //     float freq = bpm / 60.0f; // 2 Hz
-            //     float phaseInc = freq / getSampleRate();
-            //     float beatSamples = (60.0 / bpm) * getSampleRate();
-            //     for (int i = 0; i < buffer.getNumSamples(); i++)
-            //     {
-            //         if (std::fmod((double)beatCounter, beatSamples) < 1.0)
-            //         {
-            //             pulsaretPhase = 0.0f;
-            //         }
-            //         float s = std::sin(2.0f * juce::MathConstants<float>::pi * pulsaretPhase);
-            //         pulsaretPhase += phaseInc;
-            //         if (pulsaretPhase > 1.0f)
-            //             pulsaretPhase -= 1.0f;
-            //
-            //         left[i] = s;
-            //         right[i] = s;
-            //         beatCounter++;
-            //     }
-            // }
         }
-
         if (getCurrentPlayModeEnum() == why::PlayModeEnum::Midi)
         {
             //更新bpm，重新调整train，速度只由插件控制
@@ -235,6 +241,9 @@ private:
 
     //所有synth，所有voice，共享一个impulse source
     std::shared_ptr<ConvolutionResource> convolutionResource;
+    //一份共同属性
+    std::shared_ptr<CommonVoiceSate> commonVoiceSate;
+
 
     //TODO  准备废弃
     //TODO 存储采样的buffer，准备废弃

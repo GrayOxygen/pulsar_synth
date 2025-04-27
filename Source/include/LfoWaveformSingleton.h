@@ -1,9 +1,7 @@
 //
 // Created by Mr. Wang on 2025/4/20.
 //
-#ifndef LFOWAVEFORMSINGLETON_H
-#define LFOWAVEFORMSINGLETON_H
-#include "Commons.h"
+#pragma once
 
 class LfoWaveformSingleton
 {
@@ -183,17 +181,16 @@ private:
         ampLfoNoise.setFrequency(fundamentalFreq);
         ampLfoNoise.initialise(makeNoise);
 
-
         ampLfos.push_back(&ampLfoSine);
         ampLfos.push_back(&ampLfoComplexWave);
-        ampLfos.push_back(&ampLfoSoftSquare);
         ampLfos.push_back(&ampLfoRoundedTriangle);
+        ampLfos.push_back(&ampLfoTriangle);
+        ampLfos.push_back(&ampLfoSaw);
+        ampLfos.push_back(&ampLfoSoftSquare);
         ampLfos.push_back(&ampLfoPwm);
-        // ampLfos.push_back(&ampLfoSaw);
-        // ampLfos.push_back(&ampLfoTriangle);
-        // ampLfos.push_back(&ampLfoSquare);
-        // ampLfos.push_back(&ampLfoSmoothRand);
-        // ampLfos.push_back(&ampLfoNoise);
+        ampLfos.push_back(&ampLfoSquare);
+        ampLfos.push_back(&ampLfoSmoothRand);
+        ampLfos.push_back(&ampLfoNoise);
 
         // 初始化 Formant Freq LFOs
         formantFreqSine.prepare({sampleRate, 512, 1});
@@ -238,14 +235,14 @@ private:
 
         formantLfos.push_back(&formantFreqSine);
         formantLfos.push_back(&formantFreqComplexWave);
-        formantLfos.push_back(&formantFreqSoftSquare);
         formantLfos.push_back(&formantFreqRoundedTriangle);
+        formantLfos.push_back(&formantFreqTriangle);
+        formantLfos.push_back(&formantFreqSaw);
+        formantLfos.push_back(&formantFreqSoftSquare);
         formantLfos.push_back(&formantFreqPwm);
-        // formantLfos.push_back(&formantFreqTriangle);
-        // formantLfos.push_back(&formantFreqSaw);
-        // formantLfos.push_back(&formantFreqSquare);
-        // formantLfos.push_back(&formantFreqSmoothRand);
-        // formantLfos.push_back(&formantFreqNoise);
+        formantLfos.push_back(&formantFreqSquare);
+        formantLfos.push_back(&formantFreqSmoothRand);
+        formantLfos.push_back(&formantFreqNoise);
     }
 
     // 数据成员
@@ -277,5 +274,3 @@ private:
     std::vector<juce::dsp::Oscillator<float>*> ampLfos;
     std::vector<juce::dsp::Oscillator<float>*> formantLfos;
 };
-
-#endif //LFOWAVEFORMSINGLETON_H

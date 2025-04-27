@@ -1,9 +1,7 @@
 //
 // Created by Mr. Wang on 2025/4/20.
 //
-#ifndef WAVEFORMFACTORY_H
-#define WAVEFORMFACTORY_H
-#include "Commons.h"
+#pragma once
 
 /**
  * 单例模式
@@ -198,15 +196,14 @@ private:
         // 将 LUTs 依序填入数组，用于统一调用或 morphing 控制
         waveformLUTs.push_back(&sineLUT);
         waveformLUTs.push_back(&complexWaveLUT);
-        waveformLUTs.push_back(&softSquareLUT);
         waveformLUTs.push_back(&roundedTriangleLUT);
+        waveformLUTs.push_back(&triangleLUT);
+        waveformLUTs.push_back(&sawLUT);
+        waveformLUTs.push_back(&softSquareLUT);
         waveformLUTs.push_back(&pwmLUT);
-        // waveformLUTs.push_back(&sawLUT);
-        // waveformLUTs.push_back(&triangleLUT);
-        // waveformLUTs.push_back(&squareLUT);
-        // waveformLUTs.push_back(&smoothRandLUT);
-        // waveformLUTs.push_back(&steppedRandLUT);
+        waveformLUTs.push_back(&squareLUT);
+        waveformLUTs.push_back(&smoothRandLUT);
+        waveformLUTs.push_back(&steppedRandLUT);
         // waveformLUTs.push_back(&noiseLUT);
     }
 };
-#endif //WAVEFORMFACTORY_H

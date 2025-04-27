@@ -13,9 +13,6 @@ public:
     //tain结束后是否循环
     bool isLoop = true;
 
-    //train len：多少个trainLenBlock
-    float trainLen = 0.0f;
-
     //===========================masking===========================
     why::MaskOptionEnum maskOption = why::MaskOptionEnum::Off;
     //burst
@@ -34,7 +31,7 @@ public:
     std::atomic<float>* playModeParam;
     std::atomic<float>* trainDutyCycleLenParam;
     std::atomic<float>* trainSilenceParam;
-    //1 beat为单位，4表示1个bar
+    //1 beat为单位，4表示1个bar;   train len：多少个trainLenBlock
     std::atomic<float>* trainLenParam;
 
     std::atomic<float>* pulsarDutyCycleRatioParam;

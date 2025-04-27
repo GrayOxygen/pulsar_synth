@@ -1,8 +1,7 @@
 //
 // Created by Mr. Wang on 2025/4/20.
 //
-#ifndef PULSARSYNTHSOUND_H
-#define PULSARSYNTHSOUND_H
+#pragma once
 #include "Commons.h"
 
 //控制声音是否输出等
@@ -21,5 +20,3 @@ public:
     //--------------------------------------------------------------------------
     bool appliesToChannel(int) override { return true; }
 };
-
-#endif //PULSARSYNTHSOUND_H

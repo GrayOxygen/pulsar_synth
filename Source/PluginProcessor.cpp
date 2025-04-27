@@ -17,6 +17,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 {
     // //监听valuetree listener
     // apvts.state.addListener(*this);
+
     //为所有参数增加apvts监听（监听具体的参数变化）
     for (int i = 0; i < apvts.state.getNumChildren(); ++i)
     {
@@ -27,6 +28,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
             apvts.addParameterListener(paramID, this);
         }
     }
+
     pulsarSynthEngine.init(apvts);
 }
 
@@ -114,6 +116,7 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 {
     // Use this method as the place to do any pre-playback initialisation that you need..
     juce::ignoreUnused(sampleRate, samplesPerBlock);
+
     pulsarSynthEngine.buildTrain(sampleRate, samplesPerBlock, getNumOutputChannels(), getPlayHead());
 
     //手动触发parameterChanged监听：因为插件窗口未打开时，automation只会自动修改apvts的参数，不触发parameterChagned监听
@@ -122,17 +125,17 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
         if (auto* ap = dynamic_cast<juce::AudioParameterFloat*>(param))
         {
             paramMap[ap->paramID] = apvts.getRawParameterValue(ap->paramID);
-            oldParamMap[ap->paramID] = paramMap[ap->paramID]->load(); // 初始化为相同值
+            oldParamMap[ap->paramID] = paramMap[ap->paramID]->load();
         }
         if (auto* ap = dynamic_cast<juce::AudioParameterInt*>(param))
         {
             paramMap[ap->paramID] = apvts.getRawParameterValue(ap->paramID);
-            oldParamMap[ap->paramID] = paramMap[ap->paramID]->load(); // 初始化为相同值
+            oldParamMap[ap->paramID] = paramMap[ap->paramID]->load();
         }
         if (auto* ap = dynamic_cast<juce::AudioParameterChoice*>(param))
         {
             paramMap[ap->paramID] = apvts.getRawParameterValue(ap->paramID);
-            oldParamMap[ap->paramID] = paramMap[ap->paramID]->load(); // 初始化为相同值
+            oldParamMap[ap->paramID] = paramMap[ap->paramID]->load();
         }
     }
 }
@@ -180,8 +183,6 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     {
         buffer.clear(i, 0, buffer.getNumSamples());
     }
-    float* left = buffer.getWritePointer(0);
-    float* right = buffer.getWritePointer(1);
 
     //手动触发parameterChanged监听：因为插件窗口未打开时，automation只会自动修改apvts的参数，不触发parameterChagned监听
     for (auto& param : getParamMap())
@@ -196,23 +197,6 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
         if (diff > 0.0001f)
         {
             // sendChangeMessage();
-            oldParamMap[paramID] = newValue;
-            parameterChanged(paramID, newValue);
-            break;
-        }
-    }
-
-    for (auto& param : getParamMap())
-    {
-        juce::String paramID = param.first;
-        std::atomic<float>* currentValuePtr = param.second;
-
-        float newValue = *currentValuePtr;
-        float oldValue = oldParamMap[paramID];
-        float diff = std::abs(newValue - oldValue);
-
-        if (diff > 0.0001f)
-        {
             oldParamMap[paramID] = newValue;
             parameterChanged(paramID, newValue);
             break;
@@ -242,7 +226,7 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
-    //将apvts状态存入内存中，备用于后面退出daw存储起来，之后打开就能恢复，相当于将preset搞到内存中
+    //将apvts状态存入内存中，daw退出时会回调该方法进行存储，之后打开才能恢复
     //用ableton测试时，如果用VST3 redebug启动，不会走入这个方法，除非退出前自己保存工程，再次打开才能恢复状态
     juce::ignoreUnused(destData);
     std::unique_ptr<XmlElement> xml(apvts.state.createXml());
@@ -251,37 +235,23 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 
 void AudioPluginAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-    //读取内存中的apvts信息
+    //读取内存中的apvts信息，恢复preset
     juce::ignoreUnused(data, sizeInBytes);
     std::unique_ptr<XmlElement> theParams(getXmlFromBinary(data, sizeInBytes));
-    if (theParams != nullptr)
+    if (theParams == nullptr || !theParams->hasTagName(apvts.state.getType()))
     {
-        if (theParams->hasTagName(apvts.state.getType()))
-        {
-            apvts.state = ValueTree::fromXml(*theParams);
-            loadingPresetFlag = true;
-            //在load preset时，不会自动更新editor的ui elements，但如果parameter变化了，
-            //也会走到AudioProcessorValueTreeState::Listener的parameterChanged，并且很可能会在这之前执行
-            apvts.replaceState(juce::ValueTree::fromXml(*theParams));
-            //广播editor重置所有状态，保证状态更新完，则在接收广播的监听中，apvts.getRawParameterValue()将会获得最新值
-            sendChangeMessage();
-
-            //更新当前播放模式
-            if (!apvts.state.getProperty(why::PropertyID::currentPlayModeEnum).isVoid())
-            {
-                int v = static_cast<int>(apvts.state.getProperty(why::PropertyID::currentPlayModeEnum));
-                if (static_cast<int>(why::PlayModeEnum::Auto) == v)
-                {
-                    pulsarSynthEngine.setCurrentPlayModeEnum(apvts, why::PlayModeEnum::Auto);
-                }
-                if (static_cast<int>(why::PlayModeEnum::Midi) == v)
-                {
-                    pulsarSynthEngine.setCurrentPlayModeEnum(apvts, why::PlayModeEnum::Midi);
-                }
-            }
-        }
+        return;
     };
-    // loadingPresetFlag = false;
+
+    apvts.state = ValueTree::fromXml(*theParams);
+    //editor处理完修改状态false
+    loadingPresetFlag = true;
+    apvts.replaceState(juce::ValueTree::fromXml(*theParams));
+    getPulsarSynthEngine().reloadSynthPreset(apvts);
+    //广播通知editor恢复ui状态，在接收广播的监听中，apvts.getRawParameterValue()将会获得最新值
+    //editor可能尚未创建或已销毁，如第一次打开daw尚未打开窗口时，一旦创建就会触发，所以数据类更新放到processor中不要依赖editor
+    //比如preset选了sample impulse就要立即加载，而不用等到editor创建
+    sendChangeMessage();
 }
 
 
@@ -318,41 +288,41 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
     //播放模式
     params.push_back(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(why::ParameterID::playMode, 1),
-        "Play Mode", // parameter name
+        "Play Mode",
         why::getPlayModeArray(),
         0 // 默认选择 index，combobox的id不为0，但index是从0开始算
     ));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID(why::ParameterID::bpm, 1), "Bpm", 20, 300, why::bpm.load()
+        juce::ParameterID(why::ParameterID::bpm, 1), "Bpm", 20, 300, 120
     ));
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(why::ParameterID::impulseSwitch, 1),
-        "Impulse Switch", // parameter name
+        "Impulse Switch",
         why::getImpulseSwitchArray(),
         0 // 默认选择 index，combobox的id不为0，但这里是从0开始算
     ));
 
     params.push_back(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(why::ParameterID::impulseTemplateFile, 1),
-        "Template", // parameter name
+        "Template",
         BinaryResourceSingleton::getInstance().getFileNameArray(),
-        0 // 默认选择 index，combobox的id不为0，但这里是从0开始算
+        0
     ));
 
     //train长度
     params.push_back(std::make_unique<juce::AudioParameterInt>(
-            juce::ParameterID(why::ParameterID::trainLen, 1), "Train Period", 1, 64 * 4, 1.0)
+            juce::ParameterID(why::ParameterID::trainLen, 1), "Train Period", 1, 32, 1.0)
     );
     //train duty cycle: how many numbers of pulsar period
     params.push_back(std::make_unique<juce::AudioParameterInt>(
-            juce::ParameterID(why::ParameterID::trainDutyCycleLen, 1), "Train Duty Cycle", 1, 1000, 0)
+            juce::ParameterID(why::ParameterID::trainDutyCycleLen, 1), "Train Duty Cycle", 1, 640, 0)
     );
     //train silence：个数，改为缩放
     params.push_back(
         std::make_unique<juce::AudioParameterInt>(
-            juce::ParameterID(why::ParameterID::trainSilenceLen, 1), "Train Silence", 0, 1000, 0)
+            juce::ParameterID(why::ParameterID::trainSilenceLen, 1), "Train Silence", 0, 640, 0)
     );
 
     //masking
@@ -401,7 +371,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
             juce::ParameterID(why::ParameterID::pulsarDecay, 1), "Pulsar Decay", 0.0, 1.0, 0.0001)
     );
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
-            juce::ParameterID(why::ParameterID::pulsarSustain, 1), "Pulsar Sustain", 0.0, 1.0, 1.0)
+            juce::ParameterID(why::ParameterID::pulsarSustain, 1), "Pulsar Sustain", 0.01, 1.0, 1.0)
     );
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID(why::ParameterID::pulsarRelease, 1), "Pulsar Release", 0.0, 1.0, 0.0001)

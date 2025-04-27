@@ -50,7 +50,7 @@ public:
 
     //====================自定义函数和函数重写====================
     //重载preset，所有reload preset在这里统一更新，不要在别的地方如ui event里同时更新
-    void reloadPreset();
+    void reloadPresetUI();
 
     //监听广播
     //reload preset时，如果数据变化也会体现在ui element event中
@@ -70,7 +70,7 @@ public:
     void initTemplateImpulseComboboxNames();
     //convolution加载来自template设置的impulse
     void loadTemplateImpulseWhenSelected();
-    void saveThenLoadAfterSelect(juce::String selectedId);
+    void saveTemplateImpulseThenLoadAfterSelect(juce::String selectedId);
     //===卷积处理：加载impulse文件数据===
 
     void rebalanceStepHitValueDisplay();
@@ -93,7 +93,7 @@ private:
     //播放模式
     juce::Label playModeLabel;
     juce::ComboBox playModeCombobox;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> playModeComboxAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> playModeComboboxAttachment;
 
     //train
     juce::Slider trainLenSlider;
@@ -159,10 +159,10 @@ private:
     juce::TextEditor burstMaskTextEditor;
 
     juce::Label euclidStepLabel;
-    juce::Slider euclidStepDial;
+    juce::Slider euclidStepSlider;
 
     juce::Label euclidHitLabel;
-    juce::Slider euclidHitDial;
+    juce::Slider euclidHitSlider;
 
     juce::Label stochasticMaskLabel;
     juce::TextEditor stochasticMaskTextEditor;

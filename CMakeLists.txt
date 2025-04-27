@@ -14,7 +14,7 @@ cmake_minimum_required(VERSION 3.28)
 # directories, and the current project version. This is a standard CMake command.
 
 ########################My Configure########################
-project(pulsar_synth VERSION 0.0.5)
+project(pulsar_synth VERSION 0.0.8)
 set(CMAKE_CXX_STANDARD 20)
 # 包含头文件目录
 include_directories(${CMAKE_SOURCE_DIR}/Source/include)
@@ -56,10 +56,11 @@ juce_add_plugin(pulsar_synth
         #将插件复制到vst目录下
         COPY_PLUGIN_AFTER_BUILD TRUE        # Should the plugin be installed to a default location after building?
         PLUGIN_MANUFACTURER_CODE Juce               # A four-character manufacturer id with at least one upper-case character
-        PLUGIN_CODE 8911                            # A unique four-character plugin id with exactly one upper-case character
+        # 出现如下错误更改code
+        PLUGIN_CODE 3711                            # A unique four-character plugin id with exactly one upper-case character
         # GarageBand 10.3 requires the first letter to be upper-case, and the remaining letters to be lower-case
         FORMATS AU VST3 Standalone                  # The formats to build. Other valid formats are: AAX Unity VST AU AUv3
-        PRODUCT_NAME "pulsar_synth")        # The name of the final executable, which can differ from the target name
+        PRODUCT_NAME "Pulsar Wang")        # The name of the final executable, which can differ from the target name
 
 
 # `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated

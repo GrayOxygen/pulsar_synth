@@ -2,9 +2,10 @@
 // Created by Mr. Wang on 2025/4/20.
 //
 #pragma once
+#include <ResourceSingleton.h>
+
 #include "Commons.h"
 
-//TODO 考虑清空数据
 class ConvolutionResource
 {
 public:
@@ -60,11 +61,25 @@ public:
     }
 
     void saveLastTemplateImpulseData(const juce::AudioBuffer<float>& lastTemplateBuffer,
-                                     double lastTemplateDataSize, std::string fileName)
+                                     double lastTemplateBufferSampleRate, std::string fileName)
     {
         this->lastTemplateBuffer = std::make_unique<juce::AudioBuffer<float>>(lastTemplateBuffer);
-        this->lastTemplateDataSize = lastTemplateDataSize;
+        this->lastTemplateBufferSampleRate = lastTemplateBufferSampleRate;
         this->sampleImpulseFilePath = fileName;
+    }
+
+    void saveTemplateImpulse(juce::String selectedId)
+    {
+        const char* resourceName = (BinaryResourceSingleton::getInstance().getBinaryIdFileNameMap()[selectedId]).
+            toRawUTF8();
+        double fileSampleRate;
+        std::unique_ptr<juce::AudioBuffer<float>> bf;
+
+        if (why::readFileFromResources(resourceName, fileSampleRate, bf))
+        {
+            saveLastTemplateImpulseData(*bf, fileSampleRate, std::string(resourceName));
+            loadTemplateImpulseFile();
+        }
     }
 
     void saveLastSampleFileAsBlock(const juce::File& file)
@@ -73,8 +88,6 @@ public:
         {
             return;
         }
-        // std::unique_ptr<juce::File> filePtr = std::make_unique<juce::File>(file);
-        // processorRef.set_convolution_file(filePtr);
         juce::MemoryBlock memBlock;
         file.loadFileAsData(memBlock);
         std::unique_ptr<juce::MemoryBlock> memBlockPtr = std::make_unique<juce::MemoryBlock>(memBlock);
@@ -98,14 +111,14 @@ public:
             getLastSampleImpulseMemoryBlock()->getSize(),
             juce::dsp::Convolution::Stereo::yes,
             juce::dsp::Convolution::Trim::yes,
-            2048, //TODO 第一个FFT SIZE , 分区块做FFT,越大越耗时，越小越快，但声音分辨率越低
+            0, //TODO 设置一个上限，如果传入很大的文件将会很耗费性能，原本直接写死1024*8个sample size，还是让用户选择，长一点好听
             juce::dsp::Convolution::Normalise::yes); // 0 = full IR
     }
 
     //保存最后的
     void loadTemplateImpulseFile()
     {
-        if (lastTemplateDataSize <= 0)
+        if (lastTemplateBufferSampleRate <= 0 || lastTemplateBuffer->getNumSamples() <= 0)
         {
             //当前不使用卷积
             setShouldUseConvolution(false);
@@ -120,34 +133,10 @@ public:
         //自带的impulse audio都处理过了，不会太长
         convolution->loadImpulseResponse(
             std::move(*clonedBuffer),
-            lastTemplateDataSize,
+            lastTemplateBufferSampleRate,
             juce::dsp::Convolution::Stereo::yes,
             juce::dsp::Convolution::Trim::yes,
             juce::dsp::Convolution::Normalise::yes);
-
-        //TODO 修改FFT SIZE
-        // int numChannels = clonedBuffer->getNumChannels();
-        // int numSamples = clonedBuffer->getNumSamples();
-        // size_t sourceDataSize = numChannels * numSamples * sizeof(float);
-        //
-        // // 创建一个临时缓冲区来存储所有通道的数据
-        // std::vector<float> combinedData(numChannels * numSamples);
-        //
-        // // 合并所有通道的数据
-        // for (int channel = 0; channel < numChannels; ++channel)
-        // {
-        //     const float* channelData = clonedBuffer->getReadPointer(channel);
-        //     std::copy(channelData, channelData + numSamples, combinedData.data() + (channel * numSamples));
-        // }
-        // // 将数据传递给 Convolution
-        // convolution->loadImpulseResponse(
-        //     combinedData.data(),
-        //     sourceDataSize,
-        //     (numChannels == 2) ? juce::dsp::Convolution::Stereo::yes : juce::dsp::Convolution::Stereo::no,
-        //     juce::dsp::Convolution::Trim::yes,
-        //     why::sampleRate,
-        //     juce::dsp::Convolution::Normalise::yes
-        // );
     }
 
     bool processSample(juce::AudioBuffer<float>& pulseBuffer)
@@ -156,7 +145,6 @@ public:
         {
             return false;
         }
-        float postGain = 1.0;
         if (convolution->getCurrentIRSize() > 0 && shouldUseConvolution)
         {
             juce::dsp::AudioBlock<float> block(pulseBuffer);
@@ -184,7 +172,7 @@ public:
 
     [[nodiscard]] double& getLastTemplateDataSize()
     {
-        return lastTemplateDataSize;
+        return lastTemplateBufferSampleRate;
     }
 
     [[nodiscard]] bool& isShouldUseConvolution()
@@ -225,7 +213,7 @@ private:
     std::unique_ptr<juce::AudioBuffer<float>> lastTemplateBuffer = std::make_unique<juce::AudioBuffer<float>>(2, 1024);
     std::string templateImpulseFileName;
 
-    double lastTemplateDataSize = 0;
+    double lastTemplateBufferSampleRate = 0;
     bool shouldUseConvolution = false;
 
     std::shared_ptr<juce::dsp::Convolution> convolution = std::make_shared<juce::dsp::Convolution>();

@@ -11,7 +11,7 @@ namespace why
 
     juce::StringArray getPlayModeArray()
     {
-        juce::StringArray names = {"Auto", "Midi"};
+        juce::StringArray names = {"Off", "Auto", "Midi"};
         return names;
     }
 
