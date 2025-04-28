@@ -202,7 +202,6 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
             break;
         }
     }
-
     pulsarSynthEngine.processSample(buffer, midiMessages, getPlayHead());
 }
 
@@ -248,6 +247,8 @@ void AudioPluginAudioProcessor::setStateInformation(const void* data, int sizeIn
     loadingPresetFlag = true;
     apvts.replaceState(juce::ValueTree::fromXml(*theParams));
     getPulsarSynthEngine().reloadSynthPreset(apvts);
+    parameterChanged(juce::String(why::ParameterID::playMode),
+                     static_cast<float>(getPulsarSynthEngine().getCurrentPlayModeEnum()));
     //广播通知editor恢复ui状态，在接收广播的监听中，apvts.getRawParameterValue()将会获得最新值
     //editor可能尚未创建或已销毁，如第一次打开daw尚未打开窗口时，一旦创建就会触发，所以数据类更新放到processor中不要依赖editor
     //比如preset选了sample impulse就要立即加载，而不用等到editor创建

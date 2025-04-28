@@ -36,6 +36,7 @@ public:
 
     void setCurrentPlayModeEnum(juce::AudioProcessorValueTreeState& apvts, int index)
     {
+        stopTheWorld();
         if (index == static_cast<int>(why::PlayModeEnum::Auto))
         {
             this->currentPlayModeEnum = why::PlayModeEnum::Auto;
@@ -61,7 +62,10 @@ public:
     //切换模式转换，就让用户重新触发，midi模式会自动随着下一个音符播放而触发，auto模式需要用户再次点击播放
     void stopTheWorld()
     {
-        pulsarSynthForMidi->allNotesOff(0, false);
+        for (int channel = 1; channel <= 16; ++channel)
+        {
+            pulsarSynthForMidi->allNotesOff(channel, false);
+        }
         pulsarSynthForAuto->triggerSoundOffWhenSwitchPlayMode();
     }
 
@@ -111,7 +115,6 @@ public:
         }
 
         //更新当前播放模式
-
         if (!apvts.state.getProperty(why::PropertyID::currentPlayModeEnum).isVoid())
         {
             int currentPlayModeEnumInt = apvts.state.getProperty(why::PropertyID::currentPlayModeEnum).toString().

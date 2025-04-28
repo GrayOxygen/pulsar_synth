@@ -196,7 +196,7 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
     //reload preset
     if (source == &processorRef && processorRef.isLoadingPresetFlag())
     {
-        reloadPresetUI();
+        reloadPre setUI();
         processorRef.setLoadingPresetFlag(false);
         return;
     }
@@ -834,7 +834,6 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
     {
         //setSelectId也会触发该回调方法，所以打开窗口时，setUIStyle设置默认选项会进来，所以setUIStyle不要设置id
         // 停止当前所有声音
-        processorRef.getPulsarSynthEngine().stopTheWorld();
         processorRef.getPulsarSynthEngine().setCurrentPlayModeEnum(processorRef.apvts,
                                                                    playModeCombobox.getSelectedItemIndex());
     };

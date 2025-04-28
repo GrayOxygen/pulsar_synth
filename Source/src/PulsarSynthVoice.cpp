@@ -39,7 +39,7 @@ void PulsarSynthVoice::startNote(int midiNoteNumber,
 //allowTailOff true，不会立即停止声音，走envelope noteoff停止；在此期间，renderNextBlock() 仍会继续跑，虽然 envelope 音量很小，但还是在输出 sample。
 void PulsarSynthVoice::stopNote(float, bool allowTailOff)
 {
-    // envelope.noteOff();
+    envelope.noteOff();
     clearCurrentNote();
     playing = false; // 防止 render 再进来
 }
