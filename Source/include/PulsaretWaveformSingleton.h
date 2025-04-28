@@ -4,22 +4,27 @@
 #pragma once
 
 /**
- * pulsaret waveform单例，全局仅维护一个实例
+ * The pulsaret waveform singleton maintains only one instance globally
  */
 class PulsaretWaveformSingleton
 {
 public:
-    //获取实例
     static PulsaretWaveformSingleton& getInstance()
     {
         static PulsaretWaveformSingleton instance;
         return instance;
     }
 
-    //删除拷贝构造函数和赋值操作符，确保只能通过getInstance获取唯一实例
+    //Remove the copy constructor and assignment operator to ensure that only a unique instance can be obtained
     PulsaretWaveformSingleton(const PulsaretWaveformSingleton&) = delete;
     PulsaretWaveformSingleton& operator=(const PulsaretWaveformSingleton&) = delete;
 
+    /**
+     * calculate smooth modulation between the waveforms table
+     * @param originalSampleIndex float index:0.0f-1.0f
+     * @param phase phase
+     * @return get the smooth modulation
+     */
     float calcSample(float originalSampleIndex, float phase)
     {
         // 将slider值映射到waveformLUTs数组的两个相邻波形之间
@@ -43,13 +48,13 @@ public:
     }
 
 private:
-    //私有构造函数，确保不能在外部创建实例
+    //Private constructor to ensure that instances cannot be created externally
     PulsaretWaveformSingleton()
     {
         initializeWaveforms();
     }
 
-    //振荡器:使用LookupTableTransform而不是juce::dsp::Oscillator的原因，是因为可以自己控制phase
+    //The reason for using LookupTableTransform instead of juce::dsp::Oscillator because I need control the phase
     juce::dsp::LookupTableTransform<float> sineLUT;
     juce::dsp::LookupTableTransform<float> roundedTriangleLUT;
     juce::dsp::LookupTableTransform<float> triangleLUT;
@@ -66,7 +71,7 @@ private:
     std::vector<juce::dsp::LookupTableTransform<float>*> waveformLUTs;
 
     /**
-     * 初始化waveform
+     * init waveform
      * @param lut lookup对象
      * @param waveformFunc 应用的波形函数
      */
@@ -186,7 +191,9 @@ private:
             return juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f; // 随机值范围 -1 到 1
         });
 
-        //push_back顺序对应了index从0.0f到1.0f的值，总体上，这反映了从平滑到不平滑的特点，顺序与lfo的waveform table顺序一致
+        // The push_back order corresponds to the values of the index from 0.0f to 1.0f. Generally speaking,
+        // this reflects the characteristic from smooth to non-smooth, and the order is consistent with
+        // the waveform table order of lfo
         waveformLUTs.push_back(&sineLUT);
         waveformLUTs.push_back(&complexWaveLUT);
         waveformLUTs.push_back(&roundedTriangleLUT);

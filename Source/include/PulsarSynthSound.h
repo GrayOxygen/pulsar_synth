@@ -4,7 +4,7 @@
 #pragma once
 
 /**
- * 自定义sound：仅允许midiNoteNumber>=60的note触发声音
+ * Custom sound: Only notes with midiNoteNumber>=60 are allowed to trigger sounds
  */
 class PulsarSynthSound : public juce::SynthesiserSound
 {

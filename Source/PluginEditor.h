@@ -28,8 +28,10 @@ public:
                     std::shared_ptr<FlexBox> trainSilenceLenFlexBox, std::shared_ptr<FlexBox> bpmFlexBox,
                     std::shared_ptr<FlexBox> playModeAndImpulseFlexBox);
     void bottomFlexBox(juce::FlexBox& bottomFlexBox, std::shared_ptr<juce::FlexBox> pulsarWaveformFlexBox,
-                       std::shared_ptr<juce::FlexBox> pulsarDutyCycleClusterLenFlexBox, std::shared_ptr<juce::FlexBox> pulsarDutyCycleRatioFlexBox,
-                       std::shared_ptr<juce::FlexBox> ampLfoFlexBox, std::shared_ptr<juce::FlexBox> formantFreqLfoFlexBox,
+                       std::shared_ptr<juce::FlexBox> pulsarDutyCycleClusterLenFlexBox,
+                       std::shared_ptr<juce::FlexBox> pulsarDutyCycleRatioFlexBox,
+                       std::shared_ptr<juce::FlexBox> ampLfoFlexBox,
+                       std::shared_ptr<juce::FlexBox> formantFreqLfoFlexBox,
                        std::shared_ptr<juce::FlexBox> attackFlexBox, std::shared_ptr<juce::FlexBox> decayFlexBox,
                        std::shared_ptr<juce::FlexBox> sustainFlexBox, std::shared_ptr<juce::FlexBox> releaseFlexBox);
     void midFlexBox(juce::FlexBox& midFlexBox, std::shared_ptr<juce::FlexBox> maskOptionFlexBox,
@@ -40,9 +42,9 @@ public:
     void resized() override;
 
     /**
-     * 当收到asynchronous change message时，juce会回调该方法
-     *
-     * 注意：测试时发现parameterChanged监听会先执行，接着是changeListenerCallback
+     * When the asynchronous change message is received, juce will call back this method
+     * Note: During the test, it was found that the parameterChanged listening would be executed first,
+     * followed by changeListenerCallback
      *
      * @param source listener
      */
@@ -50,44 +52,44 @@ public:
 
     //========================================自定义方法======================================
     /**
-     * 将preset的参数更新到UI中
+     * Update the parameters of the preset to the UI
      */
     void refreshUIFromPreset();
 
-    //=======impulse file相关操作时=======
+    //=======methods related to impulse file=======
     /**
-     * 打开文件窗口，选择impulse file
+     * open file window and select impulse file
      */
     void openFileChooser();
 
     /**
-     * 保存impulse file到synth的convolution resource内存中
-     * @param file impulse file，juce默认支持的基本格式如.wav, .mp3
+     * Save the impulse file to the convolution resource memory of synth
+     * @param file impulse file，as juce default surpport format like .wav, .mp3
      */
     void saveFileIntoSynth(const juce::File& file);
 
     /**
-     * 当选中sample impulse时，将sample file加载为impulse response
+     * When sample impulse is selected, the sample file is loaded as impulse response
      */
     void loadSampleImpulseWhenSelected();
 
     /**
-     * 初始化template impulse选项
+     * init template impulse option
      */
     void initTemplateImpulseComboboxNames();
 
     /**
-     * 当选中template impulse时，将template file加载为impulse response
+     * When template impulse is selected, the template file is loaded as impulse response
      */
     void loadTemplateImpulseWhenSelected();
 
     /**
-     * 保存template impulse到synth中，若选中template impulse则直接加载为impulse response
+     * Save template impulse to synth. If template impulse is selected,
+     * it will be directly loaded as impulse response
      *
      * @param selectedId
      */
     void saveTemplateImpulseThenLoadAfterSelect(juce::String selectedId);
-    //=======impulse file相关操作时=======
 
     void rebalanceStepHitValueDisplay();
 

@@ -3,7 +3,8 @@
 //
 #pragma once
 /**
- * lfo waveform单例，针对同一套sample rate, frequency参数，全局仅维护一套实例
+ * The lfo waveform singleton maintains only one set of instances globally for the same set of
+ * sample rate and frequency parameters
  */
 class LfoWaveformSingleton
 {
@@ -15,7 +16,7 @@ public:
         return instance;
     }
 
-    //删除拷贝构造函数和赋值操作符，确保只能通过getInstance获取唯一实例
+    //Remove the copy constructor and assignment operator to ensure only a unique instance can be obtained
     LfoWaveformSingleton(const LfoWaveformSingleton&) = delete;
     LfoWaveformSingleton& operator=(const LfoWaveformSingleton&) = delete;
 
@@ -70,15 +71,19 @@ public:
     }
 
 private:
-    //私有构造函数，确保不能在外部创建实例
+    //Private constructor to ensure that instances cannot be created externally
     LfoWaveformSingleton(double sampleRate, float freq)
     {
         this->sampleRate = sampleRate;
         initializeWaveforms(sampleRate, freq);
     }
 
-    // 初始化波形
-    void initializeWaveforms(double sampleRate, float fundamentalFreq)
+    /**
+     * init different waveforms
+     * @param sampleRate sample rate
+     * @param theFreq frequency
+     */
+    void initializeWaveforms(double sampleRate, float theFreq)
     {
         // 波形生成逻辑
         auto makeTriangle = [](float x)
@@ -150,47 +155,47 @@ private:
 
         // 初始化 Amp LFOs
         ampLfoSine.prepare({sampleRate, 512, 1});
-        ampLfoSine.setFrequency(fundamentalFreq);
+        ampLfoSine.setFrequency(theFreq);
         ampLfoSine.initialise(makeSine);
 
         ampLfoComplexWave.prepare({sampleRate, 512, 1});
-        ampLfoComplexWave.setFrequency(fundamentalFreq);
+        ampLfoComplexWave.setFrequency(theFreq);
         ampLfoComplexWave.initialise(makeComplexWave);
 
         ampLfoRoundedTriangle.prepare({sampleRate, 512, 1});
-        ampLfoRoundedTriangle.setFrequency(fundamentalFreq);
+        ampLfoRoundedTriangle.setFrequency(theFreq);
         ampLfoRoundedTriangle.initialise(makeRoundedTriangle);
 
         ampLfoTriangle.prepare({sampleRate, 512, 1});
-        ampLfoTriangle.setFrequency(fundamentalFreq);
+        ampLfoTriangle.setFrequency(theFreq);
         ampLfoTriangle.initialise(makeTriangle);
 
         ampLfoSoftSquare.prepare({sampleRate, 512, 1});
-        ampLfoSoftSquare.setFrequency(fundamentalFreq);
+        ampLfoSoftSquare.setFrequency(theFreq);
         ampLfoSoftSquare.initialise(makeSoftSquare);
 
         ampLfoPwm.prepare({sampleRate, 512, 1});
-        ampLfoPwm.setFrequency(fundamentalFreq);
+        ampLfoPwm.setFrequency(theFreq);
         ampLfoPwm.initialise(makePwm);
 
         ampLfoSquare.prepare({sampleRate, 512, 1});
-        ampLfoSquare.setFrequency(fundamentalFreq);
+        ampLfoSquare.setFrequency(theFreq);
         ampLfoSquare.initialise(makeSquare);
 
         ampLfoSaw.prepare({sampleRate, 512, 1});
-        ampLfoSaw.setFrequency(fundamentalFreq);
+        ampLfoSaw.setFrequency(theFreq);
         ampLfoSaw.initialise(makeSaw);
 
         ampLfoSmoothRand.prepare({sampleRate, 512, 1});
-        ampLfoSmoothRand.setFrequency(fundamentalFreq);
+        ampLfoSmoothRand.setFrequency(theFreq);
         ampLfoSmoothRand.initialise(makeSmoothRand);
 
         ampLfoNoise.prepare({sampleRate, 512, 1});
-        ampLfoNoise.setFrequency(fundamentalFreq);
+        ampLfoNoise.setFrequency(theFreq);
         ampLfoNoise.initialise(makeNoise);
 
         ampLfoSteppedRand.prepare({sampleRate, 512, 1});
-        ampLfoSteppedRand.setFrequency(fundamentalFreq);
+        ampLfoSteppedRand.setFrequency(theFreq);
         ampLfoSteppedRand.initialise(makeStepRand);
 
         //push_back的顺序对应了index的0.0f到1.0f值映射关系
@@ -208,47 +213,47 @@ private:
 
         // 初始化 Formant Freq LFOs
         formantFreqSine.prepare({sampleRate, 512, 1});
-        formantFreqSine.setFrequency(fundamentalFreq);
+        formantFreqSine.setFrequency(theFreq);
         formantFreqSine.initialise(makeSine);
 
         formantFreqComplexWave.prepare({sampleRate, 512, 1});
-        formantFreqComplexWave.setFrequency(fundamentalFreq);
+        formantFreqComplexWave.setFrequency(theFreq);
         formantFreqComplexWave.initialise(makeComplexWave);
 
         formantFreqRoundedTriangle.prepare({sampleRate, 512, 1});
-        formantFreqRoundedTriangle.setFrequency(fundamentalFreq);
+        formantFreqRoundedTriangle.setFrequency(theFreq);
         formantFreqRoundedTriangle.initialise(makeRoundedTriangle);
 
         formantFreqTriangle.prepare({sampleRate, 512, 1});
-        formantFreqTriangle.setFrequency(fundamentalFreq);
+        formantFreqTriangle.setFrequency(theFreq);
         formantFreqTriangle.initialise(makeTriangle);
 
         formantFreqSoftSquare.prepare({sampleRate, 512, 1});
-        formantFreqSoftSquare.setFrequency(fundamentalFreq);
+        formantFreqSoftSquare.setFrequency(theFreq);
         formantFreqSoftSquare.initialise(makeSoftSquare);
 
         formantFreqPwm.prepare({sampleRate, 512, 1});
-        formantFreqPwm.setFrequency(fundamentalFreq);
+        formantFreqPwm.setFrequency(theFreq);
         formantFreqPwm.initialise(makePwm);
 
         formantFreqSquare.prepare({sampleRate, 512, 1});
-        formantFreqSquare.setFrequency(fundamentalFreq);
+        formantFreqSquare.setFrequency(theFreq);
         formantFreqSquare.initialise(makeSquare);
 
         formantFreqSaw.prepare({sampleRate, 512, 1});
-        formantFreqSaw.setFrequency(fundamentalFreq);
+        formantFreqSaw.setFrequency(theFreq);
         formantFreqSaw.initialise(makeSaw);
 
         formantFreqSmoothRand.prepare({sampleRate, 512, 1});
-        formantFreqSmoothRand.setFrequency(fundamentalFreq);
+        formantFreqSmoothRand.setFrequency(theFreq);
         formantFreqSmoothRand.initialise(makeSmoothRand);
 
         formantFreqNoise.prepare({sampleRate, 512, 1});
-        formantFreqNoise.setFrequency(fundamentalFreq);
+        formantFreqNoise.setFrequency(theFreq);
         formantFreqNoise.initialise(makeNoise);
 
         formantFreqSteppedRand.prepare({sampleRate, 512, 1});
-        formantFreqSteppedRand.setFrequency(fundamentalFreq);
+        formantFreqSteppedRand.setFrequency(theFreq);
         formantFreqSteppedRand.initialise(makeStepRand);
 
         //push_back的顺序对应了index的0.0f到1.0f值映射关系

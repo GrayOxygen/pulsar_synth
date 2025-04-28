@@ -43,9 +43,9 @@ namespace why
             group.push_back(0);
         }
 
-        // 1数组
+        // vector contains 1
         std::vector<std::vector<int>> ones(hits, group);
-        // 0数组，remainders
+        // vector contains 0，remainders
         std::vector<std::vector<int>> remainders(steps - (steps / hits) * hits, std::vector<int>{0});
 
         size_t i = 0;

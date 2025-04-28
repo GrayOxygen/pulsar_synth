@@ -16,7 +16,7 @@
 #include "PulsarSynthVoice.h"
 
 /**
- * 自定义合成器，不同的play mode对应不同的synth
+ * Custom synthesizers, with different play modes corresponding to different synths
  */
 class PulsarSynth : public juce::Synthesiser
 {
@@ -41,7 +41,8 @@ public:
     }
 
     /**
-     * 切换play mode时，关闭所有声音，auto模式将会在下次daw的playback中播放，midi模式将会在下一个note播放
+     * When switching the play mode, turn off all sounds.
+     * The auto mode will be played in the playback of the next daw, and the midi mode will be played in the next note
      */
     void triggerSoundOffWhenSwitchPlayMode()
     {
@@ -54,8 +55,10 @@ public:
     }
 
     /**
-     * 修改插件的bpm，强制刷新bpm和rebuild train，因为bpm变了，train就变了
-     * @param bpm 插件的bpm，与daw的bpm无关
+     * Modify the bpm of the plugin, force refresh the bpm and rebuild the train, because when the bpm changes,
+     * the train also changes
+     *
+     * @param bpm The bpm of the plugin has nothing to do with that of the daw
      */
     void forceRefreshBpmAndRebuildTrain(float bpm)
     {
@@ -70,11 +73,12 @@ public:
     }
 
     /**
-     * 初始化trian，每个voice都单独拥有一个train，同时voice也指向同一个CommonVoiceState，共享部分公用数据
+     * Initialize trian. Each voice has a separate train, and the voice also points to the same CommonVoiceState,
+     * sharing some common data
      *
      * @param sampleRate sample rate
-     * @param sampleBuffer  sample buffer，暂时没用到，但保留（计划用于实现将sample作为pulsaret）
-     * @param audioPlayHead 用于获取播放位置等信息
+     * @param sampleBuffer  sample buffer，TODO Not used now, but retained (planned for implementing sample as pulsaret)
+     * @param audioPlayHead obtain information such as the playback position
      */
     void initTrain(double sampleRate, std::unique_ptr<juce::AudioBuffer<float>>& sampleBuffer,
                    juce::AudioPlayHead* audioPlayHead)
@@ -88,14 +92,14 @@ public:
     }
 
     /**
-     * 参数变更，更新voice：
+     * Parameter change, update voice:
      *
-     * 当AudioProcessorValueTreeState的parameterChanged监听被回调后，该方法也会被触发
+     * When AudioProcessorValueTreeState parameterChanged listening is after the callback, the method will be triggered
      *
      * @param apvts tree state
      * @param parameterID  parameter id
      * @param newValue up-to-date value
-     * @param isGeneratedStochasticMask 是否生成了stochastic mask的标记，true为是，false为否
+     * @param isGeneratedStochasticMask Whether the stochasticMask was generated, this arg will be updated when func end
      */
     void parameterChanged(juce::AudioProcessorValueTreeState& apvts, juce::String parameterID, float newValue,
                           bool& isGeneratedStochasticMask)
@@ -109,7 +113,7 @@ public:
     }
 
     /**
-     * 根据preset刷新voice
+     * Refresh the voice according to the preset
      * @param apvts tree state
      */
     void reloadPreset(juce::AudioProcessorValueTreeState& apvts)
@@ -123,7 +127,9 @@ public:
     }
 
     /**
-     * 更新所有voice的burstMask，不过voices都指向同一个CommonVoiceSate，所以只需更新一个voice的即可
+     * Update the burstMask of all voices, but the voices all point to the same CommonVoiceSate,
+     * so only one voice needs to be updated
+     *
      * @param burstMask burst mask
      */
     void refreshBurstMask(juce::String burstMask)
@@ -137,7 +143,7 @@ public:
     }
 
     /**
-     * 获取展示的stochastic mask
+     * get stochastic mask for display
      *
      * @return stochastic mask
      */
@@ -161,7 +167,8 @@ public:
     }
 
     /**
-     * auto模式下的renderNextBlock，因为无midi触发，所以没有走juce的Synthesiser的renderNextBlock
+     * In auto mode, the renderNextBlock does not follow the renderNextBlock of juce's synthesizer
+     * because there is no midi trigger. So write it here.
      *
      * @param buffer audio buffer
      * @param audioPlayHead audio play head
@@ -177,13 +184,12 @@ public:
         for (int i = 0; i < getNumVoices(); ++i)
         {
             juce::SynthesiserVoice* voice = getVoice(i);
-            // 将其转换为自定义的 PulsarSynthVoice
             PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
             pulsarVoice->renderNextBlockDirectly(buffer, audioPlayHead, start, numSamples, currentPlayModeEnum);
         }
     }
 
 private:
-    //当前synth属于哪一种播放模式
+    //which play mode is
     why::PlayModeEnum myPlayModeEnum;
 };

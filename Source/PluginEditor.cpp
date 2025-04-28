@@ -30,9 +30,11 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
     //trigger event
     initUITriggerEvent();
 
-    //apvts的监听，放到最后保证修改不会被前面逻辑覆盖
-    //DAW打开工程时，可能会多次调用setStateInformation，但plugineditor还没生成，导致广播changelistener监听函数没执行
-    //所以loading preset标记最终会等到editor（打开插件窗口时）更新完才算结束，确保了UI展示最新
+    //The listening of apvts is placed at the end to ensure that the modifications will not be overwritten
+    //by the previous logic. When DAW opens the project, it may call setStateInformation multiple times,
+    //but plugineditor has not been generated yet, resulting in the broadcast changelistener listening function
+    //not being executed So the loading preset tag will eventually end only after the editor
+    //(when the plugin window is opened) is updated, ensuring that the UI display is up to date
     if (processorRef.isLoadingPresetFlag())
     {
         changeListenerCallback(&processorRef);
@@ -41,7 +43,7 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
 
 AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor()
 {
-    //释放资源
+    //release
     processorRef.removeChangeListener(this);
 }
 
@@ -57,7 +59,7 @@ void AudioPluginAudioProcessorEditor::paint(juce::Graphics& g)
 }
 
 /**
- * 设置ui element布局
+ * set ui element display
  */
 void AudioPluginAudioProcessorEditor::resized()
 {
@@ -67,7 +69,7 @@ void AudioPluginAudioProcessorEditor::resized()
     juce::FlexBox mainFlexBox;
     mainFlexBox.flexDirection = juce::FlexBox::Direction::column;
 
-    //头部布局
+    //top
     juce::FlexBox topFlexBox;
     std::shared_ptr<juce::FlexBox> row1 = std::make_shared<juce::FlexBox>();
     std::shared_ptr<juce::FlexBox> row2 = std::make_shared<juce::FlexBox>();
@@ -77,7 +79,7 @@ void AudioPluginAudioProcessorEditor::resized()
 
     this->topFlexBox(topFlexBox, row1, row2, row3, row4, row5);
 
-    //中部布局
+    //midlle part
     juce::FlexBox midFlexBox;
     std::shared_ptr<juce::FlexBox> row11 = std::make_shared<juce::FlexBox>();
     std::shared_ptr<juce::FlexBox> row12 = std::make_shared<juce::FlexBox>();
@@ -87,7 +89,7 @@ void AudioPluginAudioProcessorEditor::resized()
 
     this->midFlexBox(midFlexBox, row11, row12, row13, row14, row15);
 
-    //底部布局
+    //bottom
     juce::FlexBox bottomFlexBox;
     std::shared_ptr<juce::FlexBox> column1 = std::make_shared<juce::FlexBox>();
     std::shared_ptr<juce::FlexBox> column2 = std::make_shared<juce::FlexBox>();
@@ -101,7 +103,7 @@ void AudioPluginAudioProcessorEditor::resized()
 
     this->bottomFlexBox(bottomFlexBox, column1, column2, column3, column4, column5, column6, column7, column8, column9);
 
-    //整体组合，withMargin：上、右、下、左
+    //Overall combination, withMargin: up, right, down, left
     mainFlexBox.items.add(juce::FlexItem(topFlexBox).withFlex(1.0).withMargin({20, 20, 0, 20}));
     mainFlexBox.items.add(juce::FlexItem(midFlexBox).withFlex(0.8).withMargin({20, 20, 0, 20}));
     mainFlexBox.items.add(juce::FlexItem(bottomFlexBox).withFlex(1.0).withMargin({20, 20, 20, 20}));
@@ -109,7 +111,7 @@ void AudioPluginAudioProcessorEditor::resized()
 }
 
 /**
- * 主要处理那些无法设置attachment的UI更新，如texteditor和impulse file的加载逻辑
+ * Mainly handle UI updates where attachment cannot be set, such as the loading logic of texteditor and impulse file
  */
 void AudioPluginAudioProcessorEditor::refreshUIFromPreset()
 {
@@ -117,22 +119,21 @@ void AudioPluginAudioProcessorEditor::refreshUIFromPreset()
     {
         return;
     }
-    //刷新texteditor展示
+    //Refresh the texteditor display
     String burstMask = processorRef.apvts.state.getProperty(why::PropertyID::burstMask).toString();
     String stochasticMask = processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).toString();
     String sampleImpulsePath = processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
-    //保证展示不为空，比如load preset时，也会触发回调该方法
+    //保证展示不为空
     if (burstMaskTextEditor.getTextValue() != burstMask)
     {
         burstMaskTextEditor.setText(burstMask, juce::dontSendNotification);
     }
     if (stochasticMaskTextEditor.getTextValue() != stochasticMask)
     {
-        //如果是加载preset，且property有值，而当前text无值，则不仅设置展示，还要将synth的stochasticMaskStr同步上
         stochasticMaskTextEditor.setText(stochasticMask, juce::dontSendNotification);
     }
 
-    //展示最新的sample impulse file path
+    //display the lastest sample impulse file path
     if (sampleImpulsePath.isNotEmpty())
     {
         sampleImpulsePathTextEditor.setText(sampleImpulsePath, juce::dontSendNotification);
@@ -146,12 +147,12 @@ void AudioPluginAudioProcessorEditor::refreshUIFromPreset()
 }
 
 /**
- * 广播回调方法
+ * invoke listener callback
  * @param source listener
  */
 void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
-    //reload preset：窗口打开后才会执行到这里
+    //reload preset：It will execute up to here only after the plugin window is opened
     if (source == &processorRef && processorRef.isLoadingPresetFlag())
     {
         refreshUIFromPreset();
@@ -159,12 +160,13 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
         return;
     }
 
-    //非reload preset触发，parameterChanged触发
+    //It is not triggered by reload preset but others like by parameterChanged
     if (source == &processorRef)
     {
         //当train参数改变后，随机mask展示要刷新
         juce::String currentStochasticMaskStr = juce::String(processorRef.getPulsarSynthEngine().
-                                                                          getCurrentPulsarSynth()->getStochasticMaskStr());
+                                                                          getCurrentPulsarSynth()->
+                                                                          getStochasticMaskStr());
         if (stochasticMaskTextEditor.getText() != currentStochasticMaskStr)
         {
             //property将会被存为state information，用来恢复参数
@@ -177,7 +179,7 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
 
 //===================================核心逻辑 END===========================================
 /**
- * 头部布局：垂直排列每一个flexbox（内部水平布局）
+ * Head layout: Arrange each flexbox vertically (internal horizontal layout)
  * @param flexBoxTop 头部布局的flexbox
  * @param trainLenFlexBox  train len flexbox in a row
  * @param trainDutyCycleFlexBox train duty cyle flexbox in a row
@@ -251,7 +253,7 @@ void AudioPluginAudioProcessorEditor::topFlexBox(juce::FlexBox& flexBoxTop, std:
 }
 
 /**
- * 水平排列每一个flexbox（内部垂直排列）
+ * Arrange each flexbox horizontally (with vertical arrangement inside)
  * @param bottomFlexBox bottom flexbox
  * @param pulsarWaveformFlexBox pulsar wave form in row
  * @param pulsarDutyCycleClusterLenFlexBox pulsar duty cycle cluster length in a row
@@ -366,7 +368,7 @@ void AudioPluginAudioProcessorEditor::bottomFlexBox(juce::FlexBox& bottomFlexBox
 }
 
 /**
- * 中部flexbox布局：水平排列每一个flexbox（内部水平布局）
+ * Central flexbox layout: Arrange each flexbox horizontally (internal horizontal layout)
  * @param midFlexBox 中部布局的flexbox
  * @param maskOptionFlexBox mask option in a row
  * @param burstMaskFlexBox burst mask in a row
@@ -424,7 +426,7 @@ void AudioPluginAudioProcessorEditor::midFlexBox(juce::FlexBox& midFlexBox,
 }
 
 /**
- * 设置ui element可见
+ * set ui element visible
  */
 void AudioPluginAudioProcessorEditor::makeVisible()
 {
@@ -497,7 +499,7 @@ void AudioPluginAudioProcessorEditor::makeVisible()
 }
 
 /**
-* 配置ui style
+* set ui style
 */
 void AudioPluginAudioProcessorEditor::setUIStyle()
 {
@@ -682,7 +684,8 @@ void AudioPluginAudioProcessorEditor::setUIStyle()
 }
 
 /**
- * 设置attachment，将ui element绑定到audio parameter起来，从而保证parameter最新值会同步到ui上来，比如automation
+ * Set the attachment to bind the ui element to the audio parameter, thereby ensuring that
+ * the latest value of the parameter is synchronized to the ui, such as automation
  */
 void AudioPluginAudioProcessorEditor::connectUIAndAudioParameter()
 {
@@ -741,7 +744,7 @@ void AudioPluginAudioProcessorEditor::connectUIAndAudioParameter()
 }
 
 /**
- * 所有ui element event回调方法设置
+ * Settings of all ui element event callback methods
  */
 void AudioPluginAudioProcessorEditor::initUITriggerEvent()
 {
@@ -767,10 +770,10 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
 
         //color effect
         juce::Colour originalColour = burstMaskTextEditor.findColour(juce::TextEditor::backgroundColourId);
-        // 临时高亮
+        //Temporary highlighting
         burstMaskTextEditor.setColour(juce::TextEditor::backgroundColourId, juce::Colours::mediumaquamarine);
         burstMaskTextEditor.repaint();
-        //还原
+        //recovery
         juce::Timer::callAfterDelay(300, [&, originalColour]()
         {
             burstMaskTextEditor.setColour(juce::TextEditor::backgroundColourId, originalColour);
@@ -803,8 +806,11 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
         }
         if (impulseSwitchComboBox.getSelectedId() == static_cast<int>(why::ImpulseSwitchEnum::Sample) + 1)
         {
-            //有两处地方可以加载资源：1，手动选择文件，2，load preset时，广播监听触发；
-            //这里直接load impulse response即可，因为上述两种情况下，都会保证已经save过impulse file到synth中
+            // There are two places where sample resources can be loaded:
+            // 1. Manually select files.
+            // 2. When the load preset is used, the broadcast listener is triggered.
+            // Here, you can directly load the impulse response because in both of the above cases,
+            // it is guaranteed that the impulse file has been saved to synth
             loadSampleImpulseWhenSelected();
         }
     };
@@ -829,7 +835,8 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
         if (maskOptionComboBox.getSelectedItemIndex() == static_cast<int>(why::MaskOptionEnum::StochasticMask))
         {
             //stochastic mask默认采用第一个voice的
-            std::string maskStrStd = processorRef.getPulsarSynthEngine().getCurrentPulsarSynth()->getStochasticMaskStr();
+            std::string maskStrStd = processorRef.getPulsarSynthEngine().getCurrentPulsarSynth()->
+                                                  getStochasticMaskStr();
             juce::String stochasticMaskStr = juce::String(maskStrStd);
             stochasticMaskTextEditor.setText(stochasticMaskStr, juce::dontSendNotification);
         }
@@ -837,7 +844,7 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
 }
 
 /**
- * euclid联动设置：euclid step变化时，自动调节euclid hit取值范围
+ * euclid linkage setting: When the euclid step changes, the value range of euclid hit is automatically adjusted
  */
 void AudioPluginAudioProcessorEditor::rebalanceStepHitValueDisplay()
 {
@@ -876,7 +883,7 @@ void AudioPluginAudioProcessorEditor::setWindowSize()
 }
 
 /**
- * 打开文件选择窗口，读取并保存所选文件
+ * Open the file selection window, read and save the selected file
  */
 void AudioPluginAudioProcessorEditor::openFileChooser()
 {
@@ -885,7 +892,7 @@ void AudioPluginAudioProcessorEditor::openFileChooser()
                                                       juce::File::getSpecialLocation(juce::File::userDesktopDirectory),
                                                       "*.wav;*.mp3");
 
-    //读取窗口所选文件
+    //async read file
     fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
                              [this](const juce::FileChooser& chooser)
                              {
@@ -942,7 +949,8 @@ void AudioPluginAudioProcessorEditor::loadTemplateImpulseWhenSelected()
 }
 
 /**
-* 保存Resources下的binary file到synth中，如果impulse选中template file，则加载为impulse response
+ * Save the binary file under Resources to synth. If impulse selects the template file, it will be loaded as
+ * impulse response
 */
 void AudioPluginAudioProcessorEditor::saveTemplateImpulseThenLoadAfterSelect(juce::String selectedId)
 {
@@ -960,7 +968,7 @@ void AudioPluginAudioProcessorEditor::saveTemplateImpulseThenLoadAfterSelect(juc
 }
 
 /**
- * 初始化template file下拉框展示的文案：即Resources的文件名列表
+ * Initialize the copy displayed in the template file combobox: that is, the list of file names of Resources
  */
 void AudioPluginAudioProcessorEditor::initTemplateImpulseComboboxNames()
 {

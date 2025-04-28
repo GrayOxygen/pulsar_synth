@@ -6,10 +6,10 @@
 
 #include "Commons.h"
 /**
- * 所有synth和voice都共享一个ConvolutionResource，维护impulse file data，实现convolution相关的逻辑
- *
- * 在prepareToPlay中初始化，若sample rate, sample per block, num channels变更，则该SynthEngine会重新初始化ConvolutionResource
- */
+* All synth and voice share a ConvolutionResource to maintain impulse file data and do some convolution logic
+* When initialized in prepareToPlay, if the sample rate, sample per block, and num channels change,
+* this SynthEngine will reinitialize the ConvolutionResource otherwise keep the instance same.
+*/
 class ConvolutionResource
 {
 public:
@@ -42,8 +42,10 @@ public:
     }
 
     /**
-     * 根据文件id，读取Resources下impulse file并保存到该对象中（内存中），再直接load it as impulse response
-     * @param selectedId impulse file combobox的id，也即Resources下binary file的id
+     * According to the file id, read the impulse file under Resources(binary) and save it to this object (in memory),
+     * and then directly load it as impulse response
+     *
+     * @param selectedId The id of the impulse file combobox, that is, the id of the binary file under Resources
      */
     void saveTemplateImpulse(juce::String selectedId)
     {
@@ -60,8 +62,8 @@ public:
     }
 
     /**
-     * 将file数据保存到该ConvolutionResource对象中（内存中）
-     * @param file impulse file, 如从文件选择窗口中选择的impulse文件
+     * Save the file data to this ConvolutionResource object (in memory)
+     * @param file file impulse file, such as the impulse file selected from the file selection window
      */
     void saveLastSampleFileAsBlock(const juce::File& file)
     {
@@ -77,46 +79,46 @@ public:
     }
 
     /**
-     * 根据保存的memory block，load it as impulse response
+     * use saved memory block to load it as impulse response
      */
     void loadSampleImpulseFile()
     {
         if (getLastSampleImpulseMemoryBlock()->getSize() <= 0)
         {
-            //当前还没记载采样，也要清空template播放的卷积
             setShouldUseConvolution(false);
             return;
         }
         setShouldUseConvolution(true);
 
-        //更新impulse file
+        //real load impulse file
         convolution->loadImpulseResponse(
             getLastSampleImpulseMemoryBlock()->getData(),
             getLastSampleImpulseMemoryBlock()->getSize(),
             juce::dsp::Convolution::Stereo::yes,
             juce::dsp::Convolution::Trim::yes,
-            0, //TODO 不设限制，如果传入很大的文件将会很耗费性能，原本直接写死1024*8个sample size，后面可改为让用户手动修改
+            //TODO There is no limit. If a large file is passed in, it will consume a lot of performance. Originally,
+            //1024*8 sample sizes were directly fixed, but later it can be changed to allow users to modify them manually
+            0,
             juce::dsp::Convolution::Normalise::yes); // 0 = full IR
     }
 
     /**
-     * 根据template buffer, load it as impulse response
+     * use template buffer to load it as impulse response
      */
     void loadTemplateImpulseFile()
     {
         if (lastTemplateBufferSampleRate <= 0 || lastTemplateBuffer->getNumSamples() <= 0)
         {
-            //当前不使用卷积
             setShouldUseConvolution(false);
             return;
         }
         setShouldUseConvolution(true);
 
-        //避免move后指针内部的数据变空，因为buffer的数据被move了
+        //Avoid the data inside the pointer becoming empty after the move, as the data in the buffer has been moved
         std::unique_ptr<juce::AudioBuffer<float>> clonedBuffer = std::make_unique<juce::AudioBuffer<float>>(
             *lastTemplateBuffer);
 
-        //自带的impulse audio都处理过了，不会太长
+        //The built-in impulse audio has all been processed and won't be too long
         convolution->loadImpulseResponse(
             std::move(*clonedBuffer),
             lastTemplateBufferSampleRate,
@@ -126,9 +128,9 @@ public:
     }
 
     /**
-     * 做卷积运算
-     * @param pulseBuffer 需要做卷积的数据源
-     * @return 返回卷积后的sample
+     * do convolution logic
+     * @param pulseBuffer Data sources that require convolution
+     * @return Return the sample after convolution
      */
     bool processSample(juce::AudioBuffer<float>& pulseBuffer)
     {
@@ -189,26 +191,27 @@ public:
 private:
     void prepare(double sampleRate, int samplesPerBlock, int numChannels)
     {
-        //配置convolution
+        //config convolution
         spec.sampleRate = sampleRate;
-        spec.maximumBlockSize = samplesPerBlock; // 或者直接设为 2048
+        spec.maximumBlockSize = samplesPerBlock;
         spec.numChannels = numChannels;
         convolution->prepare(spec);
     }
 
-    //用于存储最后一次选择的sample impulse file
+    //Used to store the last selected sample impulse file
     std::unique_ptr<juce::MemoryBlock> lastSampleImpulseMemoryBlock = std::make_unique<juce::MemoryBlock>();
     juce::MemoryBlock lastImpulseMemoryBlock;
     std::string sampleImpulseFilePath;
 
-    //用于存储最后一次选择的template impulse file
+    //Used to store the template impulse file of the last selection
     std::unique_ptr<juce::AudioBuffer<float>> lastTemplateBuffer = std::make_unique<juce::AudioBuffer<float>>(2, 1024);
 
     double lastTemplateBufferSampleRate = 0;
 
-    //是否具备做卷积运算的条件（避免无效运算，影响性能）：
-    //impulse菜单选中sample impulse，却memory block，则为false
-    //impulse菜单选中template impulse，却无template buffer时，则为false
+    //Whether the conditions for performing convolution operations are met
+    //(to avoid invalid operations and affect performance) :
+    //The impulse menu selects sample impulse but memory block is empty, which is false
+    //When template impulse is selected in the impulse menu but there is no template buffer, it is false
     bool shouldUseConvolution = false;
 
     std::shared_ptr<juce::dsp::Convolution> convolution = std::make_shared<juce::dsp::Convolution>();

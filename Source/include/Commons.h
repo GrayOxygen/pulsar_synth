@@ -10,16 +10,17 @@
 #include <random>
 #include "JuceHeader.h"
 /**
- * Commons维护一些公用的状态和简单的通用方法
+ * Commons maintains some common states and simple methods
  */
 namespace why
 {
-    //定义全局的速度：是插件的速度而非DAW的速度，该插件仅受插件速度影响
+    // Define the global speed: It is the speed of the plugin rather than the speed of the DAW.
+    // This plugin is only affected by the speed of the plugin
     extern std::atomic<float> bpm;
     // extern std::atomic<double> sampleRate;
 
     /**
-     * pulse状态，准确的说当前pulsar train所处于哪个阶段
+     * pulse state, precisely speaking, which stage the pulsar train is currently in
      */
     enum class PulsarStateEnum
     {
@@ -29,7 +30,7 @@ namespace why
     };
 
     /**
-     * impulse switch下拉框选项
+     * impulse switch combobox option
      */
     enum class ImpulseSwitchEnum
     {
@@ -39,7 +40,7 @@ namespace why
     };
 
     /**
-     * mask下拉框选项
+     * mask combobox option
      */
     enum class MaskOptionEnum
     {
@@ -50,7 +51,7 @@ namespace why
     };
 
     /**
-     * 播放模式
+     * play mode
      */
     enum class PlayModeEnum
     {
@@ -97,13 +98,17 @@ namespace why
     };
 
     /**
-     * c++枚举不支持像java那样直接获取枚举的全部name，所以用单独的方法解决
+     * c++ enumeration does not support directly obtaining all the names of the enumeration as in java,
+     * so a separate method is used to solve it
+     *
      * @return impulse switch option names
      */
     juce::StringArray getImpulseSwitchArray();
 
     /**
-     * c++枚举不支持像java那样直接获取枚举的全部name，所以用单独的方法解决
+     * c++ enumeration does not support directly obtaining all the names of the enumeration as in java,
+     * so a separate method is used to solve it
+     *
      * @return mask option names
      */
     juce::StringArray getMaskOptionArray();
@@ -120,26 +125,32 @@ namespace why
      * @return
      */
     std::string generateEuclidRhythm(int steps, int hits);
+
     /**
-     * 设置字符串中随机的某个字符为1
-     * @param binaryString 包含0，,1的字符串
+     * Set a random character in the string to 1
+     *
+     * @param binaryString string contains only 0 and 1
      */
     void setRandomIndexToOne(std::string& binaryString);
+
     /**
-     * 生成指定长度仅包含0,1的字符串
-     * @param length 指定长度
+     * Generate a string of the specified length that contains only 0 and 1
+     *
+     * @param length target length
      * @return 如00011101
      */
     std::string generateBinaryString(int length);
 
     /**
-     * c++枚举不支持像java那样直接获取枚举的全部name，所以用单独的方法解决
+     * c++ enumeration does not support directly obtaining all the names of the enumeration as in java,
+     * so a separate method is used to solve it
+     *
      * @return play modes
      */
     juce::StringArray getPlayModeArray();
     /**
-     * 获取当前thread id
-     * @return 当前thread id
+     * get current thread id
+     * @return current thread id
      */
     std::string getThreadIdStr();
     bool readFileFromResources(const char* resourceName, double& sampleRate,

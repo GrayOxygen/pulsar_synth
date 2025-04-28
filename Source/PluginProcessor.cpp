@@ -18,7 +18,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     // //监听valuetree listener
     // apvts.state.addListener(*this);
 
-    //为所有参数增加apvts监听
+    //Add apvts listeners for all parameters
     for (int i = 0; i < apvts.state.getNumChildren(); ++i)
     {
         auto child = apvts.state.getChild(i);
@@ -29,7 +29,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
         }
     }
 
-    //初始化synth对象
+    //init synth engine
     pulsarSynthEngine.init(apvts);
 }
 
@@ -190,7 +190,8 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
         buffer.clear(i, 0, buffer.getNumSamples());
     }
 
-    //手动触发parameterChanged监听
+    //Manually trigger the parameterChanged listening:
+    //Ensure that automation can trigger the necessary updates even when the plugin window is not opened
     parameterChangedManually();
 
     pulsarSynthEngine.processSample(buffer, midiMessages, getPlayHead());
@@ -398,7 +399,7 @@ void AudioPluginAudioProcessor::parameterChanged(const juce::String& parameterID
 }
 
 /**
-* 手动监听parameter变化，并触发parameterChanged监听函数
+* Manually monitor the changes of the parameter and trigger the parameterChanged monitoring function
 */
 void AudioPluginAudioProcessor::parameterChangedManually()
 {

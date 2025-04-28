@@ -6,24 +6,24 @@
 #include "Commons.h"
 
 /**
- * Resources资源管理：单例模式
+ * Resources Resource Management: Singleton Pattern
  */
 class BinaryResourceSingleton
 {
 public:
-    //获取唯一的实例
+    //Obtain the unique instance
     static BinaryResourceSingleton& getInstance()
     {
         static BinaryResourceSingleton instance;
         return instance;
     }
 
-    //删除拷贝构造函数和赋值操作符，确保只能通过 getInstance 获取唯一实例
+    // Remove the copy constructor and assignment operator to ensure that only a unique instance can be obtained
     BinaryResourceSingleton(const BinaryResourceSingleton&) = delete;
     BinaryResourceSingleton& operator=(const BinaryResourceSingleton&) = delete;
 
     /**
-     * 暴露给外部使用的获取binary resource map
+     * The binary resource map exposed for external use
      * @return binary resource map
      */
     std::map<juce::String, juce::String> getBinaryIdFileNameMap()
@@ -32,7 +32,7 @@ public:
     };
 
     /**
-      * 暴露给外部使用的获取file name array
+      * The file names exposed for external use
       * @return file names
       */
     const juce::StringArray getFileNameArray()
@@ -47,10 +47,9 @@ public:
     };
 
 private:
-    //id:value -> (文件顺序：1,2,3,4...):file name
+    //id:value -> (1,2,3,4...):file name
     std::map<juce::String, juce::String> binaryIdFileNameMap;
 
-    //私有构造函数，确保不能在外部创建实例
     BinaryResourceSingleton()
     {
         //塞入BinaryData中所有资源文件名

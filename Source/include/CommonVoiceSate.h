@@ -8,8 +8,9 @@
 #include "ConvolutionResource.h"
 
 /**
- * 单个synth下的多个voice共享用一个CommonVoiceSate，用于表示相同的字段，如burstMask与voices是1对多的关系
- */
+ * Multiple voices share a CommonVoiceSate to represent the same fields.
+ * For example, burstMask and Voices have a one-to-many relationship
+*/
 class CommonVoiceSate
 {
 public:
@@ -17,43 +18,48 @@ public:
     bool isLoop = true;
 
     //===========================masking===========================
-    //mask仅针对train duty cycle，如2个pulsar periods，则输出的是pulse, silence, pulse, silence
-    //mask为101101，则输出pulse, silence, pulse, pulse
-    //如果是3个pulsar periods，经过该mask处理后，就输出pulse, silence, pulse, pulse, silence, pulse
+    //The mask is only for the train duty cycle. For example, for two pulsar periods, the output is pulse, silence, pulse, silence
+    //If the mask is 101101, then output pulse, silence, pulse, pulse
+    //If there are 3 pulsar periods, after being processed by this mask, pulse, silence, pulse, pulse, silence, pulse will be output
 
     //mask option: default is off
     why::MaskOptionEnum maskOption = why::MaskOptionEnum::Off;
-    //burst mask:如1001
+    //burst mask: like 1001
     std::string burstMask = "";
-    //euclid，比如10101就是steps=5,hits=3的结果
+    //euclid，like 10101 is the result of steps=5 and hits=3
     std::string euclids;
 
     //===========================mapping parameter of plugin processor===========================
     //parameters to receive values from AudioProcessorValueTreeState，thread safe
     std::atomic<float>* outputGainParam;
     std::atomic<float>* playModeParam;
-    //train duty cycle由多少个pulsar period组成
+    //How many pulsar periods does the train duty cycle consist of
     std::atomic<float>* trainDutyCycleLenParam;
-    //train interval silence由多少个pulsar period组成
+    //How many pulsar periods does the train interval silence consist of
     std::atomic<float>* trainSilenceParam;
-    //train length：单位为1 beat，4表示1个bar
-    //由train length, train dutycyle,train silence可确定pulsar period，fundamental frequency
+    //train length：(unit: 1 beat)，4 is one bar = 4 * beats
+    // The pulsar period and fundamental frequency can be determined by train length, train dutycyle and train silence
     std::atomic<float>* trainLenParam;
 
     //pulsar duty cycle
     std::atomic<float>* pulsarDutyCycleRatioParam;
     //pulsaret waveform
     std::atomic<float>* pulsarWaveformParam;
-    //一个pulse可分化为为多个pulse，如1个train只有1个pulsar period, 并且pulse ratio=0.5，那么pulse duty cyle==pulse silence
-    //如果cluster设置为4，则原来是pulse, silence,现在则是(pulse, pulse, pulse, pulse)(占据原来1个pulse的长度), silence
+    //A pulse can be divided into multiple pulses.
+    //For example, if a train has only one pulsar period and the pulse ratio is 0.5, then the pulse duty cycle ==pulse silence
+    //If the cluster is set to 4, it was originally pulse and silence, and now it is
+    //(pulse, pulse, pulse, pulse)(occupying the length of the original 1 pulse), silence
     std::atomic<float>* pulsarDutyCycleClusterLenParam;
 
-    //FM LFO:应用于单个pulse(如果cluster>0，那么就是应用cluster细分后的pulse上)
+    //FM LFO: Applied to the single final pulse(notice!silence can be converted to pulse)
+    //(if cluster>0, then it's still applied to the whole pulse not subdivision)
     std::atomic<float>* formantFreqLfoParam;
-    //AM LFO:应用于单个pulse(如果cluster>0，那么就是应用cluster细分后的pulse上)
+    //AM LFO: Applied to the single final pulse(notice!silence can be converted to pulse)
+    //(if cluster>0, then it's still applied to the whole pulse not subdivision)
     std::atomic<float>* ampLfoParam;
 
-    //TODO 设计问题，是否保持和lfo一致？ adsr：应用于单个pulse(如果cluster>0，也针对原始的pluse的长度应用adsr，即cluster下的多个pulse的总长度上应用adsr)
+    //Adsr: applied to the single final pulse(notice!silence can be converted to pulse)
+    //(if cluster>0, then it still is applied to the whole pulse not subdivision)
     std::atomic<float>* attackParam;
     std::atomic<float>* decayParam;
     std::atomic<float>* sustainParam;
@@ -64,27 +70,29 @@ public:
     std::atomic<float>* euclidStepsParam;
     std::atomic<float>* euclidHitsParam;
 
-    //stochastic mask: 仅与train duty cycle有关，为trainDutyCycle的2倍
+    //stochastic mask: only relate to train duty cycle, = trainDutyCycle * 2
     std::string stochasticMaskStr = "";
 
-    //mask菜单选择
+    //mask menu option
     std::atomic<float>* impulseSwitchParam;
 
-    //===========================卷积===========================
-    //用于存储impulse file数据，在初始化synth时初始化该字段，所有synth，所有voice都共享一个ConvolutionResource，所以使用shared_ptr
+    //===========================Convolution===========================
+    //store impulse file data, initialize this field when initializing synth.
+    //All synth and all voices share a ConvolutionResource, so use shared_ptr
     std::shared_ptr<ConvolutionResource> convolutionResource;
 
-    //=========pulse buffer：用来批量处理sample，然后可以一次性与impulse response做convolution=========
+    //=========pulse buffer: batch process samples and then can perform convolution with impulse response at one time=========
     juce::AudioBuffer<float> pulseBuffer;
 
-    //多个voice可能同时生成修改stochastic mask，用锁保证依次执行，仅在train duty cycle变化后才生成
+    // Multiple voices may generate and modify the stochastic mask simultaneously.
+    // To ensure their sequential execution, and they are generated only after the train duty cycle changes
     std::mutex strMutex;
     float previousTrainDutyCycleLen4GenStocMask;
 
-    //只会在初始化synth时和parameterChanged中（改变了train dutycycle length）触发
+    //only be triggered when initializing synth and in parameterChanged (where the train dutycycle length has been changed)
     void generateStochasticMask()
     {
-        //midi模式下可能会多个voice来修改stochastic
+        //multiple voices can update stochastic in MIDI play mode
         std::lock_guard<std::mutex> guard(strMutex);
         //generate random mask, 它的长度是train duty cycle（即pulsar period个数）长度的两倍
         int totalPeriodNum = trainDutyCycleLenParam->load();
@@ -92,7 +100,7 @@ public:
         {
             return;
         }
-        //控制长度，random mask超过64个就限制
+        //limit the max length
         while (totalPeriodNum > 64)
         {
             totalPeriodNum = totalPeriodNum / 2;
