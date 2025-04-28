@@ -5,7 +5,11 @@
 #include <ResourceSingleton.h>
 
 #include "Commons.h"
-
+/**
+ * 所有synth和voice都共享一个ConvolutionResource，维护impulse file data，实现convolution相关的逻辑
+ *
+ * 在prepareToPlay中初始化，若sample rate, sample per block, num channels变更，则该SynthEngine会重新初始化ConvolutionResource
+ */
 class ConvolutionResource
 {
 public:
@@ -14,40 +18,9 @@ public:
         prepare(sampleRate, samplesPerBlock, numChannels);
     }
 
-    //get singleton instance
-    // static ConvolutionResource& getInstance(double sampleRate, int samplesPerBlock, int numChannels)
-    // {
-    //     static ConvolutionResource instance(sampleRate, samplesPerBlock, numChannels);
-    //     return instance;
-    // }
-
-    // 删除拷贝构造函数和赋值操作符，确保只能通过 getInstance 获取唯一实例
-    // ConvolutionResource(const ConvolutionResource&) = delete;
-    // ConvolutionResource& operator=(const ConvolutionResource&) = delete;
-
-    [[nodiscard]] std::shared_ptr<juce::File>& getCurrentImpulseFile()
-    {
-        return currentImpulseFile;
-    }
-
-    void setCurrentImpulseFile(const std::shared_ptr<juce::File>& currentImpulseFile)
-    {
-        this->currentImpulseFile = currentImpulseFile;
-    }
-
     [[nodiscard]] juce::MemoryBlock& getLastImpulseMemoryBlock1()
     {
         return lastImpulseMemoryBlock;
-    }
-
-    [[nodiscard]] bool& isSetupFlag()
-    {
-        return setupFlag;
-    }
-
-    void setSetupFlag(bool setupFlag)
-    {
-        this->setupFlag = setupFlag;
     }
 
     [[nodiscard]] std::shared_ptr<juce::dsp::Convolution>& getConvolution()
@@ -68,6 +41,10 @@ public:
         this->sampleImpulseFilePath = fileName;
     }
 
+    /**
+     * 根据文件id，读取Resources下impulse file并保存到该对象中（内存中），再直接load it as impulse response
+     * @param selectedId impulse file combobox的id，也即Resources下binary file的id
+     */
     void saveTemplateImpulse(juce::String selectedId)
     {
         const char* resourceName = (BinaryResourceSingleton::getInstance().getBinaryIdFileNameMap()[selectedId]).
@@ -82,6 +59,10 @@ public:
         }
     }
 
+    /**
+     * 将file数据保存到该ConvolutionResource对象中（内存中）
+     * @param file impulse file, 如从文件选择窗口中选择的impulse文件
+     */
     void saveLastSampleFileAsBlock(const juce::File& file)
     {
         if (file.getSize() <= 0)
@@ -95,6 +76,9 @@ public:
         this->sampleImpulseFilePath = file.getFullPathName().toStdString();
     }
 
+    /**
+     * 根据保存的memory block，load it as impulse response
+     */
     void loadSampleImpulseFile()
     {
         if (getLastSampleImpulseMemoryBlock()->getSize() <= 0)
@@ -111,11 +95,13 @@ public:
             getLastSampleImpulseMemoryBlock()->getSize(),
             juce::dsp::Convolution::Stereo::yes,
             juce::dsp::Convolution::Trim::yes,
-            0, //TODO 设置一个上限，如果传入很大的文件将会很耗费性能，原本直接写死1024*8个sample size，还是让用户选择，长一点好听
+            0, //TODO 不设限制，如果传入很大的文件将会很耗费性能，原本直接写死1024*8个sample size，后面可改为让用户手动修改
             juce::dsp::Convolution::Normalise::yes); // 0 = full IR
     }
 
-    //保存最后的
+    /**
+     * 根据template buffer, load it as impulse response
+     */
     void loadTemplateImpulseFile()
     {
         if (lastTemplateBufferSampleRate <= 0 || lastTemplateBuffer->getNumSamples() <= 0)
@@ -139,6 +125,11 @@ public:
             juce::dsp::Convolution::Normalise::yes);
     }
 
+    /**
+     * 做卷积运算
+     * @param pulseBuffer 需要做卷积的数据源
+     * @return 返回卷积后的sample
+     */
     bool processSample(juce::AudioBuffer<float>& pulseBuffer)
     {
         if (!shouldUseConvolution)
@@ -205,21 +196,21 @@ private:
         convolution->prepare(spec);
     }
 
-    //最后一次选择的sample impulse block
+    //用于存储最后一次选择的sample impulse file
     std::unique_ptr<juce::MemoryBlock> lastSampleImpulseMemoryBlock = std::make_unique<juce::MemoryBlock>();
+    juce::MemoryBlock lastImpulseMemoryBlock;
     std::string sampleImpulseFilePath;
 
-    //最后一次选择的template impulse buffer
+    //用于存储最后一次选择的template impulse file
     std::unique_ptr<juce::AudioBuffer<float>> lastTemplateBuffer = std::make_unique<juce::AudioBuffer<float>>(2, 1024);
-    std::string templateImpulseFileName;
 
     double lastTemplateBufferSampleRate = 0;
+
+    //是否具备做卷积运算的条件（避免无效运算，影响性能）：
+    //impulse菜单选中sample impulse，却memory block，则为false
+    //impulse菜单选中template impulse，却无template buffer时，则为false
     bool shouldUseConvolution = false;
 
     std::shared_ptr<juce::dsp::Convolution> convolution = std::make_shared<juce::dsp::Convolution>();
     juce::dsp::ProcessSpec spec;
-    std::shared_ptr<juce::File> currentImpulseFile;
-
-    juce::MemoryBlock lastImpulseMemoryBlock;
-    bool setupFlag = false;
 };

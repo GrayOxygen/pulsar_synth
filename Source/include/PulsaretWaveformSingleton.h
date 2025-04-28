@@ -4,32 +4,26 @@
 #pragma once
 
 /**
- * 单例模式
+ * pulsaret waveform单例，全局仅维护一个实例
  */
 class PulsaretWaveformSingleton
 {
 public:
-    // 获取唯一的WaveformFactory实例
+    //获取实例
     static PulsaretWaveformSingleton& getInstance()
     {
         static PulsaretWaveformSingleton instance;
         return instance;
     }
 
-    // 删除拷贝构造函数和赋值操作符，确保只能通过 getInstance 获取唯一实例
+    //删除拷贝构造函数和赋值操作符，确保只能通过getInstance获取唯一实例
     PulsaretWaveformSingleton(const PulsaretWaveformSingleton&) = delete;
     PulsaretWaveformSingleton& operator=(const PulsaretWaveformSingleton&) = delete;
-
-    // 通过 getSineLUT() 等方法获取单例波形表
-    std::vector<juce::dsp::LookupTableTransform<float>*>& getWaveformLUTs()
-    {
-        return waveformLUTs;
-    }
 
     float calcSample(float originalSampleIndex, float phase)
     {
         // 将slider值映射到waveformLUTs数组的两个相邻波形之间
-        int numWaveforms = getWaveformLUTs().size();
+        int numWaveforms = waveformLUTs.size();
         float index = originalSampleIndex * (numWaveforms - 1);
 
         int lowerIndex = static_cast<int>(index); // 选择下一个波形的索引
@@ -39,10 +33,8 @@ public:
         float interpolationFactor = index - lowerIndex;
 
         // 获取对应位置的两个波形
-        juce::dsp::LookupTableTransform<float>& lowerWaveform = *getInstance().getWaveformLUTs()[
-            lowerIndex];
-        juce::dsp::LookupTableTransform<float>& upperWaveform = *getInstance().getWaveformLUTs()[
-            upperIndex];
+        juce::dsp::LookupTableTransform<float>& lowerWaveform = *waveformLUTs[lowerIndex];
+        juce::dsp::LookupTableTransform<float>& upperWaveform = *waveformLUTs[upperIndex];
 
         float s = lowerWaveform.processSample(phase) + (upperWaveform.processSample(phase) - lowerWaveform.
             processSample(phase)) * interpolationFactor;
@@ -51,13 +43,13 @@ public:
     }
 
 private:
-    // 私有构造函数，确保不能在外部创建实例
+    //私有构造函数，确保不能在外部创建实例
     PulsaretWaveformSingleton()
     {
         initializeWaveforms();
     }
 
-    //振荡器:自己控制phase
+    //振荡器:使用LookupTableTransform而不是juce::dsp::Oscillator的原因，是因为可以自己控制phase
     juce::dsp::LookupTableTransform<float> sineLUT;
     juce::dsp::LookupTableTransform<float> roundedTriangleLUT;
     juce::dsp::LookupTableTransform<float> triangleLUT;
@@ -71,9 +63,13 @@ private:
     juce::dsp::LookupTableTransform<float> complexWaveLUT;
 
     //pulsaret waveform
-    std::vector<juce::dsp::LookupTableTransform<float>*> waveformLUTs; // 使用unique_ptr存储多个波形表
+    std::vector<juce::dsp::LookupTableTransform<float>*> waveformLUTs;
 
-    // 一个通用的初始化函数，用于所有Waveform LUT
+    /**
+     * 初始化waveform
+     * @param lut lookup对象
+     * @param waveformFunc 应用的波形函数
+     */
     void initializeWaveform(juce::dsp::LookupTableTransform<float>& lut, std::function<float(float)> waveformFunc)
     {
         lut.initialise(waveformFunc, -1.0f, 1.0f, 4096);
@@ -112,8 +108,6 @@ private:
     void initializeWaveforms()
     {
         // 初始化所有的 Lookup Table（LUT）
-        // 顺序：从最平滑到最硬，适用于 LFO morphing 或 noise 生成
-
         initializeWaveform(sineLUT, [](float x)
         {
             // 极度平滑，天然周期性
@@ -192,8 +186,7 @@ private:
             return juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f; // 随机值范围 -1 到 1
         });
 
-        // 填入 LUTs 数组，从上至下为选择波形起始范围
-        // 将 LUTs 依序填入数组，用于统一调用或 morphing 控制
+        //push_back顺序对应了index从0.0f到1.0f的值，总体上，这反映了从平滑到不平滑的特点，顺序与lfo的waveform table顺序一致
         waveformLUTs.push_back(&sineLUT);
         waveformLUTs.push_back(&complexWaveLUT);
         waveformLUTs.push_back(&roundedTriangleLUT);

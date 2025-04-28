@@ -2,7 +2,9 @@
 // Created by Mr. Wang on 2025/4/20.
 //
 #pragma once
-
+/**
+ * lfo waveform单例，针对同一套sample rate, frequency参数，全局仅维护一套实例
+ */
 class LfoWaveformSingleton
 {
 public:
@@ -13,7 +15,7 @@ public:
         return instance;
     }
 
-    // 删除拷贝构造函数和赋值操作符，确保只能通过 getInstance 获取唯一实例
+    //删除拷贝构造函数和赋值操作符，确保只能通过getInstance获取唯一实例
     LfoWaveformSingleton(const LfoWaveformSingleton&) = delete;
     LfoWaveformSingleton& operator=(const LfoWaveformSingleton&) = delete;
 
@@ -22,10 +24,10 @@ public:
     std::vector<juce::dsp::Oscillator<float>*>& getFormantLfos() { return formantLfos; }
 
     /**
-     * calcuate sample after applying am modulation, to implement the smooth movement between different waveforms, that
+     * calcuate sample after applying AM modulation, to implement the smooth movement between different waveforms, that
      * means when originalIndex stay between two indexs then it features two waveform sound
      *
-     * @param originalIndex the smooth index
+     * @param originalIndex the smooth index, 0.0f - 1.0f
      * @param phase phase in waveform
      * @return
      */
@@ -44,6 +46,14 @@ public:
         return s;
     }
 
+    /**
+     * calcuate sample after applying FM modulation, to implement the smooth movement between different waveforms, that
+     * means when originalIndex stay between two indexs then it features two waveform sound
+     *
+     * @param originalIndex the smooth index, 0.0f - 1.0f
+     * @param phase phase in waveform
+     * @return
+     */
     float calcSampleAfterFM(float originalIndex, float phase)
     {
         int size = formantLfos.size();
@@ -60,21 +70,11 @@ public:
     }
 
 private:
-    // 私有构造函数，确保不能在外部创建实例
+    //私有构造函数，确保不能在外部创建实例
     LfoWaveformSingleton(double sampleRate, float freq)
     {
         this->sampleRate = sampleRate;
         initializeWaveforms(sampleRate, freq);
-    }
-
-    // 更新所有LFOs的频率
-    void updateFrequencies()
-    {
-        for (auto* lfo : ampLfos)
-            lfo->setFrequency(freq);
-
-        for (auto* lfo : formantLfos)
-            lfo->setFrequency(freq);
     }
 
     // 初始化波形
@@ -140,6 +140,14 @@ private:
         {
             return juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
         };
+
+        auto makeStepRand = [](float x)
+        {
+            constexpr int N = 128; // N 是步数，决定了波形的分辨率
+            int index = std::floor(x * N);
+            return juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f; // 随机值范围 -1 到 1
+        };
+
         // 初始化 Amp LFOs
         ampLfoSine.prepare({sampleRate, 512, 1});
         ampLfoSine.setFrequency(fundamentalFreq);
@@ -181,6 +189,11 @@ private:
         ampLfoNoise.setFrequency(fundamentalFreq);
         ampLfoNoise.initialise(makeNoise);
 
+        ampLfoSteppedRand.prepare({sampleRate, 512, 1});
+        ampLfoSteppedRand.setFrequency(fundamentalFreq);
+        ampLfoSteppedRand.initialise(makeStepRand);
+
+        //push_back的顺序对应了index的0.0f到1.0f值映射关系
         ampLfos.push_back(&ampLfoSine);
         ampLfos.push_back(&ampLfoComplexWave);
         ampLfos.push_back(&ampLfoRoundedTriangle);
@@ -190,7 +203,8 @@ private:
         ampLfos.push_back(&ampLfoPwm);
         ampLfos.push_back(&ampLfoSquare);
         ampLfos.push_back(&ampLfoSmoothRand);
-        ampLfos.push_back(&ampLfoNoise);
+        ampLfos.push_back(&ampLfoSteppedRand);
+        // ampLfos.push_back(&ampLfoNoise);
 
         // 初始化 Formant Freq LFOs
         formantFreqSine.prepare({sampleRate, 512, 1});
@@ -233,6 +247,11 @@ private:
         formantFreqNoise.setFrequency(fundamentalFreq);
         formantFreqNoise.initialise(makeNoise);
 
+        formantFreqSteppedRand.prepare({sampleRate, 512, 1});
+        formantFreqSteppedRand.setFrequency(fundamentalFreq);
+        formantFreqSteppedRand.initialise(makeStepRand);
+
+        //push_back的顺序对应了index的0.0f到1.0f值映射关系
         formantLfos.push_back(&formantFreqSine);
         formantLfos.push_back(&formantFreqComplexWave);
         formantLfos.push_back(&formantFreqRoundedTriangle);
@@ -242,12 +261,12 @@ private:
         formantLfos.push_back(&formantFreqPwm);
         formantLfos.push_back(&formantFreqSquare);
         formantLfos.push_back(&formantFreqSmoothRand);
-        formantLfos.push_back(&formantFreqNoise);
+        formantLfos.push_back(&formantFreqSteppedRand);
+        // formantLfos.push_back(&formantFreqNoise);
     }
 
-    // 数据成员
-    float freq; // 当前的频率
-    double sampleRate; // 当前的频率
+    float freq;
+    double sampleRate;
     juce::dsp::Oscillator<float> ampLfoSine;
     juce::dsp::Oscillator<float> ampLfoComplexWave;
     juce::dsp::Oscillator<float> ampLfoSoftSquare;
@@ -258,6 +277,7 @@ private:
     juce::dsp::Oscillator<float> ampLfoSaw;
     juce::dsp::Oscillator<float> ampLfoSmoothRand;
     juce::dsp::Oscillator<float> ampLfoNoise;
+    juce::dsp::Oscillator<float> ampLfoSteppedRand;
 
     juce::dsp::Oscillator<float> formantFreqSine;
     juce::dsp::Oscillator<float> formantFreqComplexWave;
@@ -269,7 +289,7 @@ private:
     juce::dsp::Oscillator<float> formantFreqSaw;
     juce::dsp::Oscillator<float> formantFreqSmoothRand;
     juce::dsp::Oscillator<float> formantFreqNoise;
-
+    juce::dsp::Oscillator<float> formantFreqSteppedRand;
 
     std::vector<juce::dsp::Oscillator<float>*> ampLfos;
     std::vector<juce::dsp::Oscillator<float>*> formantLfos;

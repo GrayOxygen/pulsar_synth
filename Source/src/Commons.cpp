@@ -5,20 +5,12 @@
 
 namespace why
 {
-    // 定义它们
     std::atomic<float> bpm(120);
-    std::atomic<double> sampleRate(44100.0);
+    // std::atomic<double> sampleRate(44100.0);
 
     juce::StringArray getPlayModeArray()
     {
         juce::StringArray names = {"Off", "Auto", "Midi"};
-        return names;
-    }
-
-    //由plugineditor初始化数据
-    juce::StringArray getEmptyChoiceArray()
-    {
-        juce::StringArray names = {"Loading...", "Empty"};
         return names;
     }
 
@@ -34,24 +26,17 @@ namespace why
         return names;
     }
 
-    /**
-     * 欧几里得节奏
-     * @param steps 总步数
-     * @param pulses 划分的等分
-     * @return
-     */
-    std::string generateEuclidRhythm(int steps, int pulses)
+    std::string generateEuclidRhythm(int steps, int hits)
     {
-        //如果是全是0或全是1，就没有意义构成数组
-        if (pulses <= 0)
+        if (hits <= 0)
         {
             return "0";
         }
-        if (steps <= pulses)
+        if (steps <= hits)
         {
             return "1";
         }
-        int base = steps / pulses;
+        int base = steps / hits;
         std::vector<int> group = {1};
         for (int j = 0; j < base - 1; ++j)
         {
@@ -59,9 +44,9 @@ namespace why
         }
 
         // 1数组
-        std::vector<std::vector<int>> ones(pulses, group);
+        std::vector<std::vector<int>> ones(hits, group);
         // 0数组，remainders
-        std::vector<std::vector<int>> remainders(steps - (steps / pulses) * pulses, std::vector<int>{0});
+        std::vector<std::vector<int>> remainders(steps - (steps / hits) * hits, std::vector<int>{0});
 
         size_t i = 0;
         while (remainders.size() > 1)
@@ -145,10 +130,17 @@ namespace why
     std::string getThreadIdStr()
     {
         std::ostringstream oss;
-        oss << std::this_thread::get_id(); // 将线程ID转为字符串
+        oss << std::this_thread::get_id();
         return oss.str();
     }
 
+    /**
+     * read binary source file
+     * @param resourceName resource full name
+     * @param sampleRate sample rate of the file
+     * @param bf buffer
+     * @return true is success false failed
+     */
     bool readFileFromResources(const char* resourceName, double& sampleRate,
                                std::unique_ptr<juce::AudioBuffer<float>>& bf)
     {

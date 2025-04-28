@@ -18,7 +18,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     // //监听valuetree listener
     // apvts.state.addListener(*this);
 
-    //为所有参数增加apvts监听（监听具体的参数变化）
+    //为所有参数增加apvts监听
     for (int i = 0; i < apvts.state.getNumChildren(); ++i)
     {
         auto child = apvts.state.getChild(i);
@@ -29,6 +29,7 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
         }
     }
 
+    //初始化synth对象
     pulsarSynthEngine.init(apvts);
 }
 
@@ -111,15 +112,8 @@ void AudioPluginAudioProcessor::changeProgramName(int index, const juce::String&
     juce::ignoreUnused(index, newName);
 }
 
-//==============================================================================
-void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+void AudioPluginAudioProcessor::initOldAndNewParamMap()
 {
-    // Use this method as the place to do any pre-playback initialisation that you need..
-    juce::ignoreUnused(sampleRate, samplesPerBlock);
-
-    pulsarSynthEngine.buildTrain(sampleRate, samplesPerBlock, getNumOutputChannels(), getPlayHead());
-
-    //手动触发parameterChanged监听：因为插件窗口未打开时，automation只会自动修改apvts的参数，不触发parameterChagned监听
     for (auto& param : getParameters())
     {
         if (auto* ap = dynamic_cast<juce::AudioParameterFloat*>(param))
@@ -138,6 +132,18 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
             oldParamMap[ap->paramID] = paramMap[ap->paramID]->load();
         }
     }
+}
+
+//==============================================================================
+void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+{
+    // Use this method as the place to do any pre-playback initialisation that you need..
+    juce::ignoreUnused(sampleRate, samplesPerBlock);
+
+    //初始化train
+    pulsarSynthEngine.buildTrain(sampleRate, samplesPerBlock, getNumOutputChannels(), getPlayHead());
+
+    initOldAndNewParamMap();
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -184,24 +190,9 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
         buffer.clear(i, 0, buffer.getNumSamples());
     }
 
-    //手动触发parameterChanged监听：因为插件窗口未打开时，automation只会自动修改apvts的参数，不触发parameterChagned监听
-    for (auto& param : getParamMap())
-    {
-        juce::String paramID = param.first;
-        std::atomic<float>* currentValuePtr = param.second;
+    //手动触发parameterChanged监听
+    parameterChangedManually();
 
-        float newValue = *currentValuePtr;
-        float oldValue = oldParamMap[paramID];
-        float diff = std::abs(newValue - oldValue);
-        // 发生变化则触发监听，监听方更新所有变化值和后续逻辑
-        if (diff > 0.0001f)
-        {
-            // sendChangeMessage();
-            oldParamMap[paramID] = newValue;
-            parameterChanged(paramID, newValue);
-            break;
-        }
-    }
     pulsarSynthEngine.processSample(buffer, midiMessages, getPlayHead());
 }
 
@@ -245,13 +236,16 @@ void AudioPluginAudioProcessor::setStateInformation(const void* data, int sizeIn
     apvts.state = ValueTree::fromXml(*theParams);
     //editor处理完修改状态false
     loadingPresetFlag = true;
+    //更新参数到apvts中
     apvts.replaceState(juce::ValueTree::fromXml(*theParams));
+    //刷新synth状态
     getPulsarSynthEngine().reloadSynthPreset(apvts);
+    //手动触发parameterChanged监听
     parameterChanged(juce::String(why::ParameterID::playMode),
                      static_cast<float>(getPulsarSynthEngine().getCurrentPlayModeEnum()));
-    //广播通知editor恢复ui状态，在接收广播的监听中，apvts.getRawParameterValue()将会获得最新值
-    //editor可能尚未创建或已销毁，如第一次打开daw尚未打开窗口时，一旦创建就会触发，所以数据类更新放到processor中不要依赖editor
-    //比如preset选了sample impulse就要立即加载，而不用等到editor创建
+    //广播通知editor恢复ui状态：如preset选了sample impulse就要立即加载，而不用等到editor创建
+    //此时，editor可能尚未创建或已销毁，如第一次打开daw尚未打开窗口时，而editor使用listener来接收，则会因找不到而报错，所以选择广播
+    //另外，数据类更新放到processor中，editor处理ui变动，实现解耦是最佳实践
     sendChangeMessage();
 }
 
@@ -274,19 +268,22 @@ createPluginFilter()
 //     // pulsar2.initParameters(apvts);
 // }
 
-
+/**
+ * 创建audio parameter
+ * @return
+ */
 juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::createParameterLayout()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout paramLayout;
     std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
-    //param设置的parameter name会展示在ableton展开插件的小界面中，作为文案，而不是打开插件窗口的名字
-    //输出增益：db
+    //在ableton中，param设置的parameter name，会在Device Parameters window中展示（未打开插件窗口）
+    //output gain
     params.push_back(
         std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID(why::ParameterID::outputGain, 1), "Output Gain", -60.0, 6.0, 0.0)
     );
 
-    //播放模式
+    //play mode
     params.push_back(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(why::ParameterID::playMode, 1),
         "Play Mode",
@@ -294,10 +291,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
         0 // 默认选择 index，combobox的id不为0，但index是从0开始算
     ));
 
+    //bpm
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         juce::ParameterID(why::ParameterID::bpm, 1), "Bpm", 20, 300, 120
     ));
 
+    //impulse
     params.push_back(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(why::ParameterID::impulseSwitch, 1),
         "Impulse Switch",
@@ -312,15 +311,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
         0
     ));
 
-    //train长度
+    //train
     params.push_back(std::make_unique<juce::AudioParameterInt>(
             juce::ParameterID(why::ParameterID::trainLen, 1), "Train Period", 1, 32, 1.0)
     );
-    //train duty cycle: how many numbers of pulsar period
     params.push_back(std::make_unique<juce::AudioParameterInt>(
             juce::ParameterID(why::ParameterID::trainDutyCycleLen, 1), "Train Duty Cycle", 1, 640, 0)
     );
-    //train silence：个数，改为缩放
     params.push_back(
         std::make_unique<juce::AudioParameterInt>(
             juce::ParameterID(why::ParameterID::trainSilenceLen, 1), "Train Silence", 0, 640, 0)
@@ -331,10 +328,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
         juce::ParameterID(why::ParameterID::maskOption, 1),
         "Mask Mode",
         why::getMaskOptionArray(),
-        0 // 默认选择 index
+        0
     ));
 
-    //欧几里得节奏划分pattern（train duty cycle）
+    //欧几里得节奏划分pattern（只应用于train duty cycle）
     params.push_back(std::make_unique<juce::AudioParameterInt>(
             juce::ParameterID(why::ParameterID::euclidSteps, 1), "Euclid Steps", 1, 16, 1)
     );
@@ -342,21 +339,18 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
             juce::ParameterID(why::ParameterID::euclidHits, 1), "Euclid Hits", 1, 16, 1)
     );
 
-    //pulsarWaveform
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID(why::ParameterID::pulsarWaveform, 1), "Pulsar Waveform", 0.0, 1.0, 0.0)
     );
 
-    //pulsar duty cycle len
     params.push_back(std::make_unique<juce::AudioParameterInt>(
             juce::ParameterID(why::ParameterID::pulsarDutyCycleClusterLen, 1), "Pulsar Duty Cycle", 1, 32, 1)
     );
-    //pulsar duty cycle ratio，比例值
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID(why::ParameterID::pulsarDutyCycleRatio, 1), "Pulsar Duty Cycle Ratio", 0.01, 1.0, 0.5)
     );
 
-    //modulation
+    //lfo
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
             juce::ParameterID(why::ParameterID::ampLfoWaveform, 1), "AM Waveform", 0.0, 1.0, 0.0)
     );
@@ -381,7 +375,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
     return {params.begin(), params.end()};
 }
 
-//不放在plugineditor，因为窗口没打开过，仍还可以操作parameter，要将主线程和UI线程解耦
+/**
+ * 监听控件参数变化，注意：
+ * 1，automation不会触发这里，会直接修改apvts中的参数值
+ * 2，getRawParameterValue() or getParameter() methods is not guaranteed to return the up-to-date value but newValue is
+ *
+ * 不放在plugineditor，因为窗口没打开过，仍还可以操作parameter，要将主线程和UI线程解耦
+ * @param parameterID parameter id
+ * @param newValue up-to-date value
+ */
 void AudioPluginAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
 {
     //触发synth更新为最新状态：mapping所有parameter，property的值到synth中
@@ -393,4 +395,27 @@ void AudioPluginAudioProcessor::parameterChanged(const juce::String& parameterID
         // UI变更，通过广播实现，不要用setproperty，会触发propertyvalue监听，但editor不存在则调用报错，但广播则不会
         sendChangeMessage();
     });
+}
+
+/**
+* 手动监听parameter变化，并触发parameterChanged监听函数
+*/
+void AudioPluginAudioProcessor::parameterChangedManually()
+{
+    for (auto& param : getParamMap())
+    {
+        juce::String paramID = param.first;
+        std::atomic<float>* currentValuePtr = param.second;
+
+        float newValue = *currentValuePtr;
+        float oldValue = oldParamMap[paramID];
+        float diff = std::abs(newValue - oldValue);
+        // 发生变化则触发监听，监听方更新所有变化值和后续逻辑
+        if (diff > 0.0001f)
+        {
+            oldParamMap[paramID] = newValue;
+            parameterChanged(paramID, newValue);
+            break;
+        }
+    }
 }

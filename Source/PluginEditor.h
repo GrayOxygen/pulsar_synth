@@ -6,14 +6,12 @@
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor
                                               // , public juce::Timer
-                                              // 这里实现apvts监听，不要用Slider::Listener，因为不会监听到automation这类参数变化
-                                              , public juce::ValueTree::Listener
                                               // , public juce::AudioProcessorValueTreeState::Listener
+                                              // , public juce::ValueTree::Listener //监听property变化
                                               , public juce::ChangeListener //监听juce::ChangeBroadcaster的广播
 
 {
 public:
-    // void bindParameterListener();
     void makeVisible();
     void setUIStyle();
     void connectUIAndAudioParameter();
@@ -25,53 +23,71 @@ public:
 
     //==============================================================================
     void paint(juce::Graphics&) override;
-    void topFlexBox(juce::FlexBox& flexBoxTop, std::shared_ptr<FlexBox> row1, std::shared_ptr<FlexBox> row2,
-                    std::shared_ptr<FlexBox> row3, std::shared_ptr<FlexBox> row4, std::shared_ptr<FlexBox> row5,
-                    std::shared_ptr<FlexBox>
-                    row6, std::shared_ptr<FlexBox> row7);
-    void bottomFlexBox(juce::FlexBox& bottomFlexBox, std::shared_ptr<juce::FlexBox> column1,
-                       std::shared_ptr<juce::FlexBox> column2, std::shared_ptr<juce::FlexBox> column3,
-                       std::shared_ptr<juce::FlexBox> column4, std::shared_ptr<juce::FlexBox> column5,
-                       std::shared_ptr<juce::FlexBox> column6, std::shared_ptr<juce::FlexBox> column7,
-                       std::shared_ptr<juce::FlexBox> column8, std::shared_ptr<juce::FlexBox> column9);
-    void midFlexBox(juce::FlexBox& midFlexBox, std::shared_ptr<juce::FlexBox> row11,
-                    std::shared_ptr<juce::FlexBox> row12,
-                    std::shared_ptr<juce::FlexBox> row13, std::shared_ptr<juce::FlexBox> row14,
-                    std::shared_ptr<juce::FlexBox> row15);
+    void topFlexBox(juce::FlexBox& flexBoxTop, std::shared_ptr<FlexBox> trainLenFlexBox,
+                    std::shared_ptr<FlexBox> trainDutyCycleFlexBox,
+                    std::shared_ptr<FlexBox> trainSilenceLenFlexBox, std::shared_ptr<FlexBox> bpmFlexBox,
+                    std::shared_ptr<FlexBox> playModeAndImpulseFlexBox);
+    void bottomFlexBox(juce::FlexBox& bottomFlexBox, std::shared_ptr<juce::FlexBox> pulsarWaveformFlexBox,
+                       std::shared_ptr<juce::FlexBox> pulsarDutyCycleClusterLenFlexBox, std::shared_ptr<juce::FlexBox> pulsarDutyCycleRatioFlexBox,
+                       std::shared_ptr<juce::FlexBox> ampLfoFlexBox, std::shared_ptr<juce::FlexBox> formantFreqLfoFlexBox,
+                       std::shared_ptr<juce::FlexBox> attackFlexBox, std::shared_ptr<juce::FlexBox> decayFlexBox,
+                       std::shared_ptr<juce::FlexBox> sustainFlexBox, std::shared_ptr<juce::FlexBox> releaseFlexBox);
+    void midFlexBox(juce::FlexBox& midFlexBox, std::shared_ptr<juce::FlexBox> maskOptionFlexBox,
+                    std::shared_ptr<juce::FlexBox> burstMaskFlexBox,
+                    std::shared_ptr<juce::FlexBox> euclidStepFlexBox, std::shared_ptr<juce::FlexBox> euclidHitFlexBox,
+                    std::shared_ptr<juce::FlexBox> stochasticMaskFlexBox);
 
     void resized() override;
 
-    //===自定义===
-    // 更新波形的函数
-    // void updateWaveform(const juce::AudioBuffer<float>& buffer);
-    //定时回调
-    // void timerCallback() override;
-    void valueTreePropertyChanged(ValueTree& treeWhosePropertyHasChanged, const Identifier& property) override;
-
-    //====================自定义函数和函数重写====================
-    //重载preset，所有reload preset在这里统一更新，不要在别的地方如ui event里同时更新
-    void reloadPresetUI();
-
-    //监听广播
-    //reload preset时，如果数据变化也会体现在ui element event中
-    //parameterChanged是音频线程，不操作UI，实时，优先级最高，changeListenerCallback是消息线程（主线程）
-    //实际情况是parameterChanged会先执行，接着是changeListenerCallback
+    /**
+     * 当收到asynchronous change message时，juce会回调该方法
+     *
+     * 注意：测试时发现parameterChanged监听会先执行，接着是changeListenerCallback
+     *
+     * @param source listener
+     */
     void changeListenerCallback(juce::ChangeBroadcaster* source) override;
 
-    //===卷积处理：加载impulse文件数据===
-    //文件选择
+    //========================================自定义方法======================================
+    /**
+     * 将preset的参数更新到UI中
+     */
+    void refreshUIFromPreset();
+
+    //=======impulse file相关操作时=======
+    /**
+     * 打开文件窗口，选择impulse file
+     */
     void openFileChooser();
-    //保存file到synth中
+
+    /**
+     * 保存impulse file到synth的convolution resource内存中
+     * @param file impulse file，juce默认支持的基本格式如.wav, .mp3
+     */
     void saveFileIntoSynth(const juce::File& file);
-    //convolution加载sample impulse
+
+    /**
+     * 当选中sample impulse时，将sample file加载为impulse response
+     */
     void loadSampleImpulseWhenSelected();
 
-    //初始化template impulse下拉框内容
+    /**
+     * 初始化template impulse选项
+     */
     void initTemplateImpulseComboboxNames();
-    //convolution加载来自template设置的impulse
+
+    /**
+     * 当选中template impulse时，将template file加载为impulse response
+     */
     void loadTemplateImpulseWhenSelected();
+
+    /**
+     * 保存template impulse到synth中，若选中template impulse则直接加载为impulse response
+     *
+     * @param selectedId
+     */
     void saveTemplateImpulseThenLoadAfterSelect(juce::String selectedId);
-    //===卷积处理：加载impulse文件数据===
+    //=======impulse file相关操作时=======
 
     void rebalanceStepHitValueDisplay();
 
@@ -79,8 +95,7 @@ private:
     // This reference is provided as a quick way for your editor to access the processor object that created it.
     juce::AudioVisualiserComponent visualiser = juce::AudioVisualiserComponent(0); // 波形显示组件
 
-    //自定义控件
-
+    //==============================自定义控件==============================
     //output gain
     juce::Label outputGainLabel;
     juce::Slider outputGainSlider;
@@ -90,7 +105,7 @@ private:
     juce::Slider bpmSlider;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpmAttachment;
 
-    //播放模式
+    //play mode
     juce::Label playModeLabel;
     juce::ComboBox playModeCombobox;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> playModeComboboxAttachment;
@@ -173,7 +188,7 @@ private:
 
     //convolution impulse
     juce::Label impulseSwitchLabel;
-    juce::ComboBox impulseSwitchComboBox; //0禁用 1使用
+    juce::ComboBox impulseSwitchComboBox; //0 disable 1 enable
 
     juce::Label impulseTemplateLabel;
     juce::ComboBox impulseTemplateFileComboBox;
@@ -184,7 +199,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> impulseSwitchComboBoxAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> impulseTemplateFileComboBoxAttachment;
 
-    //文件选择
+    //open file chooser window and select file
     std::unique_ptr<juce::FileChooser> fileChooser;
 
     AudioPluginAudioProcessor& processorRef;
