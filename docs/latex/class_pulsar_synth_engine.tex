@@ -1,0 +1,183 @@
+\doxysection{Pulsar\+Synth\+Engine Class Reference}
+\hypertarget{class_pulsar_synth_engine}{}\label{class_pulsar_synth_engine}\index{PulsarSynthEngine@{PulsarSynthEngine}}
+
+
+{\ttfamily \#include $<$Pulsar\+Synth\+Engine.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_pulsar_synth}{Pulsar\+Synth}} $>$ \& \mbox{\hyperlink{class_pulsar_synth_engine_a885cb59465d83aad635cf5a65988849e}{get\+Current\+Pulsar\+Synth}} ()
+\item 
+\Hypertarget{class_pulsar_synth_engine_a7fc29bf5b9c5ac88f83314d9c5294745}\label{class_pulsar_synth_engine_a7fc29bf5b9c5ac88f83314d9c5294745} 
+\mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why\+::\+Play\+Mode\+Enum}} \& {\bfseries get\+Current\+Play\+Mode\+Enum} ()
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_engine_ae90b6f96a091a8a680e575bc75aaf562}{set\+Current\+Play\+Mode\+Enum}} (int index)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_engine_a953cb1ad85d45460930d6ba0ee7d4d13}{stop\+The\+World}} ()
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_engine_a83786171da3d6eeaec92b9788c022b01}{execute\+Cur\+Synth\+Callback}} (const std\+::function$<$ void(std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_pulsar_synth}{Pulsar\+Synth}} $>$ \&)$>$ \&func)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_engine_ac19d8e92b830aab2b14f4e2f7fd34996}{reload\+Synth\+Preset}} (juce\+::\+Audio\+Processor\+Value\+Tree\+State \&apvts)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_engine_a0930dce68ac148325eb612a0f703ffb0}{execute\+All\+Synth\+Callback}} (const std\+::function$<$ void(std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_pulsar_synth}{Pulsar\+Synth}} $>$ \&)$>$ \&func)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_engine_a7a73129753b456f4b3e79da45ea4d71e}{init\+Convolution}} (double sample\+Rate, int samples\+Per\+Block, int num\+Channels)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_engine_ac62401ee9fa428530451fe5e26bd8e76}{init}} (juce\+::\+Audio\+Processor\+Value\+Tree\+State \&apvts)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_engine_aba0d2518b4f81d5383d9488cd255bdfd}{build\+Train}} (double sample\+Rate, int samples\+Per\+Block, int num\+Channels, juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}play\+Head)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_engine_a28576ee0fc4fccbce7a567d38908ab26}{process\+Sample}} (juce\+::\+Audio\+Buffer$<$ float $>$ \&buffer, juce\+::\+Midi\+Buffer \&midi\+Messages, juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}play\+Head)
+\item 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_convolution_resource}{Convolution\+Resource}} $>$ \& \mbox{\hyperlink{class_pulsar_synth_engine_a6c60954f62666c09b9d6c567ac918270}{get\+Convolution\+Resource}} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+pulsar synth engine to main multiple synth instances auto and midi modes correspond to two different synths 
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_pulsar_synth_engine_aba0d2518b4f81d5383d9488cd255bdfd}\index{PulsarSynthEngine@{PulsarSynthEngine}!buildTrain@{buildTrain}}
+\index{buildTrain@{buildTrain}!PulsarSynthEngine@{PulsarSynthEngine}}
+\doxysubsubsection{\texorpdfstring{buildTrain()}{buildTrain()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_aba0d2518b4f81d5383d9488cd255bdfd} 
+void Pulsar\+Synth\+Engine\+::build\+Train (\begin{DoxyParamCaption}\item[{double}]{sample\+Rate}{, }\item[{int}]{samples\+Per\+Block}{, }\item[{int}]{num\+Channels}{, }\item[{juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}}]{play\+Head}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+init convolution and build train 
+\begin{DoxyParams}{Parameters}
+{\em sample\+Rate} & sample rate \\
+\hline
+{\em samples\+Per\+Block} & samples per block \\
+\hline
+{\em num\+Channels} & num channels \\
+\hline
+{\em play\+Head} & audio play head to get play position info \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_engine_a0930dce68ac148325eb612a0f703ffb0}\index{PulsarSynthEngine@{PulsarSynthEngine}!executeAllSynthCallback@{executeAllSynthCallback}}
+\index{executeAllSynthCallback@{executeAllSynthCallback}!PulsarSynthEngine@{PulsarSynthEngine}}
+\doxysubsubsection{\texorpdfstring{executeAllSynthCallback()}{executeAllSynthCallback()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_a0930dce68ac148325eb612a0f703ffb0} 
+void Pulsar\+Synth\+Engine\+::execute\+All\+Synth\+Callback (\begin{DoxyParamCaption}\item[{const std\+::function$<$ void(std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_pulsar_synth}{Pulsar\+Synth}} $>$ \&)$>$ \&}]{func}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Execute the specified method of all synth
+
+
+\begin{DoxyParams}{Parameters}
+{\em func} & The methods that need to be executed \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_engine_a83786171da3d6eeaec92b9788c022b01}\index{PulsarSynthEngine@{PulsarSynthEngine}!executeCurSynthCallback@{executeCurSynthCallback}}
+\index{executeCurSynthCallback@{executeCurSynthCallback}!PulsarSynthEngine@{PulsarSynthEngine}}
+\doxysubsubsection{\texorpdfstring{executeCurSynthCallback()}{executeCurSynthCallback()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_a83786171da3d6eeaec92b9788c022b01} 
+void Pulsar\+Synth\+Engine\+::execute\+Cur\+Synth\+Callback (\begin{DoxyParamCaption}\item[{const std\+::function$<$ void(std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_pulsar_synth}{Pulsar\+Synth}} $>$ \&)$>$ \&}]{func}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+In the currently used synth, execute the specified method 
+\begin{DoxyParams}{Parameters}
+{\em func} & the target func \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_engine_a6c60954f62666c09b9d6c567ac918270}\index{PulsarSynthEngine@{PulsarSynthEngine}!getConvolutionResource@{getConvolutionResource}}
+\index{getConvolutionResource@{getConvolutionResource}!PulsarSynthEngine@{PulsarSynthEngine}}
+\doxysubsubsection{\texorpdfstring{getConvolutionResource()}{getConvolutionResource()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_a6c60954f62666c09b9d6c567ac918270} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_convolution_resource}{Convolution\+Resource}} $>$ \& Pulsar\+Synth\+Engine\+::get\+Convolution\+Resource (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [nodiscard]}}
+
+get the common shared convolution resource \begin{DoxyReturn}{Returns}
+convolution resource 
+\end{DoxyReturn}
+\Hypertarget{class_pulsar_synth_engine_a885cb59465d83aad635cf5a65988849e}\index{PulsarSynthEngine@{PulsarSynthEngine}!getCurrentPulsarSynth@{getCurrentPulsarSynth}}
+\index{getCurrentPulsarSynth@{getCurrentPulsarSynth}!PulsarSynthEngine@{PulsarSynthEngine}}
+\doxysubsubsection{\texorpdfstring{getCurrentPulsarSynth()}{getCurrentPulsarSynth()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_a885cb59465d83aad635cf5a65988849e} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_pulsar_synth}{Pulsar\+Synth}} $>$ \& Pulsar\+Synth\+Engine\+::get\+Current\+Pulsar\+Synth (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Obtain the synth currently in use \begin{DoxyReturn}{Returns}
+return auto synth by default 
+\end{DoxyReturn}
+\Hypertarget{class_pulsar_synth_engine_ac62401ee9fa428530451fe5e26bd8e76}\index{PulsarSynthEngine@{PulsarSynthEngine}!init@{init}}
+\index{init@{init}!PulsarSynthEngine@{PulsarSynthEngine}}
+\doxysubsubsection{\texorpdfstring{init()}{init()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_ac62401ee9fa428530451fe5e26bd8e76} 
+void Pulsar\+Synth\+Engine\+::init (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Processor\+Value\+Tree\+State \&}]{apvts}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+init synth, sound, voice 
+\begin{DoxyParams}{Parameters}
+{\em apvts} & value tree state \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_engine_a7a73129753b456f4b3e79da45ea4d71e}\index{PulsarSynthEngine@{PulsarSynthEngine}!initConvolution@{initConvolution}}
+\index{initConvolution@{initConvolution}!PulsarSynthEngine@{PulsarSynthEngine}}
+\doxysubsubsection{\texorpdfstring{initConvolution()}{initConvolution()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_a7a73129753b456f4b3e79da45ea4d71e} 
+void Pulsar\+Synth\+Engine\+::init\+Convolution (\begin{DoxyParamCaption}\item[{double}]{sample\+Rate}{, }\item[{int}]{samples\+Per\+Block}{, }\item[{int}]{num\+Channels}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+init convolution
+
+Note\+: When opening the DAW, prepare\+To\+Play may be triggered multiple times. If there is an initialization operation, idempotence must be guaranteed
+
+
+\begin{DoxyParams}{Parameters}
+{\em sample\+Rate} & sample rate \\
+\hline
+{\em samples\+Per\+Block} & samples per block \\
+\hline
+{\em num\+Channels} & nums of channel \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_engine_a28576ee0fc4fccbce7a567d38908ab26}\index{PulsarSynthEngine@{PulsarSynthEngine}!processSample@{processSample}}
+\index{processSample@{processSample}!PulsarSynthEngine@{PulsarSynthEngine}}
+\doxysubsubsection{\texorpdfstring{processSample()}{processSample()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_a28576ee0fc4fccbce7a567d38908ab26} 
+void Pulsar\+Synth\+Engine\+::process\+Sample (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Buffer$<$ float $>$ \&}]{buffer}{, }\item[{juce\+::\+Midi\+Buffer \&}]{midi\+Messages}{, }\item[{juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}}]{play\+Head}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+the entry of processing sample
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & audio buffer \\
+\hline
+{\em midi\+Messages} & midi message \\
+\hline
+{\em play\+Head} & audio play head \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_engine_ac19d8e92b830aab2b14f4e2f7fd34996}\index{PulsarSynthEngine@{PulsarSynthEngine}!reloadSynthPreset@{reloadSynthPreset}}
+\index{reloadSynthPreset@{reloadSynthPreset}!PulsarSynthEngine@{PulsarSynthEngine}}
+\doxysubsubsection{\texorpdfstring{reloadSynthPreset()}{reloadSynthPreset()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_ac19d8e92b830aab2b14f4e2f7fd34996} 
+void Pulsar\+Synth\+Engine\+::reload\+Synth\+Preset (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Processor\+Value\+Tree\+State \&}]{apvts}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+refresh the synth according to the preset, load files, etc 
+\begin{DoxyParams}{Parameters}
+{\em apvts} & tree state \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_engine_ae90b6f96a091a8a680e575bc75aaf562}\index{PulsarSynthEngine@{PulsarSynthEngine}!setCurrentPlayModeEnum@{setCurrentPlayModeEnum}}
+\index{setCurrentPlayModeEnum@{setCurrentPlayModeEnum}!PulsarSynthEngine@{PulsarSynthEngine}}
+\doxysubsubsection{\texorpdfstring{setCurrentPlayModeEnum()}{setCurrentPlayModeEnum()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_ae90b6f96a091a8a680e575bc75aaf562} 
+void Pulsar\+Synth\+Engine\+::set\+Current\+Play\+Mode\+Enum (\begin{DoxyParamCaption}\item[{int}]{index}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Set the current playback mode and pause all sounds each time you set it
+
+
+\begin{DoxyParams}{Parameters}
+{\em apvts} & value tree \\
+\hline
+{\em index} & play mode enum value \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_engine_a953cb1ad85d45460930d6ba0ee7d4d13}\index{PulsarSynthEngine@{PulsarSynthEngine}!stopTheWorld@{stopTheWorld}}
+\index{stopTheWorld@{stopTheWorld}!PulsarSynthEngine@{PulsarSynthEngine}}
+\doxysubsubsection{\texorpdfstring{stopTheWorld()}{stopTheWorld()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_a953cb1ad85d45460930d6ba0ee7d4d13} 
+void Pulsar\+Synth\+Engine\+::stop\+The\+World (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Stop all sounds\+: The midi mode will be automatically triggered as the next note plays, while the auto mode requires the user to click play again 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Source/include/Pulsar\+Synth\+Engine.\+h\end{DoxyCompactItemize}

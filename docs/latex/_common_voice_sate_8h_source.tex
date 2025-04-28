@@ -1,0 +1,120 @@
+\doxysection{Common\+Voice\+Sate.\+h}
+\hypertarget{_common_voice_sate_8h_source}{}\label{_common_voice_sate_8h_source}\index{Source/include/CommonVoiceSate.h@{Source/include/CommonVoiceSate.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Created\ by\ Mr.\ Wang\ on\ 2025/4/20.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#ifndef\ SHAREDVOICESTATE\_H}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#define\ SHAREDVOICESTATE\_H}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}Commons.h"{}}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ "{}ConvolutionResource.h"{}}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00014\ \textcolor{keyword}{class\ }\mbox{\hyperlink{class_common_voice_sate}{CommonVoiceSate}}}
+\DoxyCodeLine{00015\ \{}
+\DoxyCodeLine{00016\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//whether\ loop\ playback\ train\ or\ not}}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{bool}\ isLoop\ =\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//===========================masking===========================}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//The\ mask\ is\ only\ for\ the\ train\ duty\ cycle.\ For\ example,\ for\ two\ pulsar\ periods,\ the\ output\ is\ pulse,\ silence,\ pulse,\ silence}}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{comment}{//If\ the\ mask\ is\ 101101,\ then\ output\ pulse,\ silence,\ pulse,\ pulse}}
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//If\ there\ are\ 3\ pulsar\ periods,\ after\ being\ processed\ by\ this\ mask,\ pulse,\ silence,\ pulse,\ pulse,\ silence,\ pulse\ will\ be\ output}}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{comment}{//mask\ option:\ default\ is\ off}}
+\DoxyCodeLine{00026\ \ \ \ \ \mbox{\hyperlink{namespacewhy_a6336b6118e95ccc92cca572c0f541332}{why::MaskOptionEnum}}\ maskOption\ =\ why::MaskOptionEnum::Off;}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{comment}{//burst\ mask:\ like\ 1001}}
+\DoxyCodeLine{00028\ \ \ \ \ std::string\ burstMask\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{comment}{//euclid，like\ 10101\ is\ the\ result\ of\ steps=5\ and\ hits=3}}
+\DoxyCodeLine{00030\ \ \ \ \ std::string\ euclids;}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{//===========================mapping\ parameter\ of\ plugin\ processor===========================}}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{comment}{//parameters\ to\ receive\ values\ from\ AudioProcessorValueTreeState，thread\ safe}}
+\DoxyCodeLine{00034\ \ \ \ \ std::atomic<float>*\ outputGainParam;}
+\DoxyCodeLine{00035\ \ \ \ \ std::atomic<float>*\ playModeParam;}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{comment}{//How\ many\ pulsar\ periods\ does\ the\ train\ duty\ cycle\ consist\ of}}
+\DoxyCodeLine{00037\ \ \ \ \ std::atomic<float>*\ trainDutyCycleLenParam;}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{comment}{//How\ many\ pulsar\ periods\ does\ the\ train\ interval\ silence\ consist\ of}}
+\DoxyCodeLine{00039\ \ \ \ \ std::atomic<float>*\ trainSilenceParam;}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//train\ length：(unit:\ 1\ beat)，4\ is\ one\ bar\ =\ 4\ *\ beats}}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{comment}{//\ The\ pulsar\ period\ and\ fundamental\ frequency\ can\ be\ determined\ by\ train\ length,\ train\ dutycyle\ and\ train\ silence}}
+\DoxyCodeLine{00042\ \ \ \ \ std::atomic<float>*\ trainLenParam;}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{comment}{//pulsar\ duty\ cycle}}
+\DoxyCodeLine{00045\ \ \ \ \ std::atomic<float>*\ pulsarDutyCycleRatioParam;}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//pulsaret\ waveform}}
+\DoxyCodeLine{00047\ \ \ \ \ std::atomic<float>*\ pulsarWaveformParam;}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{comment}{//A\ pulse\ can\ be\ divided\ into\ multiple\ pulses.}}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{comment}{//For\ example,\ if\ a\ train\ has\ only\ one\ pulsar\ period\ and\ the\ pulse\ ratio\ is\ 0.5,\ then\ the\ pulse\ duty\ cycle\ ==pulse\ silence}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//If\ the\ cluster\ is\ set\ to\ 4,\ it\ was\ originally\ pulse\ and\ silence,\ and\ now\ it\ is}}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//(pulse,\ pulse,\ pulse,\ pulse)(occupying\ the\ length\ of\ the\ original\ 1\ pulse),\ silence}}
+\DoxyCodeLine{00052\ \ \ \ \ std::atomic<float>*\ pulsarDutyCycleClusterLenParam;}
+\DoxyCodeLine{00053\ }
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{comment}{//FM\ LFO:\ Applied\ to\ the\ single\ final\ pulse(notice!silence\ can\ be\ converted\ to\ pulse)}}
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{comment}{//(if\ cluster>0,\ then\ it's\ still\ applied\ to\ the\ whole\ pulse\ not\ subdivision)}}
+\DoxyCodeLine{00056\ \ \ \ \ std::atomic<float>*\ formantFreqLfoParam;}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//AM\ LFO:\ Applied\ to\ the\ single\ final\ pulse(notice!silence\ can\ be\ converted\ to\ pulse)}}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//(if\ cluster>0,\ then\ it's\ still\ applied\ to\ the\ whole\ pulse\ not\ subdivision)}}
+\DoxyCodeLine{00059\ \ \ \ \ std::atomic<float>*\ ampLfoParam;}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{comment}{//Adsr:\ applied\ to\ the\ single\ final\ pulse(notice!silence\ can\ be\ converted\ to\ pulse)}}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{comment}{//(if\ cluster>0,\ then\ it\ still\ is\ applied\ to\ the\ whole\ pulse\ not\ subdivision)}}
+\DoxyCodeLine{00063\ \ \ \ \ std::atomic<float>*\ attackParam;}
+\DoxyCodeLine{00064\ \ \ \ \ std::atomic<float>*\ decayParam;}
+\DoxyCodeLine{00065\ \ \ \ \ std::atomic<float>*\ sustainParam;}
+\DoxyCodeLine{00066\ \ \ \ \ std::atomic<float>*\ releaseParam;}
+\DoxyCodeLine{00067\ \ \ \ \ std::atomic<float>*\ maskOptionParam;}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{comment}{//generate\ euclid\ rhythm\ to\ use\ as\ a\ mask,\ like\ a\ special\ burst\ mask}}
+\DoxyCodeLine{00070\ \ \ \ \ std::atomic<float>*\ euclidStepsParam;}
+\DoxyCodeLine{00071\ \ \ \ \ std::atomic<float>*\ euclidHitsParam;}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{comment}{//stochastic\ mask:\ only\ relate\ to\ train\ duty\ cycle,\ =\ trainDutyCycle\ *\ 2}}
+\DoxyCodeLine{00074\ \ \ \ \ std::string\ stochasticMaskStr\ =\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{comment}{//mask\ menu\ option}}
+\DoxyCodeLine{00077\ \ \ \ \ std::atomic<float>*\ impulseSwitchParam;}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//===========================Convolution===========================}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{comment}{//store\ impulse\ file\ data,\ initialize\ this\ field\ when\ initializing\ synth.}}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{comment}{//All\ synth\ and\ all\ voices\ share\ a\ ConvolutionResource,\ so\ use\ shared\_ptr}}
+\DoxyCodeLine{00082\ \ \ \ \ std::shared\_ptr<ConvolutionResource>\ convolutionResource;}
+\DoxyCodeLine{00083\ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{comment}{//=========pulse\ buffer:\ batch\ process\ samples\ and\ then\ can\ perform\ convolution\ with\ impulse\ response\ at\ one\ time=========}}
+\DoxyCodeLine{00085\ \ \ \ \ juce::AudioBuffer<float>\ pulseBuffer;}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{comment}{//\ Multiple\ voices\ may\ generate\ and\ modify\ the\ stochastic\ mask\ simultaneously.}}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//\ To\ ensure\ their\ sequential\ execution,\ and\ they\ are\ generated\ only\ after\ the\ train\ duty\ cycle\ changes}}
+\DoxyCodeLine{00089\ \ \ \ \ std::mutex\ strMutex;}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{keywordtype}{float}\ previousTrainDutyCycleLen4GenStocMask;}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{comment}{//only\ be\ triggered\ when\ initializing\ synth\ and\ in\ parameterChanged\ (where\ the\ train\ dutycycle\ length\ has\ been\ changed)}}
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{keywordtype}{void}\ generateStochasticMask()}
+\DoxyCodeLine{00094\ \ \ \ \ \{}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{comment}{//multiple\ voices\ can\ update\ stochastic\ in\ MIDI\ play\ mode}}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ std::lock\_guard<std::mutex>\ guard(strMutex);}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \textcolor{comment}{//generate\ random\ mask,\ 它的长度是train\ duty\ cycle（即pulsar\ period个数）长度的两倍}}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ totalPeriodNum\ =\ trainDutyCycleLenParam-\/>load();}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (previousTrainDutyCycleLen4GenStocMask\ ==\ totalPeriodNum)}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00103\ \ \ \ \ \ \ \ \ \textcolor{comment}{//limit\ the\ max\ length}}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{while}\ (totalPeriodNum\ >\ 64)}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00106\ \ \ \ \ \ \ \ \ \ \ \ \ totalPeriodNum\ =\ totalPeriodNum\ /\ 2;}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ num\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(2\ *\ totalPeriodNum);}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ stochasticMaskStr\ =\ \mbox{\hyperlink{namespacewhy_a412d5489e48d1460e09b374be7955b24}{why::generateBinaryString}}(num);}
+\DoxyCodeLine{00110\ }
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ previousTrainDutyCycleLen4GenStocMask\ =\ totalPeriodNum;}
+\DoxyCodeLine{00112\ \ \ \ \ \};}
+\DoxyCodeLine{00113\ }
+\DoxyCodeLine{00114\ \ \ \ \ \textcolor{comment}{//===========================TODO\ 使用采样作为pulsaret===========================}}
+\DoxyCodeLine{00115\ \ \ \ \ std::unique\_ptr<juce::AudioBuffer<float>>\ sampleBuffer;}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{keywordtype}{float}\ readHead\ =\ 0;}
+\DoxyCodeLine{00117\ \};}
+\DoxyCodeLine{00118\ \textcolor{preprocessor}{\#endif\ }\textcolor{comment}{//SHAREDVOICESTATE\_H}}
+
+\end{DoxyCode}

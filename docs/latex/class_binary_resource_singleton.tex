@@ -1,0 +1,54 @@
+\doxysection{Binary\+Resource\+Singleton Class Reference}
+\hypertarget{class_binary_resource_singleton}{}\label{class_binary_resource_singleton}\index{BinaryResourceSingleton@{BinaryResourceSingleton}}
+
+
+{\ttfamily \#include $<$Resource\+Singleton.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_binary_resource_singleton_a54d9fb6a81446ce57babb19f48530365}\label{class_binary_resource_singleton_a54d9fb6a81446ce57babb19f48530365} 
+{\bfseries Binary\+Resource\+Singleton} (const \mbox{\hyperlink{class_binary_resource_singleton}{Binary\+Resource\+Singleton}} \&)=delete
+\item 
+\Hypertarget{class_binary_resource_singleton_a962207d261e7fd930341d138324d7e54}\label{class_binary_resource_singleton_a962207d261e7fd930341d138324d7e54} 
+\mbox{\hyperlink{class_binary_resource_singleton}{Binary\+Resource\+Singleton}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_binary_resource_singleton}{Binary\+Resource\+Singleton}} \&)=delete
+\item 
+std\+::map$<$ juce\+::\+String, juce\+::\+String $>$ \mbox{\hyperlink{class_binary_resource_singleton_a4175d97ccd5cd85064ffa7c0c7599097}{get\+Binary\+Id\+File\+Name\+Map}} ()
+\item 
+const juce\+::\+String\+Array \mbox{\hyperlink{class_binary_resource_singleton_a1a7a0aac5b49c43f1ab991c6a7395fcc}{get\+File\+Name\+Array}} ()
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_binary_resource_singleton_adedbb9a2fe711e5b622608e60bd536b0}\label{class_binary_resource_singleton_adedbb9a2fe711e5b622608e60bd536b0} 
+static \mbox{\hyperlink{class_binary_resource_singleton}{Binary\+Resource\+Singleton}} \& {\bfseries get\+Instance} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Resources Resource Management\+: Singleton Pattern 
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_binary_resource_singleton_a4175d97ccd5cd85064ffa7c0c7599097}\index{BinaryResourceSingleton@{BinaryResourceSingleton}!getBinaryIdFileNameMap@{getBinaryIdFileNameMap}}
+\index{getBinaryIdFileNameMap@{getBinaryIdFileNameMap}!BinaryResourceSingleton@{BinaryResourceSingleton}}
+\doxysubsubsection{\texorpdfstring{getBinaryIdFileNameMap()}{getBinaryIdFileNameMap()}}
+{\footnotesize\ttfamily \label{class_binary_resource_singleton_a4175d97ccd5cd85064ffa7c0c7599097} 
+std\+::map$<$ juce\+::\+String, juce\+::\+String $>$ Binary\+Resource\+Singleton\+::get\+Binary\+Id\+File\+Name\+Map (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+The binary resource map exposed for external use \begin{DoxyReturn}{Returns}
+binary resource map 
+\end{DoxyReturn}
+\Hypertarget{class_binary_resource_singleton_a1a7a0aac5b49c43f1ab991c6a7395fcc}\index{BinaryResourceSingleton@{BinaryResourceSingleton}!getFileNameArray@{getFileNameArray}}
+\index{getFileNameArray@{getFileNameArray}!BinaryResourceSingleton@{BinaryResourceSingleton}}
+\doxysubsubsection{\texorpdfstring{getFileNameArray()}{getFileNameArray()}}
+{\footnotesize\ttfamily \label{class_binary_resource_singleton_a1a7a0aac5b49c43f1ab991c6a7395fcc} 
+const juce\+::\+String\+Array Binary\+Resource\+Singleton\+::get\+File\+Name\+Array (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+The file names exposed for external use \begin{DoxyReturn}{Returns}
+file names 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Source/include/Resource\+Singleton.\+h\end{DoxyCompactItemize}

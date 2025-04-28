@@ -1,0 +1,241 @@
+\doxysection{Pulsar\+Synth\+Voice.\+h}
+\hypertarget{_pulsar_synth_voice_8h_source}{}\label{_pulsar_synth_voice_8h_source}\index{Source/include/PulsarSynthVoice.h@{Source/include/PulsarSynthVoice.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Created\ by\ Mr.\ Wang\ on\ 2025/4/20.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ "{}Commons.h"{}}}
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}CommonVoiceSate.h"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{class\ }PulsarSynthVoice\ :\ \textcolor{keyword}{public}\ juce::SynthesiserVoice}
+\DoxyCodeLine{00012\ \{}
+\DoxyCodeLine{00013\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//====================================properties\ related\ to\ Auto\ mode====================================}}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{comment}{//Whether\ it\ was\ in\ the\ playing\ state\ last\ time,\ determine\ which\ one\ is\ the\ first\ time\ to\ start\ playing}}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{comment}{//(rather\ than\ after\ playing).}}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keywordtype}{bool}\ wasPlayingLastFrame;}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//true:\ Because\ the\ switching\ mode\ requires\ muting,\ false\ does\ not.}}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{comment}{//control\ the\ switching\ mode\ to\ pause\ the\ sound\ and\ allow\ the\ user\ to\ play\ again\ (auto\ mode)}}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//or\ wait\ for\ the\ midi\ note\ to\ trigger\ (midi\ mode).}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordtype}{bool}\ soundOffWhenSwitchPlayMode;}
+\DoxyCodeLine{00022\ }
+\DoxyCodeLine{00023\ \ \ \ \ \textcolor{comment}{//===========================properties\ related\ to\ midi\ mode===========================}}
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//Whether\ is\ playing,\ if\ midi\ note\ is\ playing\ and\ there\ is\ no\ note,\ then\ playing=false,\ it\ will\ stop}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordtype}{bool}\ playing\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{comment}{//The\ envelope\ applied\ to\ midi\ note\ is\ not\ targeted\ at\ pulsar\ itself}}
+\DoxyCodeLine{00027\ \ \ \ \ juce::ADSR\ envelope;}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{comment}{//current\ velocity\ of\ the\ playing\ note}}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordtype}{float}\ currentVelocity\ =\ 1.0;}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{comment}{//====================================train====================================}}
+\DoxyCodeLine{00032\ \ \ \ \ \textcolor{comment}{//\ The\ default\ time\ of\ 1\ beat\ (in\ seconds)}}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{keywordtype}{double}\ trainLenBlock;}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{comment}{//trainTime\ =\ trainLen\ *\ trainLenBlock;}}
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keywordtype}{double}\ trainTime;}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{comment}{//========train\ duty\ cycle,\ train\ silence\ and\ train\ len\ all\ lead\ to\ changes\ in\ train.\ bpm\ is\ the\ same========}}
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{comment}{//The\ length\ of\ the\ last\ train\ duty\ cycle:\ How\ many\ pulsar\ periods}}
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordtype}{int}\ previousTrainDutyCycleNum\ =\ 0;}
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{comment}{//The\ length\ of\ the\ last\ train\ silence:\ How\ many\ pulsar\ periods}}
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keywordtype}{int}\ previousTrainSilenceNum\ =\ 0;}
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{comment}{//The\ length\ of\ the\ last\ train:\ How\ many\ trainLenBlocks(beats)}}
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keywordtype}{int}\ previousTrainLen\ =\ 0;}
+\DoxyCodeLine{00044\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{comment}{//train\ period\ time\ =\ trainDutyCycleTime\ +\ trainSilenceTime，sec}}
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordtype}{float}\ trainPeriodTime\ =\ 0.0f;}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{comment}{//train\ duty\ cycle:\ The\ actual\ duration\ of\ the\ sent\ pulse\ period\ is\ in\ seconds}}
+\DoxyCodeLine{00048\ \ \ \ \ \textcolor{keywordtype}{float}\ trainDutyCycleTime\ =\ 0.0f;}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{comment}{//After\ the\ train\ duty\ cycle\ is\ over,\ enter\ the\ train\ silence\ in\ seconds}}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordtype}{float}\ trainSilenceTime\ =\ 0.0f;}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{comment}{//The\ number\ of\ times\ the\ train\ has\ been\ completed\ is\ used\ to\ determine\ the\ non-\/loop\ mode.}}
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{comment}{//If\ it\ is\ played\ once,\ it\ will\ end.\ For\ now,\ it\ can\ only\ be\ played\ in\ a\ loop}}
+\DoxyCodeLine{00054\ \ \ \ \ \textcolor{keywordtype}{int}\ trainCounter\ =\ 0;}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{comment}{//=====control\ DAW\ play\ stop,\ train\ change=====}}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//\ Whether\ it\ is\ necessary\ to\ enter\ the\ new\ train\ or\ not,\ each\ train\ change\ will\ not\ directly\ rebuild\ the\ train.}}
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//\ Wait\ until\ the\ nearest\ pulsar\ silence\ or\ train\ silence\ ends\ before\ entering.}}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{comment}{//\ If\ all\ silence\ are\ 0,\ proceed\ to\ the\ next\ train\ after\ the\ most\ recent\ pulse\ ends}}
+\DoxyCodeLine{00060\ \ \ \ \ \textcolor{keywordtype}{bool}\ changeTrainTrace\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{comment}{//true:\ The\ same\ train.\ false:\ If\ the\ parameters\ related\ to\ train\ change,\ change\ train\ trace\ can\ be\ allowed}}
+\DoxyCodeLine{00062\ \ \ \ \ \textcolor{keywordtype}{bool}\ isTheSameTrainConfig;}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{comment}{//new\ train\ duration\ length}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{keywordtype}{int}\ newTrainDurationLen;}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{comment}{//new\ train\ intervale\ silence\ length}}
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keywordtype}{int}\ newTrainIntervalSilenceLen;}
+\DoxyCodeLine{00067\ \ \ \ \ \textcolor{comment}{//new\ train\ len}}
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordtype}{int}\ newTrainLen;}
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{comment}{//pulsar\ samples\ =\ pulsar\ duty\ cycle\ time\ (if\ cluster>0，this\ is\ pulsar\ duty\ cycle,\ also\ all\ divisions\ sum\ too)\ *\ sampleRate}}
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{keywordtype}{int}\ pulsarDutyCycleSamples;}
+\DoxyCodeLine{00071\ \ \ \ \ \textcolor{comment}{//pulsar\ silence\ time\ *\ sample\ rate}}
+\DoxyCodeLine{00072\ \ \ \ \ \textcolor{keywordtype}{int}\ pulsarIntraSilenceSamples;}
+\DoxyCodeLine{00073\ \ \ \ \ \textcolor{comment}{//train\ interval\ silence\ time\ *\ sample\ rate}}
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordtype}{int}\ interTrainSilenceSamples;}
+\DoxyCodeLine{00075\ \ \ \ \ \textcolor{comment}{//train\ duty\ cycle\ time\ *\ sample\ rate}}
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordtype}{int}\ trainDutyCycleSamples;}
+\DoxyCodeLine{00077\ \ \ \ \ \textcolor{keywordtype}{bool}\ isActive\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00078\ }
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{comment}{//The\ duration\ of\ the\ current\ pulse\ state\ (StateEnum)\ corresponds\ to\ the\ required\ number\ of\ samples}}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordtype}{int}\ currentStateDurationSampleNum\ =\ 0.0;}
+\DoxyCodeLine{00081\ \ \ \ \ \textcolor{comment}{//The\ number\ of\ samples\ processed\ in\ the\ current\ state\ (StateEnum),\ -\/999\ indicates\ the\ start\ of\ the\ train}}
+\DoxyCodeLine{00082\ \ \ \ \ \textcolor{keywordtype}{int}\ hasPassedSampleNumInsideTrain\ =\ -\/999.0f;}
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{comment}{//The\ latest\ position\ in\ a\ single\ train\ (unit:\ samples)\ is\ reinitialized\ each\ time\ a\ new\ train\ is\ entered}}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordtype}{int}\ trainPositionSamples\ =\ 0.0;}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00086\ \ \ \ \ \textcolor{comment}{//Whether\ the\ current\ output\ is\ pulse(TODO\ ready\ to\ be\ discarded)\ :\ After\ the\ final\ output\ is\ masked,}}
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{comment}{//if\ the\ original\ silence\ is\ converted\ to\ pulse,\ it\ is\ also\ considered\ pulse.}}
+\DoxyCodeLine{00088\ \ \ \ \ \textcolor{comment}{//If\ the\ original\ pulse\ is\ masked\ and\ converted\ to\ silence,\ it\ is\ not\ considered\ pulse}}
+\DoxyCodeLine{00089\ \ \ \ \ \textcolor{keywordtype}{bool}\ currentSampleInPulse;}
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{comment}{//The\ current\ original\ stage\ identifier\ (before\ masking,\ because\ after\ masking)}}
+\DoxyCodeLine{00091\ \ \ \ \ \mbox{\hyperlink{namespacewhy_ae448a87f4316297372633e00441ae951}{why::PulsarStateEnum}}\ currentState\ =\ why::PulsarStateEnum::IntraSilence;}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \ \ \textcolor{comment}{//===========================pulsaret===========================}}
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{comment}{//fundamental\ frequency\ of\ pulsar\ emitter，This\ actually\ not\ used\ much\ because\ this\ plugin\ mainly\ focuses\ on\ train}}
+\DoxyCodeLine{00095\ \ \ \ \ \textcolor{keywordtype}{float}\ fundamentalFreq\ =\ 0.0;}
+\DoxyCodeLine{00096\ \ \ \ \ \textcolor{comment}{//ratio\ =\ pulse\ duty\ cycle\ length/(pulse\ duty\ cycle\ length\ +\ silence\ length)}}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{keywordtype}{float}\ pulsarDutyCycleRatio\ =\ 0.5f;}
+\DoxyCodeLine{00098\ \ \ \ \ \textcolor{comment}{//pulsar\ period\ =\ pulsar\ duty\ cycle\ time\ +\ pulsar\ silence\ time}}
+\DoxyCodeLine{00099\ \ \ \ \ \textcolor{keywordtype}{float}\ pulsarPeriodTime\ =\ 0.0f;}
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{comment}{//pulsar\ silence}}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{keywordtype}{float}\ pulsarSilenceTime\ =\ 0.0f;}
+\DoxyCodeLine{00102\ }
+\DoxyCodeLine{00103\ \ \ \ \ \textcolor{comment}{//Count\ of\ pulsar\ stage\ change\ times,\ used\ to\ determine\ which\ value\ through\ the\ mask\ whether\ to\ release}}
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{comment}{//Before\ mask\ processing,\ the\ train\ dutycycle\ is\ composed\ of\ multiple\ pulsar\ periods.}}
+\DoxyCodeLine{00105\ \ \ \ \ \textcolor{comment}{//For\ example,\ pulse\ silence\ pulse\ silence\ represents\ 1,\ 2,\ 3,\ 4...}}
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{keywordtype}{int}\ pulsarStageIndexInTrainDutyCycle\ =\ 0;}
+\DoxyCodeLine{00107\ \ \ \ \ \textcolor{comment}{//pulsaret\ phase}}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordtype}{float}\ pulsaretPhase\ =\ 0.0f;}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{comment}{//===========================pulsaret\ envelope===========================}}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{comment}{//The\ adsr\ applied\ to\ the\ original\ pulsar\ duty\ cycle\ will\ be\ applied\ to\ the\ entire\ pulsar\ cluster\ not\ subdivision}}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{comment}{//if\ there\ is\ a\ pulsar\ cluster}}
+\DoxyCodeLine{00113\ \ \ \ \ juce::ADSR\ pulsarAdsr;}
+\DoxyCodeLine{00114\ \ \ \ \ juce::ADSR::Parameters\ pulsarAdsrParams;}
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{comment}{//\ Whether\ the\ release\ phase\ has\ been\ triggered\ is\ used\ to\ achieve\ active\ release\ triggering.}}
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{comment}{//\ It\ is\ triggered\ when\ a\ specified\ duration\ is\ reached\ before\ the\ end\ of\ the\ current\ stage,}}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{comment}{//\ but\ this\ judgment\ is\ made\ to\ avoid\ repeated\ triggering}}
+\DoxyCodeLine{00118\ \ \ \ \ \textcolor{keywordtype}{bool}\ isTriggeredReleaseFlag;}
+\DoxyCodeLine{00119\ }
+\DoxyCodeLine{00120\ \ \ \ \ \textcolor{comment}{//===========================common\ properties===========================}}
+\DoxyCodeLine{00121\ \ \ \ \ std::shared\_ptr<CommonVoiceSate>\ commonVoiceSate;}
+\DoxyCodeLine{00122\ }
+\DoxyCodeLine{00123\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00124\ \ \ \ \ PulsarSynthVoice()}
+\DoxyCodeLine{00125\ \ \ \ \ \{}
+\DoxyCodeLine{00126\ \ \ \ \ \}}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \ \ \textcolor{comment}{//==============================重写方法==============================}}
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{keywordtype}{void}\ startNote(\textcolor{keywordtype}{int}\ midiNoteNumber,}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ velocity,}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ SynthesiserSound*\ sound,}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ currentPitchWheelPosition}
+\DoxyCodeLine{00133\ \ \ \ \ )\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00134\ }
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordtype}{void}\ stopNote(\textcolor{keywordtype}{float}\ \textcolor{comment}{/*velocity*/},\ \textcolor{keywordtype}{bool}\ allowTailOff)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00136\ \ \ \ \ \textcolor{keywordtype}{void}\ processSampleWithConvolution(juce::AudioSampleBuffer\&\ outputBuffer,\ \textcolor{keywordtype}{int}\ startSample,\ \textcolor{keywordtype}{int}\ numSamples,}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why::PlayModeEnum}}\ currentPlayModeEnum);}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \ \ \textcolor{keywordtype}{void}\ renderNextBlock(juce::AudioSampleBuffer\&\ outputBuffer,\ \textcolor{keywordtype}{int}\ startSample,\ \textcolor{keywordtype}{int}\ numSamples)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00140\ \ \ \ \ \textcolor{keywordtype}{void}\ renderNextBlockDirectly(juce::AudioSampleBuffer\&\ outputBuffer,\ juce::AudioPlayHead*\ audioPlayHead,}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ startSample,}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ numSamples,\ \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why::PlayModeEnum}}\ currentPlayModeEnum);}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00144\ \ \ \ \ \textcolor{keywordtype}{void}\ pitchWheelMoved(\textcolor{keywordtype}{int})\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00145\ }
+\DoxyCodeLine{00146\ \ \ \ \ \textcolor{keywordtype}{void}\ controllerMoved(\textcolor{keywordtype}{int},\ \textcolor{keywordtype}{int})\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \ \ \textcolor{keywordtype}{bool}\ canPlaySound(juce::SynthesiserSound*\ sound)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \ \ \ \ \textcolor{comment}{//=============================自定义方法===================================}}
+\DoxyCodeLine{00155\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_a3876ce48c87cf088c9c01c69540bdcb2}{setPulsarSilence}}(\textcolor{keywordtype}{float}\ dutyCylceRatio);}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00163\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_aefafbaf09fc34e6a55eb1d07fb9cd4ff}{changeToNewTrainAfterPulsarPeriodOrTrainEnd}}(\textcolor{keywordtype}{bool}\ bpmChangedFlag);}
+\DoxyCodeLine{00164\ }
+\DoxyCodeLine{00168\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_ab4902ff5f4deb6aee6ec974a9cb3830d}{realChangeTrainConfig}}();}
+\DoxyCodeLine{00169\ }
+\DoxyCodeLine{00178\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_a145be0285bbf2a54e1ecc1b98221cfee}{initTrain}}(\textcolor{keywordtype}{int}\ durationLen,\ \textcolor{keywordtype}{int}\ intervalSilenceLen,\ \textcolor{keywordtype}{float}\ isLoop,\ \textcolor{keywordtype}{int}\ trainLen);}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00183\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_aa00019c1b66f6cfeb2baa00ccfeb8149}{resetTrainInitialSate}}();}
+\DoxyCodeLine{00184\ }
+\DoxyCodeLine{00197\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_a4749f8075207ccfc1d5d3642b9440866}{resetTrain}}(\textcolor{keywordtype}{int}\ durationLen,\ \textcolor{keywordtype}{int}\ intervalSilenceLen,\ \textcolor{keywordtype}{float}\ isLoop,\ \textcolor{keywordtype}{int}\ trainLen);}
+\DoxyCodeLine{00198\ }
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_af24e1e956468c6cae41bc5536a3af9da}{initSynthVoice}}(\textcolor{keywordtype}{double}\ sampleRate,\ std::unique\_ptr<juce::AudioBuffer<float>>\&\ sampleBuffer,}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ juce::AudioPlayHead*\ audioPlayHead);}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00213\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_ac92acc4cb5e1322051e574b8afbfdc0e}{connectParameters}}(juce::AudioProcessorValueTreeState\&\ apvts);}
+\DoxyCodeLine{00214\ }
+\DoxyCodeLine{00219\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_aaca0259b7f0b63250c0c8f42ba93c223}{mappingParams}}(\textcolor{keyword}{const}\ juce::AudioProcessorValueTreeState\&\ apvts);}
+\DoxyCodeLine{00220\ }
+\DoxyCodeLine{00228\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_a906bda8f64bc393d118bdf017ea8ee5e}{mappingOneParam}}(\textcolor{keyword}{const}\ juce::AudioProcessorValueTreeState\&\ apvts,\ juce::String\ parameterID,\ \textcolor{keywordtype}{float}\ newValue);}
+\DoxyCodeLine{00229\ }
+\DoxyCodeLine{00238\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_ac3110eed2d314f3a8b7e6bc44b3bdce0}{parameterChanged}}(juce::AudioProcessorValueTreeState\&\ apvts,\ juce::String\ parameterID,}
+\DoxyCodeLine{00239\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ newValue,\ \textcolor{keywordtype}{bool}\&\ isGeneratedStochasticMask);}
+\DoxyCodeLine{00240\ }
+\DoxyCodeLine{00245\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_a15c1e952187e5eb2f17fccedec66b4bb}{reloadPreset}}(juce::AudioProcessorValueTreeState\&\ apvts);}
+\DoxyCodeLine{00246\ }
+\DoxyCodeLine{00251\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_ad84d144f2ae9221dbb59a65f0bbf6082}{refreshPulsaretAdsr}}(\textcolor{keywordtype}{float}\ pulsarDutyCycleTime);}
+\DoxyCodeLine{00252\ }
+\DoxyCodeLine{00259\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_a3161ecdde9f214dd635ada9135f1c40d}{mask}}(\textcolor{keywordtype}{bool}\&\ maskPassFlag,\ \textcolor{keywordtype}{bool}\&\ existMask);}
+\DoxyCodeLine{00260\ }
+\DoxyCodeLine{00269\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_aa4b39d14d7c8787b3907d186d4885d83}{changeStage}}(\textcolor{keywordtype}{int}\ pulsarDutyCycleSamples,\ \textcolor{keywordtype}{int}\ intraSilenceSamples,\ \textcolor{keywordtype}{int}\ interTrainSilenceSamples,}
+\DoxyCodeLine{00270\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ trainDutyCycleSamples);}
+\DoxyCodeLine{00271\ }
+\DoxyCodeLine{00281\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_a7cfc34ed0b908af1a886da72b4da8301}{calcNewPulsarFreq}}(\textcolor{keywordtype}{float}\&\ pulsarModFreq,\ \textcolor{keywordtype}{bool}\ silenceToPulseFlag);}
+\DoxyCodeLine{00282\ }
+\DoxyCodeLine{00291\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_pulsar_synth_voice_a06927694e2701c0d4a263bb75116bcf1}{calSampleByState}}(\textcolor{keywordtype}{bool}\ passMaskFlag,\ \textcolor{keywordtype}{bool}\ existMask,\ \textcolor{keywordtype}{float}\ pulsarModFreq);}
+\DoxyCodeLine{00292\ }
+\DoxyCodeLine{00296\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_voice_abbc80c2ec5febf2cfef680187bc5476d}{resetTrainRelatedSamples4Location}}();}
+\DoxyCodeLine{00297\ }
+\DoxyCodeLine{00302\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_pulsar_synth_voice_a5a1aa36eb18b6f76d78ffd7ec063d4c5}{processSample}}();}
+\DoxyCodeLine{00303\ }
+\DoxyCodeLine{00310\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_pulsar_synth_voice_aa100908d92f3409693f96b75ed510f87}{calcActualPulse}}(\textcolor{keywordtype}{float}\ pulsarModFreq);}
+\DoxyCodeLine{00311\ }
+\DoxyCodeLine{00320\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_pulsar_synth_voice_a46c5e089267094fdcbc806bebcd1b0d3}{calcFormantLfoInterpolation}}(\textcolor{keywordtype}{float}\ pulsarModFreq,\ \textcolor{keywordtype}{float}\ amount);}
+\DoxyCodeLine{00321\ }
+\DoxyCodeLine{00330\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_pulsar_synth_voice_abfcddd316f1b287d96ff9fbbf3fbc995}{calcAmpLfoInterpolation}}(\textcolor{keywordtype}{float}\ pulsarModFreq,\ \textcolor{keywordtype}{float}\ amount);}
+\DoxyCodeLine{00331\ }
+\DoxyCodeLine{00332\ \ \ \ \ [[nodiscard]]\ \textcolor{keywordtype}{bool}\ isCurrentCacluatedPulse()\textcolor{keyword}{\ const}}
+\DoxyCodeLine{00333\ \textcolor{keyword}{\ \ \ \ }\{}
+\DoxyCodeLine{00334\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ currentSampleInPulse;}
+\DoxyCodeLine{00335\ \ \ \ \ \}}
+\DoxyCodeLine{00336\ }
+\DoxyCodeLine{00337\ \ \ \ \ [[nodiscard]]\ std::atomic<float>*\&\ getTrainDutyCycleLenParam()}
+\DoxyCodeLine{00338\ \ \ \ \ \{}
+\DoxyCodeLine{00339\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ commonVoiceSate-\/>trainDutyCycleLenParam;}
+\DoxyCodeLine{00340\ \ \ \ \ \}}
+\DoxyCodeLine{00341\ }
+\DoxyCodeLine{00342\ \ \ \ \ \textcolor{keywordtype}{void}\ setTrainDutyCycleLenParam(std::atomic<float>*\ trainDutyCycleLenParam)}
+\DoxyCodeLine{00343\ \ \ \ \ \{}
+\DoxyCodeLine{00344\ \ \ \ \ \ \ \ \ commonVoiceSate-\/>trainDutyCycleLenParam\ =\ trainDutyCycleLenParam;}
+\DoxyCodeLine{00345\ \ \ \ \ \}}
+\DoxyCodeLine{00346\ }
+\DoxyCodeLine{00351\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_pulsar_synth_voice_ab75c995947c166b03334d2ca18b8088f}{getOutputGain}}();}
+\DoxyCodeLine{00352\ }
+\DoxyCodeLine{00358\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{class_pulsar_synth_voice_abed103c588a2c7224df6ae39e5cf3583}{initBpmFromDaw}}(juce::AudioPlayHead*\ audioPlayHead);}
+\DoxyCodeLine{00359\ }
+\DoxyCodeLine{00365\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_pulsar_synth_voice_a180e5997173293e74baf529f3502ef3f}{updateBpmDirectly}}(\textcolor{keywordtype}{float}\ bpm);}
+\DoxyCodeLine{00366\ }
+\DoxyCodeLine{00367\ \ \ \ \ [[nodiscard]]\ std::shared\_ptr<CommonVoiceSate>\&\ getCommonVoiceSate()}
+\DoxyCodeLine{00368\ \ \ \ \ \{}
+\DoxyCodeLine{00369\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ commonVoiceSate;}
+\DoxyCodeLine{00370\ \ \ \ \ \}}
+\DoxyCodeLine{00371\ }
+\DoxyCodeLine{00372\ \ \ \ \ \textcolor{keywordtype}{void}\ setCommonVoiceSate(std::shared\_ptr<CommonVoiceSate>\&\ commonVoiceSate)}
+\DoxyCodeLine{00373\ \ \ \ \ \{}
+\DoxyCodeLine{00374\ \ \ \ \ \ \ \ \ this-\/>commonVoiceSate\ =\ commonVoiceSate;}
+\DoxyCodeLine{00375\ \ \ \ \ \}}
+\DoxyCodeLine{00376\ }
+\DoxyCodeLine{00377\ \ \ \ \ [[nodiscard]]\ \textcolor{keywordtype}{bool}\&\ isSoundOffWhenSwitchPlayMode()}
+\DoxyCodeLine{00378\ \ \ \ \ \{}
+\DoxyCodeLine{00379\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ soundOffWhenSwitchPlayMode;}
+\DoxyCodeLine{00380\ \ \ \ \ \}}
+\DoxyCodeLine{00381\ }
+\DoxyCodeLine{00382\ \ \ \ \ \textcolor{keywordtype}{void}\ setSoundOffWhenSwitchPlayMode(\textcolor{keywordtype}{bool}\ soundOffWhenSwitchPlayMode)}
+\DoxyCodeLine{00383\ \ \ \ \ \{}
+\DoxyCodeLine{00384\ \ \ \ \ \ \ \ \ this-\/>soundOffWhenSwitchPlayMode\ =\ soundOffWhenSwitchPlayMode;}
+\DoxyCodeLine{00385\ \ \ \ \ \}}
+\DoxyCodeLine{00386\ \};}
+
+\end{DoxyCode}

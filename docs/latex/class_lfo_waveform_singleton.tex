@@ -1,0 +1,78 @@
+\doxysection{Lfo\+Waveform\+Singleton Class Reference}
+\hypertarget{class_lfo_waveform_singleton}{}\label{class_lfo_waveform_singleton}\index{LfoWaveformSingleton@{LfoWaveformSingleton}}
+
+
+{\ttfamily \#include $<$Lfo\+Waveform\+Singleton.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_lfo_waveform_singleton_a26d8d90d88724f042bbe5376a3cf3520}\label{class_lfo_waveform_singleton_a26d8d90d88724f042bbe5376a3cf3520} 
+{\bfseries Lfo\+Waveform\+Singleton} (const \mbox{\hyperlink{class_lfo_waveform_singleton}{Lfo\+Waveform\+Singleton}} \&)=delete
+\item 
+\Hypertarget{class_lfo_waveform_singleton_a44b3082cd3c2901636fd0b6a13915246}\label{class_lfo_waveform_singleton_a44b3082cd3c2901636fd0b6a13915246} 
+\mbox{\hyperlink{class_lfo_waveform_singleton}{Lfo\+Waveform\+Singleton}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_lfo_waveform_singleton}{Lfo\+Waveform\+Singleton}} \&)=delete
+\item 
+\Hypertarget{class_lfo_waveform_singleton_a191e06eac1e9edc851ee8e6be11aaea3}\label{class_lfo_waveform_singleton_a191e06eac1e9edc851ee8e6be11aaea3} 
+std\+::vector$<$ juce\+::dsp\+::\+Oscillator$<$ float $>$ \texorpdfstring{$\ast$}{*} $>$ \& {\bfseries get\+Amp\+Lfos} ()
+\item 
+\Hypertarget{class_lfo_waveform_singleton_a4194ccca014367926f3e47a83dcb0d12}\label{class_lfo_waveform_singleton_a4194ccca014367926f3e47a83dcb0d12} 
+std\+::vector$<$ juce\+::dsp\+::\+Oscillator$<$ float $>$ \texorpdfstring{$\ast$}{*} $>$ \& {\bfseries get\+Formant\+Lfos} ()
+\item 
+float \mbox{\hyperlink{class_lfo_waveform_singleton_a12ad34ba013ecd4802428305ec8f07c4}{calc\+Sample\+After\+AM}} (float original\+Index, float phase)
+\item 
+float \mbox{\hyperlink{class_lfo_waveform_singleton_a7098472ea1b3a15cf5d976d5987aab25}{calc\+Sample\+After\+FM}} (float original\+Index, float phase)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_lfo_waveform_singleton_a531731b740ea2529e2736c5461f8ffe3}\label{class_lfo_waveform_singleton_a531731b740ea2529e2736c5461f8ffe3} 
+static \mbox{\hyperlink{class_lfo_waveform_singleton}{Lfo\+Waveform\+Singleton}} \& {\bfseries get\+Instance} (double sample\+Rate, float frequency)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+The lfo waveform singleton maintains only one set of instances globally for the same set of sample rate and frequency parameters 
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_lfo_waveform_singleton_a12ad34ba013ecd4802428305ec8f07c4}\index{LfoWaveformSingleton@{LfoWaveformSingleton}!calcSampleAfterAM@{calcSampleAfterAM}}
+\index{calcSampleAfterAM@{calcSampleAfterAM}!LfoWaveformSingleton@{LfoWaveformSingleton}}
+\doxysubsubsection{\texorpdfstring{calcSampleAfterAM()}{calcSampleAfterAM()}}
+{\footnotesize\ttfamily \label{class_lfo_waveform_singleton_a12ad34ba013ecd4802428305ec8f07c4} 
+float Lfo\+Waveform\+Singleton\+::calc\+Sample\+After\+AM (\begin{DoxyParamCaption}\item[{float}]{original\+Index}{, }\item[{float}]{phase}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+calcuate sample after applying AM modulation, to implement the smooth movement between different waveforms, that means when original\+Index stay between two indexs then it features two waveform sound
+
+
+\begin{DoxyParams}{Parameters}
+{\em original\+Index} & the smooth index, 0.\+0f -\/ 1.\+0f \\
+\hline
+{\em phase} & phase in waveform \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\Hypertarget{class_lfo_waveform_singleton_a7098472ea1b3a15cf5d976d5987aab25}\index{LfoWaveformSingleton@{LfoWaveformSingleton}!calcSampleAfterFM@{calcSampleAfterFM}}
+\index{calcSampleAfterFM@{calcSampleAfterFM}!LfoWaveformSingleton@{LfoWaveformSingleton}}
+\doxysubsubsection{\texorpdfstring{calcSampleAfterFM()}{calcSampleAfterFM()}}
+{\footnotesize\ttfamily \label{class_lfo_waveform_singleton_a7098472ea1b3a15cf5d976d5987aab25} 
+float Lfo\+Waveform\+Singleton\+::calc\+Sample\+After\+FM (\begin{DoxyParamCaption}\item[{float}]{original\+Index}{, }\item[{float}]{phase}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+calcuate sample after applying FM modulation, to implement the smooth movement between different waveforms, that means when original\+Index stay between two indexs then it features two waveform sound
+
+
+\begin{DoxyParams}{Parameters}
+{\em original\+Index} & the smooth index, 0.\+0f -\/ 1.\+0f \\
+\hline
+{\em phase} & phase in waveform \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Source/include/Lfo\+Waveform\+Singleton.\+h\end{DoxyCompactItemize}

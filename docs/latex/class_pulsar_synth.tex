@@ -1,0 +1,166 @@
+\doxysection{Pulsar\+Synth Class Reference}
+\hypertarget{class_pulsar_synth}{}\label{class_pulsar_synth}\index{PulsarSynth@{PulsarSynth}}
+
+
+{\ttfamily \#include $<$Pulsar\+Synth.\+h$>$}
+
+Inheritance diagram for Pulsar\+Synth\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_pulsar_synth}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_pulsar_synth_aeba9f5b531918c2956c4f31bbdded4ee}\label{class_pulsar_synth_aeba9f5b531918c2956c4f31bbdded4ee} 
+{\bfseries Pulsar\+Synth} (\mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why\+::\+Play\+Mode\+Enum}} my\+Play\+Mode\+Enum)
+\item 
+\Hypertarget{class_pulsar_synth_a11a9498b7d9b4149bf0b2c09fc9d9b64}\label{class_pulsar_synth_a11a9498b7d9b4149bf0b2c09fc9d9b64} 
+\mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why\+::\+Play\+Mode\+Enum}} \& {\bfseries get\+My\+Play\+Mode\+Enum} ()
+\item 
+\Hypertarget{class_pulsar_synth_a0bba26e614d4e409f6343f48563bea97}\label{class_pulsar_synth_a0bba26e614d4e409f6343f48563bea97} 
+void {\bfseries set\+My\+Play\+Mode\+Enum} (\mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why\+::\+Play\+Mode\+Enum}} my\+Play\+Mode\+Enum)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_a2083820d19e52a85a8b28a442c62898b}{trigger\+Sound\+Off\+When\+Switch\+Play\+Mode}} ()
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_aeac493773880d38d4c1a6b14f3933525}{force\+Refresh\+Bpm\+And\+Rebuild\+Train}} (float bpm)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_a7ad3c79b6ec0aad7fbd344ad1000c7f4}{init\+Train}} (double sample\+Rate, std\+::unique\+\_\+ptr$<$ juce\+::\+Audio\+Buffer$<$ float $>$ $>$ \&sample\+Buffer, juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}audio\+Play\+Head)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_af3d182ffe01c13624ebe736ed5456eaa}{parameter\+Changed}} (juce\+::\+Audio\+Processor\+Value\+Tree\+State \&apvts, juce\+::\+String parameter\+ID, float new\+Value, bool \&is\+Generated\+Stochastic\+Mask)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_a694896422d7b0af33b69b4ab01232f30}{reload\+Preset}} (juce\+::\+Audio\+Processor\+Value\+Tree\+State \&apvts)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_a6aafb5c2e29b65a2fefa86c9a2a490d3}{refresh\+Burst\+Mask}} (juce\+::\+String burst\+Mask)
+\item 
+std\+::string \mbox{\hyperlink{class_pulsar_synth_ad7728ee80e85c0048c9a40af70b5ce7f}{get\+Stochastic\+Mask\+Str}} ()
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_ad87daa677ba90e60882bec6027d3d091}{render\+Next\+Block\+Directly}} (juce\+::\+Audio\+Buffer$<$ float $>$ \&buffer, juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}audio\+Play\+Head, const juce\+::\+Midi\+Buffer \&midi\+Buffer, int start, int num\+Samples, \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why\+::\+Play\+Mode\+Enum}} current\+Play\+Mode\+Enum)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Custom synthesizers, with different play modes corresponding to different synths 
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_pulsar_synth_aeac493773880d38d4c1a6b14f3933525}\index{PulsarSynth@{PulsarSynth}!forceRefreshBpmAndRebuildTrain@{forceRefreshBpmAndRebuildTrain}}
+\index{forceRefreshBpmAndRebuildTrain@{forceRefreshBpmAndRebuildTrain}!PulsarSynth@{PulsarSynth}}
+\doxysubsubsection{\texorpdfstring{forceRefreshBpmAndRebuildTrain()}{forceRefreshBpmAndRebuildTrain()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_aeac493773880d38d4c1a6b14f3933525} 
+void Pulsar\+Synth\+::force\+Refresh\+Bpm\+And\+Rebuild\+Train (\begin{DoxyParamCaption}\item[{float}]{bpm}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Modify the bpm of the plugin, force refresh the bpm and rebuild the train, because when the bpm changes, the train also changes
+
+
+\begin{DoxyParams}{Parameters}
+{\em bpm} & The bpm of the plugin has nothing to do with that of the daw \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_ad7728ee80e85c0048c9a40af70b5ce7f}\index{PulsarSynth@{PulsarSynth}!getStochasticMaskStr@{getStochasticMaskStr}}
+\index{getStochasticMaskStr@{getStochasticMaskStr}!PulsarSynth@{PulsarSynth}}
+\doxysubsubsection{\texorpdfstring{getStochasticMaskStr()}{getStochasticMaskStr()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_ad7728ee80e85c0048c9a40af70b5ce7f} 
+std\+::string Pulsar\+Synth\+::get\+Stochastic\+Mask\+Str (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+get stochastic mask for display
+
+\begin{DoxyReturn}{Returns}
+stochastic mask 
+\end{DoxyReturn}
+\Hypertarget{class_pulsar_synth_a7ad3c79b6ec0aad7fbd344ad1000c7f4}\index{PulsarSynth@{PulsarSynth}!initTrain@{initTrain}}
+\index{initTrain@{initTrain}!PulsarSynth@{PulsarSynth}}
+\doxysubsubsection{\texorpdfstring{initTrain()}{initTrain()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_a7ad3c79b6ec0aad7fbd344ad1000c7f4} 
+void Pulsar\+Synth\+::init\+Train (\begin{DoxyParamCaption}\item[{double}]{sample\+Rate}{, }\item[{std\+::unique\+\_\+ptr$<$ juce\+::\+Audio\+Buffer$<$ float $>$ $>$ \&}]{sample\+Buffer}{, }\item[{juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}}]{audio\+Play\+Head}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Initialize trian. Each voice has a separate train, and the voice also points to the same Common\+Voice\+State, sharing some common data
+
+
+\begin{DoxyParams}{Parameters}
+{\em sample\+Rate} & sample rate \\
+\hline
+{\em sample\+Buffer} & sample buffer，\+TODO Not used now, but retained (planned for implementing sample as pulsaret) \\
+\hline
+{\em audio\+Play\+Head} & obtain information such as the playback position \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_af3d182ffe01c13624ebe736ed5456eaa}\index{PulsarSynth@{PulsarSynth}!parameterChanged@{parameterChanged}}
+\index{parameterChanged@{parameterChanged}!PulsarSynth@{PulsarSynth}}
+\doxysubsubsection{\texorpdfstring{parameterChanged()}{parameterChanged()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_af3d182ffe01c13624ebe736ed5456eaa} 
+void Pulsar\+Synth\+::parameter\+Changed (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Processor\+Value\+Tree\+State \&}]{apvts}{, }\item[{juce\+::\+String}]{parameter\+ID}{, }\item[{float}]{new\+Value}{, }\item[{bool \&}]{is\+Generated\+Stochastic\+Mask}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Parameter change, update voice\+:
+
+When Audio\+Processor\+Value\+Tree\+State parameter\+Changed listening is after the callback, the method will be triggered
+
+
+\begin{DoxyParams}{Parameters}
+{\em apvts} & tree state \\
+\hline
+{\em parameter\+ID} & parameter id \\
+\hline
+{\em new\+Value} & up-\/to-\/date value \\
+\hline
+{\em is\+Generated\+Stochastic\+Mask} & Whether the stochastic\+Mask was generated, this arg will be updated when func end \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_a6aafb5c2e29b65a2fefa86c9a2a490d3}\index{PulsarSynth@{PulsarSynth}!refreshBurstMask@{refreshBurstMask}}
+\index{refreshBurstMask@{refreshBurstMask}!PulsarSynth@{PulsarSynth}}
+\doxysubsubsection{\texorpdfstring{refreshBurstMask()}{refreshBurstMask()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_a6aafb5c2e29b65a2fefa86c9a2a490d3} 
+void Pulsar\+Synth\+::refresh\+Burst\+Mask (\begin{DoxyParamCaption}\item[{juce\+::\+String}]{burst\+Mask}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Update the burst\+Mask of all voices, but the voices all point to the same \doxylink{class_common_voice_sate}{Common\+Voice\+Sate}, so only one voice needs to be updated
+
+
+\begin{DoxyParams}{Parameters}
+{\em burst\+Mask} & burst mask \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_a694896422d7b0af33b69b4ab01232f30}\index{PulsarSynth@{PulsarSynth}!reloadPreset@{reloadPreset}}
+\index{reloadPreset@{reloadPreset}!PulsarSynth@{PulsarSynth}}
+\doxysubsubsection{\texorpdfstring{reloadPreset()}{reloadPreset()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_a694896422d7b0af33b69b4ab01232f30} 
+void Pulsar\+Synth\+::reload\+Preset (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Processor\+Value\+Tree\+State \&}]{apvts}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Refresh the voice according to the preset 
+\begin{DoxyParams}{Parameters}
+{\em apvts} & tree state \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_ad87daa677ba90e60882bec6027d3d091}\index{PulsarSynth@{PulsarSynth}!renderNextBlockDirectly@{renderNextBlockDirectly}}
+\index{renderNextBlockDirectly@{renderNextBlockDirectly}!PulsarSynth@{PulsarSynth}}
+\doxysubsubsection{\texorpdfstring{renderNextBlockDirectly()}{renderNextBlockDirectly()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_ad87daa677ba90e60882bec6027d3d091} 
+void Pulsar\+Synth\+::render\+Next\+Block\+Directly (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Buffer$<$ float $>$ \&}]{buffer}{, }\item[{juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}}]{audio\+Play\+Head}{, }\item[{const juce\+::\+Midi\+Buffer \&}]{midi\+Buffer}{, }\item[{int}]{start}{, }\item[{int}]{num\+Samples}{, }\item[{\mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why\+::\+Play\+Mode\+Enum}}}]{current\+Play\+Mode\+Enum}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+In auto mode, the render\+Next\+Block does not follow the render\+Next\+Block of juce\textquotesingle{}s synthesizer because there is no midi trigger. So write it here.
+
+
+\begin{DoxyParams}{Parameters}
+{\em buffer} & audio buffer \\
+\hline
+{\em audio\+Play\+Head} & audio play head \\
+\hline
+{\em midi\+Buffer} & midi buffer \\
+\hline
+{\em start} & start index \\
+\hline
+{\em num\+Samples} & num of samples \\
+\hline
+{\em current\+Play\+Mode\+Enum} & current play mode \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_a2083820d19e52a85a8b28a442c62898b}\index{PulsarSynth@{PulsarSynth}!triggerSoundOffWhenSwitchPlayMode@{triggerSoundOffWhenSwitchPlayMode}}
+\index{triggerSoundOffWhenSwitchPlayMode@{triggerSoundOffWhenSwitchPlayMode}!PulsarSynth@{PulsarSynth}}
+\doxysubsubsection{\texorpdfstring{triggerSoundOffWhenSwitchPlayMode()}{triggerSoundOffWhenSwitchPlayMode()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_a2083820d19e52a85a8b28a442c62898b} 
+void Pulsar\+Synth\+::trigger\+Sound\+Off\+When\+Switch\+Play\+Mode (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+When switching the play mode, turn off all sounds. The auto mode will be played in the playback of the next daw, and the midi mode will be played in the next note 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Source/include/Pulsar\+Synth.\+h\end{DoxyCompactItemize}

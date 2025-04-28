@@ -1,0 +1,183 @@
+\doxysection{Plugin\+Editor.\+h}
+\hypertarget{_plugin_editor_8h_source}{}\label{_plugin_editor_8h_source}\index{Source/PluginEditor.h@{Source/PluginEditor.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{comment}{//\#include\ <juce\_audio\_utils/gui/juce\_AudioVisualiserComponent.h>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}PluginProcessor.h"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{comment}{//==============================================================================}}
+\DoxyCodeLine{00007\ \textcolor{keyword}{class\ }AudioPluginAudioProcessorEditor\ final\ :\ \textcolor{keyword}{public}\ juce::AudioProcessorEditor}
+\DoxyCodeLine{00008\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ,\ public\ juce::Timer}}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ,\ public\ juce::AudioProcessorValueTreeState::Listener}}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ,\ public\ juce::ValueTree::Listener\ //监听property变化}}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ,\ \textcolor{keyword}{public}\ juce::ChangeListener\ \textcolor{comment}{//监听juce::ChangeBroadcaster的广播}}
+\DoxyCodeLine{00012\ }
+\DoxyCodeLine{00013\ \{}
+\DoxyCodeLine{00014\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a82532aa37171ec85c03bd7cdb0aaff99}{makeVisible}}();}
+\DoxyCodeLine{00016\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_ae9707a7919d59d4791a4f9865086b78a}{setUIStyle}}();}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a966f5763f328fa44607f8d78f3cd4027}{connectUIAndAudioParameter}}();}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a1aeaff110c79d6dd18aedba1ea9f6f91}{initUITriggerEvent}}();}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a1cb5d4de3a4164770a18225f88351a0f}{setWindowSize}}();}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keyword}{explicit}\ AudioPluginAudioProcessorEditor(\mbox{\hyperlink{class_audio_plugin_audio_processor}{AudioPluginAudioProcessor}}\&);}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \string~AudioPluginAudioProcessorEditor()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{comment}{//==============================================================================}}
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keywordtype}{void}\ paint(juce::Graphics\&)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a88e66ad2b91fb3c0d733e030cec3ceb8}{topFlexBox}}(juce::FlexBox\&\ flexBoxTop,\ std::shared\_ptr<FlexBox>\ trainLenFlexBox,}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<FlexBox>\ trainDutyCycleFlexBox,}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<FlexBox>\ trainSilenceLenFlexBox,\ std::shared\_ptr<FlexBox>\ bpmFlexBox,}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<FlexBox>\ playModeAndImpulseFlexBox);}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a40338baa8971fd86f0f2e455746b252b}{bottomFlexBox}}(juce::FlexBox\&\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a40338baa8971fd86f0f2e455746b252b}{bottomFlexBox}},\ std::shared\_ptr<juce::FlexBox>\ pulsarWaveformFlexBox,}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<juce::FlexBox>\ pulsarDutyCycleClusterLenFlexBox,}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<juce::FlexBox>\ pulsarDutyCycleRatioFlexBox,}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<juce::FlexBox>\ ampLfoFlexBox,}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<juce::FlexBox>\ formantFreqLfoFlexBox,}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<juce::FlexBox>\ attackFlexBox,\ std::shared\_ptr<juce::FlexBox>\ decayFlexBox,}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<juce::FlexBox>\ sustainFlexBox,\ std::shared\_ptr<juce::FlexBox>\ releaseFlexBox);}
+\DoxyCodeLine{00037\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a432f1145958d1ae65d0b5f18a5ff518a}{midFlexBox}}(juce::FlexBox\&\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a432f1145958d1ae65d0b5f18a5ff518a}{midFlexBox}},\ std::shared\_ptr<juce::FlexBox>\ maskOptionFlexBox,}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<juce::FlexBox>\ burstMaskFlexBox,}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<juce::FlexBox>\ euclidStepFlexBox,\ std::shared\_ptr<juce::FlexBox>\ euclidHitFlexBox,}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::shared\_ptr<juce::FlexBox>\ stochasticMaskFlexBox);}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a24cd6ed8afaa70576aba4ff6cd5ec407}{resized}}()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a148a630e8343bec94ff7ca9919bb69ab}{changeListenerCallback}}(juce::ChangeBroadcaster*\ source)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{comment}{//========================================自定义方法======================================}}
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_adddd3dec604ec19427a428d90a8407d7}{refreshUIFromPreset}}();}
+\DoxyCodeLine{00058\ }
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{comment}{//=======methods\ related\ to\ impulse\ file=======}}
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_adee16cd7e66e7526d011a295e88f2384}{openFileChooser}}();}
+\DoxyCodeLine{00064\ }
+\DoxyCodeLine{00069\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_aff60041477e101d2927c09dc63685e4a}{saveFileIntoSynth}}(\textcolor{keyword}{const}\ juce::File\&\ file);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00074\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a517305b024f3f28f79dbaa7bed0ca9a1}{loadSampleImpulseWhenSelected}}();}
+\DoxyCodeLine{00075\ }
+\DoxyCodeLine{00079\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_ae00e380ff57e290a2e16b8fbd03a38fc}{initTemplateImpulseComboboxNames}}();}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a91be33ad930bc9f8146267ac2a956cae}{loadTemplateImpulseWhenSelected}}();}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a8936b2a243c0562db667ac75fe073804}{saveTemplateImpulseThenLoadAfterSelect}}(juce::String\ selectedId);}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a40b2f58d36b516cedb1c66c59349699b}{rebalanceStepHitValueDisplay}}();}
+\DoxyCodeLine{00095\ }
+\DoxyCodeLine{00096\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00097\ \ \ \ \ \textcolor{comment}{//\ This\ reference\ is\ provided\ as\ a\ quick\ way\ for\ your\ editor\ to\ access\ the\ processor\ object\ that\ created\ it.}}
+\DoxyCodeLine{00098\ \ \ \ \ juce::AudioVisualiserComponent\ visualiser\ =\ juce::AudioVisualiserComponent(0);\ \textcolor{comment}{//\ 波形显示组件}}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00100\ \ \ \ \ \textcolor{comment}{//==============================自定义控件==============================}}
+\DoxyCodeLine{00101\ \ \ \ \ \textcolor{comment}{//output\ gain}}
+\DoxyCodeLine{00102\ \ \ \ \ juce::Label\ outputGainLabel;}
+\DoxyCodeLine{00103\ \ \ \ \ juce::Slider\ outputGainSlider;}
+\DoxyCodeLine{00104\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ outputGainAttachment;}
+\DoxyCodeLine{00105\ }
+\DoxyCodeLine{00106\ \ \ \ \ \textcolor{comment}{//bpm}}
+\DoxyCodeLine{00107\ \ \ \ \ juce::Slider\ bpmSlider;}
+\DoxyCodeLine{00108\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ bpmAttachment;}
+\DoxyCodeLine{00109\ }
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{comment}{//play\ mode}}
+\DoxyCodeLine{00111\ \ \ \ \ juce::Label\ playModeLabel;}
+\DoxyCodeLine{00112\ \ \ \ \ juce::ComboBox\ playModeCombobox;}
+\DoxyCodeLine{00113\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>\ playModeComboboxAttachment;}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00115\ \ \ \ \ \textcolor{comment}{//train}}
+\DoxyCodeLine{00116\ \ \ \ \ juce::Slider\ trainLenSlider;}
+\DoxyCodeLine{00117\ \ \ \ \ juce::Label\ trainLenLabel;}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ juce::Slider\ trainDutyCycleLenSlider;}
+\DoxyCodeLine{00120\ \ \ \ \ juce::Label\ trainDutyCycleLenLabel;}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \ \ juce::Slider\ trainSilenceLenSlider;}
+\DoxyCodeLine{00123\ \ \ \ \ juce::Label\ trainSilenceLenLabel;}
+\DoxyCodeLine{00124\ }
+\DoxyCodeLine{00125\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ trainLenAttachment;}
+\DoxyCodeLine{00126\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ trainDutyCycleAttachment;}
+\DoxyCodeLine{00127\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ trainSilenceAttachment;}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00129\ \ \ \ \ \textcolor{comment}{//pulsar}}
+\DoxyCodeLine{00130\ \ \ \ \ juce::Slider\ pulsarWaveformSlider;}
+\DoxyCodeLine{00131\ \ \ \ \ juce::Label\ pulsarWaveformLabel;}
+\DoxyCodeLine{00132\ }
+\DoxyCodeLine{00133\ \ \ \ \ juce::Slider\ pulsarDutyCycleClusterLenSlider;}
+\DoxyCodeLine{00134\ \ \ \ \ juce::Label\ pulsarDutyCycleClusterLenLabel;}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \ \ juce::Slider\ pulsarDutyCycleRatioSlider;}
+\DoxyCodeLine{00137\ \ \ \ \ juce::Label\ pulsarDutyCycleRatioLabel;}
+\DoxyCodeLine{00138\ }
+\DoxyCodeLine{00139\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ pulsarWaveformAttachment;}
+\DoxyCodeLine{00140\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ pulsarDutyCycleClusterLenAttachment;}
+\DoxyCodeLine{00141\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ pulsarDutyCycleRatioAttachment;}
+\DoxyCodeLine{00142\ }
+\DoxyCodeLine{00143\ \ \ \ \ \textcolor{comment}{//lfo\ modulation}}
+\DoxyCodeLine{00144\ \ \ \ \ juce::Slider\ ampLfoSlider;}
+\DoxyCodeLine{00145\ \ \ \ \ juce::Label\ ampLfoLabel;}
+\DoxyCodeLine{00146\ }
+\DoxyCodeLine{00147\ \ \ \ \ juce::Slider\ formantFreqLfoSlider;}
+\DoxyCodeLine{00148\ \ \ \ \ juce::Label\ formantFreqLfoLabel;}
+\DoxyCodeLine{00149\ }
+\DoxyCodeLine{00150\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ ampLfoAttachment;}
+\DoxyCodeLine{00151\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ formantFreqLfoAttachment;}
+\DoxyCodeLine{00152\ }
+\DoxyCodeLine{00153\ \ \ \ \ \textcolor{comment}{//envelope}}
+\DoxyCodeLine{00154\ \ \ \ \ juce::Slider\ attackSlider;}
+\DoxyCodeLine{00155\ \ \ \ \ juce::Label\ attackLabel;}
+\DoxyCodeLine{00156\ }
+\DoxyCodeLine{00157\ \ \ \ \ juce::Slider\ decaySlider;}
+\DoxyCodeLine{00158\ \ \ \ \ juce::Label\ decayLabel;}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \ \ \ \ juce::Slider\ sustainSlider;}
+\DoxyCodeLine{00161\ \ \ \ \ juce::Label\ sustainLabel;}
+\DoxyCodeLine{00162\ }
+\DoxyCodeLine{00163\ \ \ \ \ juce::Slider\ releaseSlider;}
+\DoxyCodeLine{00164\ \ \ \ \ juce::Label\ releaseLabel;}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ attackAttachment;}
+\DoxyCodeLine{00167\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ decayAttachment;}
+\DoxyCodeLine{00168\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ sustainAttachment;}
+\DoxyCodeLine{00169\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ releaseAttachment;}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \ \ \ \ \textcolor{comment}{//masking}}
+\DoxyCodeLine{00172\ \ \ \ \ juce::Label\ maskComboBoxLabel;}
+\DoxyCodeLine{00173\ \ \ \ \ juce::ComboBox\ maskOptionComboBox;}
+\DoxyCodeLine{00174\ }
+\DoxyCodeLine{00175\ \ \ \ \ juce::Label\ burstMaskLabel;}
+\DoxyCodeLine{00176\ \ \ \ \ juce::TextEditor\ burstMaskTextEditor;}
+\DoxyCodeLine{00177\ }
+\DoxyCodeLine{00178\ \ \ \ \ juce::Label\ euclidStepLabel;}
+\DoxyCodeLine{00179\ \ \ \ \ juce::Slider\ euclidStepSlider;}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \ \ \ \ juce::Label\ euclidHitLabel;}
+\DoxyCodeLine{00182\ \ \ \ \ juce::Slider\ euclidHitSlider;}
+\DoxyCodeLine{00183\ }
+\DoxyCodeLine{00184\ \ \ \ \ juce::Label\ stochasticMaskLabel;}
+\DoxyCodeLine{00185\ \ \ \ \ juce::TextEditor\ stochasticMaskTextEditor;}
+\DoxyCodeLine{00186\ }
+\DoxyCodeLine{00187\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>\ maskOptionComboBoxAttachment;}
+\DoxyCodeLine{00188\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ euclidStepDialAttachment;}
+\DoxyCodeLine{00189\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>\ euclidHitDialAttachment;}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \ \ \ \ \textcolor{comment}{//convolution\ impulse}}
+\DoxyCodeLine{00192\ \ \ \ \ juce::Label\ impulseSwitchLabel;}
+\DoxyCodeLine{00193\ \ \ \ \ juce::ComboBox\ impulseSwitchComboBox;\ \textcolor{comment}{//0\ disable\ 1\ enable}}
+\DoxyCodeLine{00194\ }
+\DoxyCodeLine{00195\ \ \ \ \ juce::Label\ impulseTemplateLabel;}
+\DoxyCodeLine{00196\ \ \ \ \ juce::ComboBox\ impulseTemplateFileComboBox;}
+\DoxyCodeLine{00197\ }
+\DoxyCodeLine{00198\ \ \ \ \ juce::TextEditor\ sampleImpulsePathTextEditor;\ \textcolor{comment}{//impulse\ file\ path}}
+\DoxyCodeLine{00199\ \ \ \ \ juce::TextButton\ selectSampleImpulseFileButton;}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>\ impulseSwitchComboBoxAttachment;}
+\DoxyCodeLine{00202\ \ \ \ \ std::unique\_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>\ impulseTemplateFileComboBoxAttachment;}
+\DoxyCodeLine{00203\ }
+\DoxyCodeLine{00204\ \ \ \ \ \textcolor{comment}{//open\ file\ chooser\ window\ and\ select\ file}}
+\DoxyCodeLine{00205\ \ \ \ \ std::unique\_ptr<juce::FileChooser>\ fileChooser;}
+\DoxyCodeLine{00206\ }
+\DoxyCodeLine{00207\ \ \ \ \ \mbox{\hyperlink{class_audio_plugin_audio_processor}{AudioPluginAudioProcessor}}\&\ processorRef;}
+\DoxyCodeLine{00208\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(AudioPluginAudioProcessorEditor)}
+\DoxyCodeLine{00209\ \};}
+
+\end{DoxyCode}

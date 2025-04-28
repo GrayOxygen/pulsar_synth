@@ -1,0 +1,171 @@
+\doxysection{Pulsaret\+Waveform\+Singleton.\+h}
+\hypertarget{_pulsaret_waveform_singleton_8h_source}{}\label{_pulsaret_waveform_singleton_8h_source}\index{Source/include/PulsaretWaveformSingleton.h@{Source/include/PulsaretWaveformSingleton.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Created\ by\ Mr.\ Wang\ on\ 2025/4/20.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00009\ \textcolor{keyword}{class\ }PulsaretWaveformSingleton}
+\DoxyCodeLine{00010\ \{}
+\DoxyCodeLine{00011\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00012\ \ \ \ \ \textcolor{keyword}{static}\ PulsaretWaveformSingleton\&\ getInstance()}
+\DoxyCodeLine{00013\ \ \ \ \ \{}
+\DoxyCodeLine{00014\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ PulsaretWaveformSingleton\ instance;}
+\DoxyCodeLine{00015\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ instance;}
+\DoxyCodeLine{00016\ \ \ \ \ \}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//Remove\ the\ copy\ constructor\ and\ assignment\ operator\ to\ ensure\ that\ only\ a\ unique\ instance\ can\ be\ obtained}}
+\DoxyCodeLine{00019\ \ \ \ \ PulsaretWaveformSingleton(\textcolor{keyword}{const}\ PulsaretWaveformSingleton\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00020\ \ \ \ \ PulsaretWaveformSingleton\&\ operator=(\textcolor{keyword}{const}\ PulsaretWaveformSingleton\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keywordtype}{float}\ \mbox{\hyperlink{class_pulsaret_waveform_singleton_a4f38393c374a480a97ceb0aa2500c503}{calcSample}}(\textcolor{keywordtype}{float}\ originalSampleIndex,\ \textcolor{keywordtype}{float}\ phase)}
+\DoxyCodeLine{00029\ \ \ \ \ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 将slider值映射到waveformLUTs数组的两个相邻波形之间}}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ numWaveforms\ =\ waveformLUTs.size();}
+\DoxyCodeLine{00032\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ index\ =\ originalSampleIndex\ *\ (numWaveforms\ -\/\ 1);}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ lowerIndex\ =\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(index);\ \textcolor{comment}{//\ 选择下一个波形的索引}}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ upperIndex\ =\ std::min(lowerIndex\ +\ 1,\ numWaveforms\ -\/\ 1);\ \textcolor{comment}{//\ 选择上一个波形的索引，确保不越界}}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 计算插值因子}}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ interpolationFactor\ =\ index\ -\/\ lowerIndex;}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 获取对应位置的两个波形}}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ juce::dsp::LookupTableTransform<float>\&\ lowerWaveform\ =\ *waveformLUTs[lowerIndex];}
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ juce::dsp::LookupTableTransform<float>\&\ upperWaveform\ =\ *waveformLUTs[upperIndex];}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ s\ =\ lowerWaveform.processSample(phase)\ +\ (upperWaveform.processSample(phase)\ -\/\ lowerWaveform.}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \ \ \ \ processSample(phase))\ *\ interpolationFactor;}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ s\ =\ juce::jlimit(-\/1.0f,\ 1.0f,\ s);}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ s;}
+\DoxyCodeLine{00048\ \ \ \ \ \}}
+\DoxyCodeLine{00049\ }
+\DoxyCodeLine{00050\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{comment}{//Private\ constructor\ to\ ensure\ that\ instances\ cannot\ be\ created\ externally}}
+\DoxyCodeLine{00052\ \ \ \ \ \mbox{\hyperlink{class_pulsaret_waveform_singleton}{PulsaretWaveformSingleton}}()}
+\DoxyCodeLine{00053\ \ \ \ \ \{}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ initializeWaveforms();}
+\DoxyCodeLine{00055\ \ \ \ \ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \textcolor{comment}{//The\ reason\ for\ using\ LookupTableTransform\ instead\ of\ juce::dsp::Oscillator\ because\ I\ need\ control\ the\ phase}}
+\DoxyCodeLine{00058\ \ \ \ \ juce::dsp::LookupTableTransform<float>\ sineLUT;}
+\DoxyCodeLine{00059\ \ \ \ \ juce::dsp::LookupTableTransform<float>\ roundedTriangleLUT;}
+\DoxyCodeLine{00060\ \ \ \ \ juce::dsp::LookupTableTransform<float>\ triangleLUT;}
+\DoxyCodeLine{00061\ \ \ \ \ juce::dsp::LookupTableTransform<float>\ softSquareLUT;}
+\DoxyCodeLine{00062\ \ \ \ \ juce::dsp::LookupTableTransform<float>\ pwmLUT;}
+\DoxyCodeLine{00063\ \ \ \ \ juce::dsp::LookupTableTransform<float>\ sawLUT;}
+\DoxyCodeLine{00064\ \ \ \ \ juce::dsp::LookupTableTransform<float>\ squareLUT;}
+\DoxyCodeLine{00065\ \ \ \ \ juce::dsp::LookupTableTransform<float>\ smoothRandLUT;}
+\DoxyCodeLine{00066\ \ \ \ \ juce::dsp::LookupTableTransform<float>\ steppedRandLUT;}
+\DoxyCodeLine{00067\ \ \ \ \ juce::dsp::LookupTableTransform<float>\ noiseLUT;}
+\DoxyCodeLine{00068\ \ \ \ \ juce::dsp::LookupTableTransform<float>\ complexWaveLUT;}
+\DoxyCodeLine{00069\ }
+\DoxyCodeLine{00070\ \ \ \ \ \textcolor{comment}{//pulsaret\ waveform}}
+\DoxyCodeLine{00071\ \ \ \ \ std::vector<juce::dsp::LookupTableTransform<float>*>\ waveformLUTs;}
+\DoxyCodeLine{00072\ }
+\DoxyCodeLine{00078\ \ \ \ \ \textcolor{keywordtype}{void}\ initializeWaveform(juce::dsp::LookupTableTransform<float>\&\ lut,\ std::function<\textcolor{keywordtype}{float}(\textcolor{keywordtype}{float})>\ waveformFunc)}
+\DoxyCodeLine{00079\ \ \ \ \ \{}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ lut.initialise(waveformFunc,\ -\/1.0f,\ 1.0f,\ 4096);}
+\DoxyCodeLine{00081\ \ \ \ \ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00113\ \ \ \ \ \textcolor{keywordtype}{void}\ initializeWaveforms()}
+\DoxyCodeLine{00114\ \ \ \ \ \{}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 初始化所有的\ Lookup\ Table（LUT）}}
+\DoxyCodeLine{00116\ \ \ \ \ \ \ \ \ initializeWaveform(sineLUT,\ [](\textcolor{keywordtype}{float}\ x)}
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 极度平滑，天然周期性}}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::sin(2.0f\ *\ juce::MathConstants<float>::pi\ *\ x);}
+\DoxyCodeLine{00120\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ initializeWaveform(roundedTriangleLUT,\ [](\textcolor{keywordtype}{float}\ x)}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 比标准三角波更圆润，过渡更自然}}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 2.0f\ *\ std::abs(std::sin(juce::MathConstants<float>::pi\ *\ x))\ -\/\ 1.0f;}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00127\ }
+\DoxyCodeLine{00128\ \ \ \ \ \ \ \ \ initializeWaveform(complexWaveLUT,\ [](\textcolor{keywordtype}{float}\ x)}
+\DoxyCodeLine{00129\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00130\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ wave\ =\ std::sin(2.0f\ *\ juce::MathConstants<float>::pi\ *\ x);}
+\DoxyCodeLine{00131\ \ \ \ \ \ \ \ \ \ \ \ \ wave\ +=\ 0.5f\ *\ std::sin(4.0f\ *\ juce::MathConstants<float>::pi\ *\ x);\ \textcolor{comment}{//\ 和谐波叠加}}
+\DoxyCodeLine{00132\ \ \ \ \ \ \ \ \ \ \ \ \ wave\ +=\ 0.25f\ *\ std::sin(8.0f\ *\ juce::MathConstants<float>::pi\ *\ x);}
+\DoxyCodeLine{00133\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ wave;}
+\DoxyCodeLine{00134\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00136\ \ \ \ \ \ \ \ \ initializeWaveform(triangleLUT,\ [](\textcolor{keywordtype}{float}\ x)}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 清晰边缘但连续不断裂的线性波形}}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 2.0f\ *\ std::abs(2.0f\ *\ (x\ -\/\ std::floor(x\ +\ 0.5f)))\ -\/\ 1.0f;}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00141\ }
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ initializeWaveform(softSquareLUT,\ [](\textcolor{keywordtype}{float}\ x)}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 使用\ tanh\ 压缩\ sin，模拟方波但具有柔和边缘}}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ std::tanh(3.0f\ *\ std::sin(2.0f\ *\ juce::MathConstants<float>::pi\ *\ x));}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00147\ }
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ initializeWaveform(pwmLUT,\ [](\textcolor{keywordtype}{float}\ x)}
+\DoxyCodeLine{00149\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00150\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 脉冲波，占空比\ 25\%，节奏感更强}}
+\DoxyCodeLine{00151\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (x\ <\ 0.25f)\ ?\ 1.0f\ :\ -\/1.0f;}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00153\ }
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ initializeWaveform(sawLUT,\ [](\textcolor{keywordtype}{float}\ x)}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 从\ -\/1\ 到\ 1\ 的斜坡波，富含谐波，强烈感知}}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ 2.0f\ *\ (x\ -\/\ std::floor(x\ +\ 0.5f));}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ initializeWaveform(squareLUT,\ [](\textcolor{keywordtype}{float}\ x)}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 最硬的基本波形，+1\ 到\ -\/1\ 的极端跳变}}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ (x\ <\ 0.5f)\ ?\ -\/1.0f\ :\ 1.0f;}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ initializeWaveform(smoothRandLUT,\ [](\textcolor{keywordtype}{float}\ x)}
+\DoxyCodeLine{00167\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 平滑过渡的随机波形，适合\ LFO\ morphing（伪\ Perlin\ 可替代）}}
+\DoxyCodeLine{00169\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{float}\ prev\ =\ 0.0f;}
+\DoxyCodeLine{00170\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keywordtype}{float}\ next\ =\ juce::Random::getSystemRandom().nextFloat()\ *\ 2.0f\ -\/\ 1.0f;}
+\DoxyCodeLine{00171\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{float}\ frac\ =\ x\ -\/\ std::floor(x);}
+\DoxyCodeLine{00172\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (frac\ <\ 0.01f)}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00174\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ prev\ =\ next;}
+\DoxyCodeLine{00175\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ next\ =\ juce::Random::getSystemRandom().nextFloat()\ *\ 2.0f\ -\/\ 1.0f;}
+\DoxyCodeLine{00176\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00177\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ juce::jmap(frac,\ 0.0f,\ 1.0f,\ prev,\ next);\ \textcolor{comment}{//\ 线性插值}}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00179\ }
+\DoxyCodeLine{00180\ \ \ \ \ \ \ \ \ initializeWaveform(noiseLUT,\ [](\textcolor{keywordtype}{float}\ \textcolor{comment}{/*x*/})}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 随机跳变的采样保持波形，最“粗糙”}}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ juce::Random::getSystemRandom().nextFloat()\ *\ 2.0f\ -\/\ 1.0f;}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ initializeWaveform(steppedRandLUT,\ [](\textcolor{keywordtype}{float}\ x)}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 使用\ Sample\ \&\ Hold\ 生成\ "{}Stepped\ Random"{}\ 波形，每步一个新的随机值}}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ x\ *\ N\ 是为了根据步长来选择随机值}}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{constexpr}\ \textcolor{keywordtype}{int}\ N\ =\ 128;\ \textcolor{comment}{//\ N\ 是步数，决定了波形的分辨率}}
+\DoxyCodeLine{00190\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ index\ =\ std::floor(x\ *\ N);}
+\DoxyCodeLine{00191\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ juce::Random::getSystemRandom().nextFloat()\ *\ 2.0f\ -\/\ 1.0f;\ \textcolor{comment}{//\ 随机值范围\ -\/1\ 到\ 1}}
+\DoxyCodeLine{00192\ \ \ \ \ \ \ \ \ \});}
+\DoxyCodeLine{00193\ }
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ The\ push\_back\ order\ corresponds\ to\ the\ values\ of\ the\ index\ from\ 0.0f\ to\ 1.0f.\ Generally\ speaking,}}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ this\ reflects\ the\ characteristic\ from\ smooth\ to\ non-\/smooth,\ and\ the\ order\ is\ consistent\ with}}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ the\ waveform\ table\ order\ of\ lfo}}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ waveformLUTs.push\_back(\&sineLUT);}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ waveformLUTs.push\_back(\&complexWaveLUT);}
+\DoxyCodeLine{00199\ \ \ \ \ \ \ \ \ waveformLUTs.push\_back(\&roundedTriangleLUT);}
+\DoxyCodeLine{00200\ \ \ \ \ \ \ \ \ waveformLUTs.push\_back(\&triangleLUT);}
+\DoxyCodeLine{00201\ \ \ \ \ \ \ \ \ waveformLUTs.push\_back(\&sawLUT);}
+\DoxyCodeLine{00202\ \ \ \ \ \ \ \ \ waveformLUTs.push\_back(\&softSquareLUT);}
+\DoxyCodeLine{00203\ \ \ \ \ \ \ \ \ waveformLUTs.push\_back(\&pwmLUT);}
+\DoxyCodeLine{00204\ \ \ \ \ \ \ \ \ waveformLUTs.push\_back(\&squareLUT);}
+\DoxyCodeLine{00205\ \ \ \ \ \ \ \ \ waveformLUTs.push\_back(\&smoothRandLUT);}
+\DoxyCodeLine{00206\ \ \ \ \ \ \ \ \ waveformLUTs.push\_back(\&steppedRandLUT);}
+\DoxyCodeLine{00207\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ waveformLUTs.push\_back(\&noiseLUT);}}
+\DoxyCodeLine{00208\ \ \ \ \ \}}
+\DoxyCodeLine{00209\ \};}
+
+\end{DoxyCode}

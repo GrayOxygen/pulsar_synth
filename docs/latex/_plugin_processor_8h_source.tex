@@ -1,0 +1,118 @@
+\doxysection{Plugin\+Processor.\+h}
+\hypertarget{_plugin_processor_8h_source}{}\label{_plugin_processor_8h_source}\index{Source/PluginProcessor.h@{Source/PluginProcessor.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ }
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#include\ <juce\_audio\_processors/juce\_audio\_processors.h>}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}PulsarSynthEngine.h"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{comment}{//==============================================================================}}
+\DoxyCodeLine{00007\ \textcolor{comment}{//增加parameter变化监听}}
+\DoxyCodeLine{00008\ \textcolor{keyword}{class\ }AudioPluginAudioProcessor\ final\ :\ \textcolor{keyword}{public}\ juce::AudioProcessor}
+\DoxyCodeLine{00009\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ ,\ public\ juce::ValueTree::Listener}}
+\DoxyCodeLine{00010\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ,\ \textcolor{keyword}{public}\ juce::ChangeBroadcaster\ \textcolor{comment}{//\ 广播消息}}
+\DoxyCodeLine{00011\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ,\ \textcolor{keyword}{public}\ juce::AudioProcessorValueTreeState::Listener}
+\DoxyCodeLine{00012\ \{}
+\DoxyCodeLine{00013\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//==============================================================================}}
+\DoxyCodeLine{00015\ \ \ \ \ AudioPluginAudioProcessor();}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \ \ \ \ \string~AudioPluginAudioProcessor()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00018\ }
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{comment}{//==============================================================================}}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordtype}{void}\ prepareToPlay(\textcolor{keywordtype}{double}\ sampleRate,\ \textcolor{keywordtype}{int}\ samplesPerBlock)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keywordtype}{void}\ releaseResources()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{bool}\ isBusesLayoutSupported(\textcolor{keyword}{const}\ BusesLayout\&\ layouts)\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{void}\ processBlock(juce::AudioBuffer<float>\&,\ juce::MidiBuffer\&)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keyword}{using\ }AudioProcessor::processBlock;}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{comment}{//==============================================================================}}
+\DoxyCodeLine{00031\ \ \ \ \ juce::AudioProcessorEditor*\ createEditor()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{keywordtype}{bool}\ hasEditor()\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00034\ }
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{comment}{//==============================================================================}}
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keyword}{const}\ juce::String\ getName()\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordtype}{bool}\ acceptsMidi()\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00040\ \ \ \ \ \textcolor{keywordtype}{bool}\ producesMidi()\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \textcolor{keywordtype}{bool}\ isMidiEffect()\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \ \ \ \ \textcolor{keywordtype}{double}\ getTailLengthSeconds()\ \textcolor{keyword}{const\ override};}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{comment}{//==============================================================================}}
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordtype}{int}\ getNumPrograms()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordtype}{int}\ getCurrentProgram()\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00051\ \ \ \ \ \textcolor{keywordtype}{void}\ setCurrentProgram(\textcolor{keywordtype}{int}\ index)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \ \ \textcolor{keyword}{const}\ juce::String\ getProgramName(\textcolor{keywordtype}{int}\ index)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00055\ \ \ \ \ \textcolor{keywordtype}{void}\ changeProgramName(\textcolor{keywordtype}{int}\ index,\ \textcolor{keyword}{const}\ juce::String\&\ newName)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keywordtype}{void}\ initOldAndNewParamMap();}
+\DoxyCodeLine{00057\ }
+\DoxyCodeLine{00058\ \ \ \ \ \textcolor{comment}{//==============================================================================}}
+\DoxyCodeLine{00059\ \ \ \ \ \textcolor{keywordtype}{void}\ getStateInformation(juce::MemoryBlock\&\ destData)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00060\ }
+\DoxyCodeLine{00061\ \ \ \ \ \textcolor{keywordtype}{void}\ setStateInformation(\textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ data,\ \textcolor{keywordtype}{int}\ sizeInBytes)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{comment}{//==============================自定义==============================}}
+\DoxyCodeLine{00064\ \ \ \ \ \textcolor{comment}{//参数变化}}
+\DoxyCodeLine{00065\ \ \ \ \ \textcolor{keyword}{using\ }APVTS\ =\ juce::AudioProcessorValueTreeState;}
+\DoxyCodeLine{00066\ \ \ \ \ juce::AudioProcessorValueTreeState\ apvts;}
+\DoxyCodeLine{00067\ }
+\DoxyCodeLine{00076\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_a9bc08bfd66a0d48d7866bdd92707ee1f}{parameterChanged}}(\textcolor{keyword}{const}\ juce::String\&\ parameterID,\ \textcolor{keywordtype}{float}\ newValue)\ \textcolor{keyword}{override};}
+\DoxyCodeLine{00080\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_audio_plugin_audio_processor_a07508b1cec2ad32e71a8a0f81483d4c0}{parameterChangedManually}}();}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \ \ \ \ [[nodiscard]]\ \textcolor{keywordtype}{bool}\&\ isLoadingPresetFlag()}
+\DoxyCodeLine{00083\ \ \ \ \ \{}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ loadingPresetFlag;}
+\DoxyCodeLine{00085\ \ \ \ \ \}}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \ \ \textcolor{keywordtype}{void}\ setLoadingPresetFlag(\textcolor{keywordtype}{bool}\ loadingPresetFlag)}
+\DoxyCodeLine{00088\ \ \ \ \ \{}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ this-\/>loadingPresetFlag\ =\ loadingPresetFlag;}
+\DoxyCodeLine{00090\ \ \ \ \ \}}
+\DoxyCodeLine{00091\ }
+\DoxyCodeLine{00092\ \ \ \ \ [[nodiscard]]\ std::map<juce::String,\ std::atomic<float>*>\&\ getParamMap()}
+\DoxyCodeLine{00093\ \ \ \ \ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ paramMap;}
+\DoxyCodeLine{00095\ \ \ \ \ \}}
+\DoxyCodeLine{00096\ }
+\DoxyCodeLine{00097\ \ \ \ \ [[nodiscard]]\ \mbox{\hyperlink{class_pulsar_synth_engine}{PulsarSynthEngine}}\&\ getPulsarSynthEngine()}
+\DoxyCodeLine{00098\ \ \ \ \ \{}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ pulsarSynthEngine;}
+\DoxyCodeLine{00100\ \ \ \ \ \}}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00102\ \ \ \ \ \textcolor{keywordtype}{void}\ setPulsarSynthEngine(\mbox{\hyperlink{class_pulsar_synth_engine}{PulsarSynthEngine}}\&\ pulsarSynthEngine)}
+\DoxyCodeLine{00103\ \ \ \ \ \{}
+\DoxyCodeLine{00104\ \ \ \ \ \ \ \ \ this-\/>pulsarSynthEngine\ =\ std::move(pulsarSynthEngine);}
+\DoxyCodeLine{00105\ \ \ \ \ \}}
+\DoxyCodeLine{00106\ }
+\DoxyCodeLine{00107\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{comment}{//==============================================================================}}
+\DoxyCodeLine{00109\ \ \ \ \ JUCE\_DECLARE\_NON\_COPYABLE\_WITH\_LEAK\_DETECTOR(AudioPluginAudioProcessor)}
+\DoxyCodeLine{00110\ \ \ \ \ \textcolor{comment}{//Used\ to\ implement\ manual\ triggering\ of\ parameterChanged\ listening:\ When\ the\ plugin\ window\ is\ not\ open,}}
+\DoxyCodeLine{00111\ \ \ \ \ \textcolor{comment}{//automation\ will\ only\ automatically\ modify\ the\ parameters\ of\ apvts\ and\ will\ not\ trigger\ parameterChanged\ listening.}}
+\DoxyCodeLine{00112\ \ \ \ \ \textcolor{comment}{//Currently,\ I\ modify\ the\ parameters\ and\ synchronize\ the\ ui\ controls\ through\ this\ listener}}
+\DoxyCodeLine{00113\ \ \ \ \ std::map<juce::String,\ std::atomic<float>*>\ paramMap;}
+\DoxyCodeLine{00114\ \ \ \ \ std::map<juce::String,\ float>\ oldParamMap;}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00116\ \ \ \ \ \textcolor{comment}{//Whether\ the\ load\ preset\ is\ triggered\ (one\ write\ in\ the\ processor\ and\ the\ global\ read,\ so\ it\ is\ thread-\/safe)}}
+\DoxyCodeLine{00117\ \ \ \ \ \textcolor{keywordtype}{bool}\ loadingPresetFlag\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00118\ }
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{comment}{//It\ is\ used\ to\ build\ two\ different\ Synths,\ thereby\ achieving\ corresponding\ different\ playback\ modes}}
+\DoxyCodeLine{00120\ \ \ \ \ \mbox{\hyperlink{class_pulsar_synth_engine}{PulsarSynthEngine}}\ pulsarSynthEngine;}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00122\ \ \ \ \ juce::AudioProcessorValueTreeState::ParameterLayout\ createParameterLayout();}
+\DoxyCodeLine{00123\ \};}
+
+\end{DoxyCode}

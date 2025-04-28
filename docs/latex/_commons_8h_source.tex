@@ -1,0 +1,102 @@
+\doxysection{Commons.\+h}
+\hypertarget{_commons_8h_source}{}\label{_commons_8h_source}\index{Source/include/Commons.h@{Source/include/Commons.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Created\ by\ Mr.\ Wang\ on\ 2025/4/20.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <vector>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <ostream>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <sstream>}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <string>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <random>}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ "{}JuceHeader.h"{}}}
+\DoxyCodeLine{00015\ \textcolor{keyword}{namespace\ }\mbox{\hyperlink{namespacewhy}{why}}}
+\DoxyCodeLine{00016\ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \textcolor{comment}{//\ Define\ the\ global\ speed:\ It\ is\ the\ speed\ of\ the\ plugin\ rather\ than\ the\ speed\ of\ the\ DAW.}}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{comment}{//\ This\ plugin\ is\ only\ affected\ by\ the\ speed\ of\ the\ plugin}}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keyword}{extern}\ std::atomic<float>\ bpm;}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{comment}{//\ extern\ std::atomic<double>\ sampleRate;}}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00025\ \ \ \ \ \textcolor{keyword}{enum\ class}\ \mbox{\hyperlink{namespacewhy_ae448a87f4316297372633e00441ae951}{PulsarStateEnum}}}
+\DoxyCodeLine{00026\ \ \ \ \ \{}
+\DoxyCodeLine{00027\ \ \ \ \ \ \ \ \ Pulse,}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ IntraSilence,\ \textcolor{comment}{//silence\ inside\ one\ pular\ period}}
+\DoxyCodeLine{00029\ \ \ \ \ \ \ \ \ InterTrainSilence\ \textcolor{comment}{//silence\ of\ train\ interval}}
+\DoxyCodeLine{00030\ \ \ \ \ \};}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00035\ \ \ \ \ \textcolor{keyword}{enum\ class}\ \mbox{\hyperlink{namespacewhy_aebea29319c28fd1b436e56f49b3d19dc}{ImpulseSwitchEnum}}}
+\DoxyCodeLine{00036\ \ \ \ \ \{}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ Off\ =\ 0,}
+\DoxyCodeLine{00038\ \ \ \ \ \ \ \ \ Template\ =\ 1,}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ Sample\ =\ 2}
+\DoxyCodeLine{00040\ \ \ \ \ \};}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00045\ \ \ \ \ \textcolor{keyword}{enum\ class}\ \mbox{\hyperlink{namespacewhy_a6336b6118e95ccc92cca572c0f541332}{MaskOptionEnum}}}
+\DoxyCodeLine{00046\ \ \ \ \ \{}
+\DoxyCodeLine{00047\ \ \ \ \ \ \ \ \ Off\ =\ 0,}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ BurstMask\ =\ 1,}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ EuclidMask\ =\ 2,}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ StochasticMask\ =\ 3}
+\DoxyCodeLine{00051\ \ \ \ \ \};}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00056\ \ \ \ \ \textcolor{keyword}{enum\ class}\ \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{PlayModeEnum}}}
+\DoxyCodeLine{00057\ \ \ \ \ \{}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ NotSelected\ =\ 0,\ \textcolor{comment}{//no\ sound}}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ Auto\ =\ 1,\ \textcolor{comment}{//triggered\ by\ playback\ of\ DAW}}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ Midi\ =\ 2\ \textcolor{comment}{//triggered\ by\ MIDI\ note}}
+\DoxyCodeLine{00061\ \ \ \ \ \};}
+\DoxyCodeLine{00062\ }
+\DoxyCodeLine{00066\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structwhy_1_1_parameter_i_d}{ParameterID}}}
+\DoxyCodeLine{00067\ \ \ \ \ \{}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ outputGain\ =\ \textcolor{stringliteral}{"{}outputGain"{}};}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ bpm\ =\ \textcolor{stringliteral}{"{}bpm"{}};}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ impulseSwitch\ =\ \textcolor{stringliteral}{"{}impulseSwitch"{}};}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ impulseTemplateFile\ =\ \textcolor{stringliteral}{"{}impulseTemplateFile"{}};}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ trainLen\ =\ \textcolor{stringliteral}{"{}trainLen"{}};}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ trainDutyCycleLen\ =\ \textcolor{stringliteral}{"{}trainDutyCycleLen"{}};}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ trainSilenceLen\ =\ \textcolor{stringliteral}{"{}trainSilenceLen"{}};}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ maskOption\ =\ \textcolor{stringliteral}{"{}maskOption"{}};}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ euclidSteps\ =\ \textcolor{stringliteral}{"{}euclidSteps"{}};}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ euclidHits\ =\ \textcolor{stringliteral}{"{}euclidHits"{}};}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ pulsarWaveform\ =\ \textcolor{stringliteral}{"{}pulsarWaveform"{}};}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ pulsarDutyCycleClusterLen\ =\ \textcolor{stringliteral}{"{}pulsarDutyCycleClusterLen"{}};}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ pulsarDutyCycleRatio\ =\ \textcolor{stringliteral}{"{}pulsarDutyCycleRatio"{}};}
+\DoxyCodeLine{00081\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ ampLfoWaveform\ =\ \textcolor{stringliteral}{"{}ampLfoWaveform"{}};}
+\DoxyCodeLine{00082\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ formantFreqLfoWaveform\ =\ \textcolor{stringliteral}{"{}formantFreqLfoWaveform"{}};}
+\DoxyCodeLine{00083\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ pulsarAttack\ =\ \textcolor{stringliteral}{"{}pulsarAttack"{}};}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ pulsarDecay\ =\ \textcolor{stringliteral}{"{}pulsarDecay"{}};}
+\DoxyCodeLine{00085\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ pulsarSustain\ =\ \textcolor{stringliteral}{"{}pulsarSustain"{}};}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ pulsarRelease\ =\ \textcolor{stringliteral}{"{}pulsarRelease"{}};}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ playMode\ =\ \textcolor{stringliteral}{"{}playMode"{}};}
+\DoxyCodeLine{00088\ \ \ \ \ \};}
+\DoxyCodeLine{00089\ }
+\DoxyCodeLine{00090\ \ \ \ \ \textcolor{comment}{//Some\ UI\ elements\ cannot\ be\ bound\ to\ audio\ parameters,\ so\ preset\ and\ UI\ updates\ cannot\ be\ automated.}}
+\DoxyCodeLine{00091\ \ \ \ \ \textcolor{comment}{//Instead,\ the\ state\ is\ saved\ manually\ using\ properties\ for\ updates.}}
+\DoxyCodeLine{00092\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structwhy_1_1_property_i_d}{PropertyID}}}
+\DoxyCodeLine{00093\ \ \ \ \ \{}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ burstMask\ =\ \textcolor{stringliteral}{"{}burstMask"{}};}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ stochasticMask\ =\ \textcolor{stringliteral}{"{}stochasticMask"{}};}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ \textcolor{keyword}{constexpr}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ sampleImpulsePath\ =\ \textcolor{stringliteral}{"{}sampleImpulsePath"{}};}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ static\ constexpr\ const\ char*\ currentPlayModeEnum\ =\ "{}currentPlayModeEnum"{};}}
+\DoxyCodeLine{00098\ \ \ \ \ \};}
+\DoxyCodeLine{00099\ }
+\DoxyCodeLine{00106\ \ \ \ \ juce::StringArray\ \mbox{\hyperlink{namespacewhy_a322da07a773467b7806a7d8514ca47ec}{getImpulseSwitchArray}}();}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00114\ \ \ \ \ juce::StringArray\ \mbox{\hyperlink{namespacewhy_abe0a5bbe578d4646fcc0b6484eabea4e}{getMaskOptionArray}}();}
+\DoxyCodeLine{00115\ }
+\DoxyCodeLine{00127\ \ \ \ \ std::string\ \mbox{\hyperlink{namespacewhy_aa6ea58d04b2df44580b61dd5a0b53dc9}{generateEuclidRhythm}}(\textcolor{keywordtype}{int}\ steps,\ \textcolor{keywordtype}{int}\ hits);}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00134\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{namespacewhy_a86e220f527e194307a5a7530f61ad514}{setRandomIndexToOne}}(std::string\&\ binaryString);}
+\DoxyCodeLine{00135\ }
+\DoxyCodeLine{00142\ \ \ \ \ std::string\ \mbox{\hyperlink{namespacewhy_a412d5489e48d1460e09b374be7955b24}{generateBinaryString}}(\textcolor{keywordtype}{int}\ length);}
+\DoxyCodeLine{00143\ }
+\DoxyCodeLine{00150\ \ \ \ \ juce::StringArray\ \mbox{\hyperlink{namespacewhy_af348059b8f580f3d9f039d70a5ec3104}{getPlayModeArray}}();}
+\DoxyCodeLine{00155\ \ \ \ \ std::string\ \mbox{\hyperlink{namespacewhy_a747f3982b9f1c6e877712344b4822019}{getThreadIdStr}}();}
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{namespacewhy_adac43307a480960cdd60d0c79b6fdecd}{readFileFromResources}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ resourceName,\ \textcolor{keywordtype}{double}\&\ sampleRate,}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::unique\_ptr<juce::AudioBuffer<float>>\&\ bf);}
+\DoxyCodeLine{00158\ \}}
+
+\end{DoxyCode}

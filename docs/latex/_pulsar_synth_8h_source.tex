@@ -1,0 +1,144 @@
+\doxysection{Pulsar\+Synth.\+h}
+\hypertarget{_pulsar_synth_8h_source}{}\label{_pulsar_synth_8h_source}\index{Source/include/PulsarSynth.h@{Source/include/PulsarSynth.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Created\ by\ Mr.\ Wang\ on\ 2025/4/20.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ <juce\_audio\_basics/juce\_audio\_basics.h>}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ <juce\_audio\_devices/juce\_audio\_devices.h>}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#include\ <juce\_audio\_formats/juce\_audio\_formats.h>}}
+\DoxyCodeLine{00009\ \textcolor{preprocessor}{\#include\ <juce\_audio\_plugin\_client/juce\_audio\_plugin\_client.h>}}
+\DoxyCodeLine{00010\ \textcolor{preprocessor}{\#include\ <juce\_audio\_processors/juce\_audio\_processors.h>}}
+\DoxyCodeLine{00011\ \textcolor{preprocessor}{\#include\ <juce\_audio\_utils/juce\_audio\_utils.h>}}
+\DoxyCodeLine{00012\ \textcolor{preprocessor}{\#include\ <juce\_core/juce\_core.h>}}
+\DoxyCodeLine{00013\ \textcolor{preprocessor}{\#include\ <juce\_data\_structures/juce\_data\_structures.h>}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#include\ <juce\_dsp/juce\_dsp.h>}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ "{}Commons.h"{}}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ "{}PulsarSynthVoice.h"{}}}
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00021\ \textcolor{keyword}{class\ }PulsarSynth\ :\ \textcolor{keyword}{public}\ juce::Synthesiser}
+\DoxyCodeLine{00022\ \{}
+\DoxyCodeLine{00023\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00024\ \ \ \ \ PulsarSynth()}
+\DoxyCodeLine{00025\ \ \ \ \ \{}
+\DoxyCodeLine{00026\ \ \ \ \ \};}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ PulsarSynth(\mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why::PlayModeEnum}}\ myPlayModeEnum)}
+\DoxyCodeLine{00029\ \ \ \ \ \{}
+\DoxyCodeLine{00030\ \ \ \ \ \ \ \ \ this-\/>myPlayModeEnum\ =\ myPlayModeEnum;}
+\DoxyCodeLine{00031\ \ \ \ \ \};}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ [[nodiscard]]\ \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why::PlayModeEnum}}\&\ getMyPlayModeEnum()}
+\DoxyCodeLine{00034\ \ \ \ \ \{}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ myPlayModeEnum;}
+\DoxyCodeLine{00036\ \ \ \ \ \}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keywordtype}{void}\ setMyPlayModeEnum(\mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why::PlayModeEnum}}\ myPlayModeEnum)}
+\DoxyCodeLine{00039\ \ \ \ \ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ this-\/>myPlayModeEnum\ =\ myPlayModeEnum;}
+\DoxyCodeLine{00041\ \ \ \ \ \}}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_a2083820d19e52a85a8b28a442c62898b}{triggerSoundOffWhenSwitchPlayMode}}()}
+\DoxyCodeLine{00048\ \ \ \ \ \{}
+\DoxyCodeLine{00049\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ getNumVoices();\ ++i)}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \ \ \ \ juce::SynthesiserVoice*\ voice\ =\ getVoice(i);}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\ pulsarVoice\ =\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\textcolor{keyword}{>}(voice);}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ pulsarVoice-\/>setSoundOffWhenSwitchPlayMode(\textcolor{keyword}{true});}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00055\ \ \ \ \ \}}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00063\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_aeac493773880d38d4c1a6b14f3933525}{forceRefreshBpmAndRebuildTrain}}(\textcolor{keywordtype}{float}\ bpm)}
+\DoxyCodeLine{00064\ \ \ \ \ \{}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ getNumVoices();\ ++i)}
+\DoxyCodeLine{00066\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ \ \ \ \ juce::SynthesiserVoice*\ voice\ =\ getVoice(i);}
+\DoxyCodeLine{00068\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 将其转换为自定义的\ PulsarSynthVoice}}
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\ pulsarVoice\ =\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\textcolor{keyword}{>}(voice);}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\ bpmChangedFlag\ =\ pulsarVoice-\/>\mbox{\hyperlink{class_pulsar_synth_voice_a180e5997173293e74baf529f3502ef3f}{updateBpmDirectly}}(bpm);}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ pulsarVoice-\/>\mbox{\hyperlink{class_pulsar_synth_voice_aefafbaf09fc34e6a55eb1d07fb9cd4ff}{changeToNewTrainAfterPulsarPeriodOrTrainEnd}}(bpmChangedFlag);}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00073\ \ \ \ \ \}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00083\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_a7ad3c79b6ec0aad7fbd344ad1000c7f4}{initTrain}}(\textcolor{keywordtype}{double}\ sampleRate,\ std::unique\_ptr<juce::AudioBuffer<float>>\&\ sampleBuffer,}
+\DoxyCodeLine{00084\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ juce::AudioPlayHead*\ audioPlayHead)}
+\DoxyCodeLine{00085\ \ \ \ \ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ getNumVoices();\ ++i)}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \ \ \ \ juce::SynthesiserVoice*\ voice\ =\ getVoice(i);}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\ pulsarVoice\ =\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\textcolor{keyword}{>}(voice);}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \ \ \ \ pulsarVoice-\/>\mbox{\hyperlink{class_pulsar_synth_voice_af24e1e956468c6cae41bc5536a3af9da}{initSynthVoice}}(sampleRate,\ sampleBuffer,\ audioPlayHead);}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00092\ \ \ \ \ \}}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00104\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_af3d182ffe01c13624ebe736ed5456eaa}{parameterChanged}}(juce::AudioProcessorValueTreeState\&\ apvts,\ juce::String\ parameterID,\ \textcolor{keywordtype}{float}\ newValue,}
+\DoxyCodeLine{00105\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{bool}\&\ isGeneratedStochasticMask)}
+\DoxyCodeLine{00106\ \ \ \ \ \{}
+\DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ getNumVoices();\ ++i)}
+\DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ juce::SynthesiserVoice*\ voice\ =\ getVoice(i);}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\ pulsarVoice\ =\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\textcolor{keyword}{>}(voice);;}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \ \ \ \ pulsarVoice-\/>\mbox{\hyperlink{class_pulsar_synth_voice_ac3110eed2d314f3a8b7e6bc44b3bdce0}{parameterChanged}}(apvts,\ parameterID,\ newValue,\ isGeneratedStochasticMask);}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00113\ \ \ \ \ \}}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00119\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_a694896422d7b0af33b69b4ab01232f30}{reloadPreset}}(juce::AudioProcessorValueTreeState\&\ apvts)}
+\DoxyCodeLine{00120\ \ \ \ \ \{}
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ getNumVoices();\ ++i)}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \ \ \ \ juce::SynthesiserVoice*\ voice\ =\ getVoice(i);}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\ pulsarVoice\ =\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\textcolor{keyword}{>}(voice);}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ pulsarVoice-\/>\mbox{\hyperlink{class_pulsar_synth_voice_a15c1e952187e5eb2f17fccedec66b4bb}{reloadPreset}}(apvts);}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00127\ \ \ \ \ \}}
+\DoxyCodeLine{00128\ }
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_a6aafb5c2e29b65a2fefa86c9a2a490d3}{refreshBurstMask}}(juce::String\ burstMask)}
+\DoxyCodeLine{00136\ \ \ \ \ \{}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (getNumVoices()\ >\ 0)}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \ \ juce::SynthesiserVoice*\ voice\ =\ getVoice(0);}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\ pulsarVoice\ =\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\textcolor{keyword}{>}(voice);}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \ \ \ \ pulsarVoice-\/>getCommonVoiceSate()-\/>burstMask\ =\ burstMask.toStdString();}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00143\ \ \ \ \ \}}
+\DoxyCodeLine{00144\ }
+\DoxyCodeLine{00150\ \ \ \ \ std::string\ \mbox{\hyperlink{class_pulsar_synth_ad7728ee80e85c0048c9a40af70b5ce7f}{getStochasticMaskStr}}()}
+\DoxyCodeLine{00151\ \ \ \ \ \{}
+\DoxyCodeLine{00152\ \ \ \ \ \ \ \ \ std::string\ result;}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \textcolor{comment}{//auto模式下，仅包含一个voice，所以stochastic\ mask只有一个，midi模式下仅展示第一个voice的即可，实际上每个voice的可能不同}}
+\DoxyCodeLine{00154\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (getNumVoices()\ <=\ 0)}
+\DoxyCodeLine{00155\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00156\ \ \ \ \ \ \ \ \ \ \ \ \ result\ =\ std::string(\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{00157\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ result;}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00159\ }
+\DoxyCodeLine{00160\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\textcolor{keyword}{auto}*\ voice\ =\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\textcolor{keyword}{>}(getVoice(0)))}
+\DoxyCodeLine{00161\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00162\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{auto}\ state\ =\ voice-\/>getCommonVoiceSate();}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (state\ \&\&\ !state-\/>stochasticMaskStr.empty())}
+\DoxyCodeLine{00164\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ state-\/>stochasticMaskStr;}
+\DoxyCodeLine{00165\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00166\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{stringliteral}{"{}"{}};}
+\DoxyCodeLine{00167\ \ \ \ \ \}}
+\DoxyCodeLine{00168\ }
+\DoxyCodeLine{00180\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_ad87daa677ba90e60882bec6027d3d091}{renderNextBlockDirectly}}(juce::AudioBuffer<float>\&\ buffer,\ juce::AudioPlayHead*\ audioPlayHead,}
+\DoxyCodeLine{00181\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ juce::MidiBuffer\&\ midiBuffer,\ \textcolor{keywordtype}{int}\ start,}
+\DoxyCodeLine{00182\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ numSamples,\ \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why::PlayModeEnum}}\ currentPlayModeEnum)}
+\DoxyCodeLine{00183\ \ \ \ \ \{}
+\DoxyCodeLine{00184\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ getNumVoices();\ ++i)}
+\DoxyCodeLine{00185\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00186\ \ \ \ \ \ \ \ \ \ \ \ \ juce::SynthesiserVoice*\ voice\ =\ getVoice(i);}
+\DoxyCodeLine{00187\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\ pulsarVoice\ =\ \textcolor{keyword}{dynamic\_cast<}\mbox{\hyperlink{class_pulsar_synth_voice}{PulsarSynthVoice}}*\textcolor{keyword}{>}(voice);}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ \ \ \ \ pulsarVoice-\/>renderNextBlockDirectly(buffer,\ audioPlayHead,\ start,\ numSamples,\ currentPlayModeEnum);}
+\DoxyCodeLine{00189\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00190\ \ \ \ \ \}}
+\DoxyCodeLine{00191\ }
+\DoxyCodeLine{00192\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00193\ \ \ \ \ \textcolor{comment}{//which\ play\ mode\ is}}
+\DoxyCodeLine{00194\ \ \ \ \ \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why::PlayModeEnum}}\ myPlayModeEnum;}
+\DoxyCodeLine{00195\ \};}
+
+\end{DoxyCode}

@@ -1,0 +1,203 @@
+\doxysection{why Namespace Reference}
+\hypertarget{namespacewhy}{}\label{namespacewhy}\index{why@{why}}
+\doxysubsubsection*{Classes}
+\begin{DoxyCompactItemize}
+\item 
+struct \mbox{\hyperlink{structwhy_1_1_parameter_i_d}{Parameter\+ID}}
+\item 
+struct \mbox{\hyperlink{structwhy_1_1_property_i_d}{Property\+ID}}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum class \mbox{\hyperlink{namespacewhy_ae448a87f4316297372633e00441ae951}{Pulsar\+State\+Enum}} \{ {\bfseries Pulse}
+, {\bfseries Intra\+Silence}
+, {\bfseries Inter\+Train\+Silence}
+ \}
+\item 
+enum class \mbox{\hyperlink{namespacewhy_aebea29319c28fd1b436e56f49b3d19dc}{Impulse\+Switch\+Enum}} \{ {\bfseries Off} = 0
+, {\bfseries Template} = 1
+, {\bfseries Sample} = 2
+ \}
+\item 
+enum class \mbox{\hyperlink{namespacewhy_a6336b6118e95ccc92cca572c0f541332}{Mask\+Option\+Enum}} \{ {\bfseries Off} = 0
+, {\bfseries Burst\+Mask} = 1
+, {\bfseries Euclid\+Mask} = 2
+, {\bfseries Stochastic\+Mask} = 3
+ \}
+\item 
+enum class \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{Play\+Mode\+Enum}} \{ {\bfseries Not\+Selected} = 0
+, {\bfseries Auto} = 1
+, {\bfseries Midi} = 2
+ \}
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+juce\+::\+String\+Array \mbox{\hyperlink{namespacewhy_a322da07a773467b7806a7d8514ca47ec}{get\+Impulse\+Switch\+Array}} ()
+\item 
+juce\+::\+String\+Array \mbox{\hyperlink{namespacewhy_abe0a5bbe578d4646fcc0b6484eabea4e}{get\+Mask\+Option\+Array}} ()
+\item 
+std\+::string \mbox{\hyperlink{namespacewhy_aa6ea58d04b2df44580b61dd5a0b53dc9}{generate\+Euclid\+Rhythm}} (int steps, int hits)
+\item 
+void \mbox{\hyperlink{namespacewhy_a86e220f527e194307a5a7530f61ad514}{set\+Random\+Index\+To\+One}} (std\+::string \&binary\+String)
+\item 
+std\+::string \mbox{\hyperlink{namespacewhy_a412d5489e48d1460e09b374be7955b24}{generate\+Binary\+String}} (int length)
+\item 
+juce\+::\+String\+Array \mbox{\hyperlink{namespacewhy_af348059b8f580f3d9f039d70a5ec3104}{get\+Play\+Mode\+Array}} ()
+\item 
+std\+::string \mbox{\hyperlink{namespacewhy_a747f3982b9f1c6e877712344b4822019}{get\+Thread\+Id\+Str}} ()
+\item 
+bool \mbox{\hyperlink{namespacewhy_adac43307a480960cdd60d0c79b6fdecd}{read\+File\+From\+Resources}} (const char \texorpdfstring{$\ast$}{*}resource\+Name, double \&sample\+Rate, std\+::unique\+\_\+ptr$<$ juce\+::\+Audio\+Buffer$<$ float $>$ $>$ \&bf)
+\item 
+\Hypertarget{namespacewhy_a83cc3fa5859f798bb118a002d7879caa}\label{namespacewhy_a83cc3fa5859f798bb118a002d7879caa} 
+std\+::atomic$<$ float $>$ {\bfseries bpm} (120)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{namespacewhy_aac17f1e2528c254c67035172b5493e0b}\label{namespacewhy_aac17f1e2528c254c67035172b5493e0b} 
+std\+::atomic$<$ float $>$ {\bfseries bpm}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Commons maintains some common states and simple methods 
+
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{namespacewhy_aebea29319c28fd1b436e56f49b3d19dc}\index{why@{why}!ImpulseSwitchEnum@{ImpulseSwitchEnum}}
+\index{ImpulseSwitchEnum@{ImpulseSwitchEnum}!why@{why}}
+\doxysubsubsection{\texorpdfstring{ImpulseSwitchEnum}{ImpulseSwitchEnum}}
+{\footnotesize\ttfamily \label{namespacewhy_aebea29319c28fd1b436e56f49b3d19dc} 
+enum class \mbox{\hyperlink{namespacewhy_aebea29319c28fd1b436e56f49b3d19dc}{why\+::\+Impulse\+Switch\+Enum}}\hspace{0.3cm}{\ttfamily [strong]}}
+
+impulse switch combobox option \Hypertarget{namespacewhy_a6336b6118e95ccc92cca572c0f541332}\index{why@{why}!MaskOptionEnum@{MaskOptionEnum}}
+\index{MaskOptionEnum@{MaskOptionEnum}!why@{why}}
+\doxysubsubsection{\texorpdfstring{MaskOptionEnum}{MaskOptionEnum}}
+{\footnotesize\ttfamily \label{namespacewhy_a6336b6118e95ccc92cca572c0f541332} 
+enum class \mbox{\hyperlink{namespacewhy_a6336b6118e95ccc92cca572c0f541332}{why\+::\+Mask\+Option\+Enum}}\hspace{0.3cm}{\ttfamily [strong]}}
+
+mask combobox option \Hypertarget{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}\index{why@{why}!PlayModeEnum@{PlayModeEnum}}
+\index{PlayModeEnum@{PlayModeEnum}!why@{why}}
+\doxysubsubsection{\texorpdfstring{PlayModeEnum}{PlayModeEnum}}
+{\footnotesize\ttfamily \label{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1} 
+enum class \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why\+::\+Play\+Mode\+Enum}}\hspace{0.3cm}{\ttfamily [strong]}}
+
+play mode \Hypertarget{namespacewhy_ae448a87f4316297372633e00441ae951}\index{why@{why}!PulsarStateEnum@{PulsarStateEnum}}
+\index{PulsarStateEnum@{PulsarStateEnum}!why@{why}}
+\doxysubsubsection{\texorpdfstring{PulsarStateEnum}{PulsarStateEnum}}
+{\footnotesize\ttfamily \label{namespacewhy_ae448a87f4316297372633e00441ae951} 
+enum class \mbox{\hyperlink{namespacewhy_ae448a87f4316297372633e00441ae951}{why\+::\+Pulsar\+State\+Enum}}\hspace{0.3cm}{\ttfamily [strong]}}
+
+pulse state, precisely speaking, which stage the pulsar train is currently in 
+
+\doxysubsection{Function Documentation}
+\Hypertarget{namespacewhy_a412d5489e48d1460e09b374be7955b24}\index{why@{why}!generateBinaryString@{generateBinaryString}}
+\index{generateBinaryString@{generateBinaryString}!why@{why}}
+\doxysubsubsection{\texorpdfstring{generateBinaryString()}{generateBinaryString()}}
+{\footnotesize\ttfamily \label{namespacewhy_a412d5489e48d1460e09b374be7955b24} 
+std\+::string why\+::generate\+Binary\+String (\begin{DoxyParamCaption}\item[{int}]{length}{}\end{DoxyParamCaption})}
+
+Generate a string of the specified length that contains only 0 and 1
+
+
+\begin{DoxyParams}{Parameters}
+{\em length} & target length \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+如00011101 
+\end{DoxyReturn}
+\Hypertarget{namespacewhy_aa6ea58d04b2df44580b61dd5a0b53dc9}\index{why@{why}!generateEuclidRhythm@{generateEuclidRhythm}}
+\index{generateEuclidRhythm@{generateEuclidRhythm}!why@{why}}
+\doxysubsubsection{\texorpdfstring{generateEuclidRhythm()}{generateEuclidRhythm()}}
+{\footnotesize\ttfamily \label{namespacewhy_aa6ea58d04b2df44580b61dd5a0b53dc9} 
+std\+::string why\+::generate\+Euclid\+Rhythm (\begin{DoxyParamCaption}\item[{int}]{steps}{, }\item[{int}]{hits}{}\end{DoxyParamCaption})}
+
+genreate euclid rhythm
+
+5,3 is 1 1 1,0 0 then 10 10 1 5,2 is 10 10,0 then 10100 7,3 is 10 10,0 0 0 then 100 100,0 then 1001000
+
+
+\begin{DoxyParams}{Parameters}
+{\em steps} & rhythm length \\
+\hline
+{\em hits} & how many divides \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\Hypertarget{namespacewhy_a322da07a773467b7806a7d8514ca47ec}\index{why@{why}!getImpulseSwitchArray@{getImpulseSwitchArray}}
+\index{getImpulseSwitchArray@{getImpulseSwitchArray}!why@{why}}
+\doxysubsubsection{\texorpdfstring{getImpulseSwitchArray()}{getImpulseSwitchArray()}}
+{\footnotesize\ttfamily \label{namespacewhy_a322da07a773467b7806a7d8514ca47ec} 
+juce\+::\+String\+Array why\+::get\+Impulse\+Switch\+Array (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+c++ enumeration does not support directly obtaining all the names of the enumeration as in java, so a separate method is used to solve it
+
+\begin{DoxyReturn}{Returns}
+impulse switch option names 
+\end{DoxyReturn}
+\Hypertarget{namespacewhy_abe0a5bbe578d4646fcc0b6484eabea4e}\index{why@{why}!getMaskOptionArray@{getMaskOptionArray}}
+\index{getMaskOptionArray@{getMaskOptionArray}!why@{why}}
+\doxysubsubsection{\texorpdfstring{getMaskOptionArray()}{getMaskOptionArray()}}
+{\footnotesize\ttfamily \label{namespacewhy_abe0a5bbe578d4646fcc0b6484eabea4e} 
+juce\+::\+String\+Array why\+::get\+Mask\+Option\+Array (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+c++ enumeration does not support directly obtaining all the names of the enumeration as in java, so a separate method is used to solve it
+
+\begin{DoxyReturn}{Returns}
+mask option names 
+\end{DoxyReturn}
+\Hypertarget{namespacewhy_af348059b8f580f3d9f039d70a5ec3104}\index{why@{why}!getPlayModeArray@{getPlayModeArray}}
+\index{getPlayModeArray@{getPlayModeArray}!why@{why}}
+\doxysubsubsection{\texorpdfstring{getPlayModeArray()}{getPlayModeArray()}}
+{\footnotesize\ttfamily \label{namespacewhy_af348059b8f580f3d9f039d70a5ec3104} 
+juce\+::\+String\+Array why\+::get\+Play\+Mode\+Array (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+c++ enumeration does not support directly obtaining all the names of the enumeration as in java, so a separate method is used to solve it
+
+\begin{DoxyReturn}{Returns}
+play modes 
+\end{DoxyReturn}
+\Hypertarget{namespacewhy_a747f3982b9f1c6e877712344b4822019}\index{why@{why}!getThreadIdStr@{getThreadIdStr}}
+\index{getThreadIdStr@{getThreadIdStr}!why@{why}}
+\doxysubsubsection{\texorpdfstring{getThreadIdStr()}{getThreadIdStr()}}
+{\footnotesize\ttfamily \label{namespacewhy_a747f3982b9f1c6e877712344b4822019} 
+std\+::string why\+::get\+Thread\+Id\+Str (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+get current thread id \begin{DoxyReturn}{Returns}
+current thread id 
+\end{DoxyReturn}
+\Hypertarget{namespacewhy_adac43307a480960cdd60d0c79b6fdecd}\index{why@{why}!readFileFromResources@{readFileFromResources}}
+\index{readFileFromResources@{readFileFromResources}!why@{why}}
+\doxysubsubsection{\texorpdfstring{readFileFromResources()}{readFileFromResources()}}
+{\footnotesize\ttfamily \label{namespacewhy_adac43307a480960cdd60d0c79b6fdecd} 
+bool why\+::read\+File\+From\+Resources (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{resource\+Name}{, }\item[{double \&}]{sample\+Rate}{, }\item[{std\+::unique\+\_\+ptr$<$ juce\+::\+Audio\+Buffer$<$ float $>$ $>$ \&}]{bf}{}\end{DoxyParamCaption})}
+
+read binary source file 
+\begin{DoxyParams}{Parameters}
+{\em resource\+Name} & resource full name \\
+\hline
+{\em sample\+Rate} & sample rate of the file \\
+\hline
+{\em bf} & buffer \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true is success false failed 
+\end{DoxyReturn}
+\Hypertarget{namespacewhy_a86e220f527e194307a5a7530f61ad514}\index{why@{why}!setRandomIndexToOne@{setRandomIndexToOne}}
+\index{setRandomIndexToOne@{setRandomIndexToOne}!why@{why}}
+\doxysubsubsection{\texorpdfstring{setRandomIndexToOne()}{setRandomIndexToOne()}}
+{\footnotesize\ttfamily \label{namespacewhy_a86e220f527e194307a5a7530f61ad514} 
+void why\+::set\+Random\+Index\+To\+One (\begin{DoxyParamCaption}\item[{std\+::string \&}]{binary\+String}{}\end{DoxyParamCaption})}
+
+Set a random character in the string to 1
+
+
+\begin{DoxyParams}{Parameters}
+{\em binary\+String} & string contains only 0 and 1 \\
+\hline
+\end{DoxyParams}

@@ -1,0 +1,138 @@
+\doxysection{Audio\+Plugin\+Audio\+Processor Class Reference}
+\hypertarget{class_audio_plugin_audio_processor}{}\label{class_audio_plugin_audio_processor}\index{AudioPluginAudioProcessor@{AudioPluginAudioProcessor}}
+Inheritance diagram for Audio\+Plugin\+Audio\+Processor\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=1.338112cm]{class_audio_plugin_audio_processor}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Types}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_ab6da40669b868bf05063edfa2d56c00f}\label{class_audio_plugin_audio_processor_ab6da40669b868bf05063edfa2d56c00f} 
+using {\bfseries APVTS} = juce\+::\+Audio\+Processor\+Value\+Tree\+State
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_aaa316cb781a5a751f7abff4f79fb4d77}\label{class_audio_plugin_audio_processor_aaa316cb781a5a751f7abff4f79fb4d77} 
+void {\bfseries prepare\+To\+Play} (double sample\+Rate, int samples\+Per\+Block) override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a0eba02428445b5a483a60d34315c3740}\label{class_audio_plugin_audio_processor_a0eba02428445b5a483a60d34315c3740} 
+void {\bfseries release\+Resources} () override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a0ed3d06de0a395254a24a5f5bc9becda}\label{class_audio_plugin_audio_processor_a0ed3d06de0a395254a24a5f5bc9becda} 
+bool {\bfseries is\+Buses\+Layout\+Supported} (const Buses\+Layout \&layouts) const override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a9f3dae699983a814845150ee76f7d508}\label{class_audio_plugin_audio_processor_a9f3dae699983a814845150ee76f7d508} 
+void {\bfseries process\+Block} (juce\+::\+Audio\+Buffer$<$ float $>$ \&, juce\+::\+Midi\+Buffer \&) override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_ad4e02c1f4685dcb12e4579918618049f}\label{class_audio_plugin_audio_processor_ad4e02c1f4685dcb12e4579918618049f} 
+juce\+::\+Audio\+Processor\+Editor \texorpdfstring{$\ast$}{*} {\bfseries create\+Editor} () override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_ae556647b48c2cc1f7328251d6576349b}\label{class_audio_plugin_audio_processor_ae556647b48c2cc1f7328251d6576349b} 
+bool {\bfseries has\+Editor} () const override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_ae65edfefd4122567faf264c38ef1df65}\label{class_audio_plugin_audio_processor_ae65edfefd4122567faf264c38ef1df65} 
+const juce\+::\+String {\bfseries get\+Name} () const override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a65edac9a13e8423fea2c97e5dff99b49}\label{class_audio_plugin_audio_processor_a65edac9a13e8423fea2c97e5dff99b49} 
+bool {\bfseries accepts\+Midi} () const override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a38d27a7dd786c32b5bec65b4a22d583e}\label{class_audio_plugin_audio_processor_a38d27a7dd786c32b5bec65b4a22d583e} 
+bool {\bfseries produces\+Midi} () const override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_aab602f1caf2bc8e08921392ff2ac3bcb}\label{class_audio_plugin_audio_processor_aab602f1caf2bc8e08921392ff2ac3bcb} 
+bool {\bfseries is\+Midi\+Effect} () const override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a3a4011705fa161cc1cf2eb69562c4fdb}\label{class_audio_plugin_audio_processor_a3a4011705fa161cc1cf2eb69562c4fdb} 
+double {\bfseries get\+Tail\+Length\+Seconds} () const override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_ac9e00854df731c325b591de49fb85f7a}\label{class_audio_plugin_audio_processor_ac9e00854df731c325b591de49fb85f7a} 
+int {\bfseries get\+Num\+Programs} () override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a507314788111f512aa49dcc33069a8dd}\label{class_audio_plugin_audio_processor_a507314788111f512aa49dcc33069a8dd} 
+int {\bfseries get\+Current\+Program} () override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a3a7293fbce623c7cf3ed52a73cdacf0c}\label{class_audio_plugin_audio_processor_a3a7293fbce623c7cf3ed52a73cdacf0c} 
+void {\bfseries set\+Current\+Program} (int index) override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a1d7b88e2c60fa852dd798c1864bca15f}\label{class_audio_plugin_audio_processor_a1d7b88e2c60fa852dd798c1864bca15f} 
+const juce\+::\+String {\bfseries get\+Program\+Name} (int index) override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a3378d7986d71f6bf163e79d40a25f50b}\label{class_audio_plugin_audio_processor_a3378d7986d71f6bf163e79d40a25f50b} 
+void {\bfseries change\+Program\+Name} (int index, const juce\+::\+String \&new\+Name) override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_acfc85cbe0e159f6e9d35bcea6784565c}\label{class_audio_plugin_audio_processor_acfc85cbe0e159f6e9d35bcea6784565c} 
+void {\bfseries init\+Old\+And\+New\+Param\+Map} ()
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a8186c010d2f61a0307a942c14979c1af}\label{class_audio_plugin_audio_processor_a8186c010d2f61a0307a942c14979c1af} 
+void {\bfseries get\+State\+Information} (juce\+::\+Memory\+Block \&dest\+Data) override
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_ac28fdc7f077d0b373975ac47a497aa70}\label{class_audio_plugin_audio_processor_ac28fdc7f077d0b373975ac47a497aa70} 
+void {\bfseries set\+State\+Information} (const void \texorpdfstring{$\ast$}{*}data, int size\+In\+Bytes) override
+\item 
+void \mbox{\hyperlink{class_audio_plugin_audio_processor_a9bc08bfd66a0d48d7866bdd92707ee1f}{parameter\+Changed}} (const juce\+::\+String \&parameter\+ID, float new\+Value) override
+\item 
+void \mbox{\hyperlink{class_audio_plugin_audio_processor_a07508b1cec2ad32e71a8a0f81483d4c0}{parameter\+Changed\+Manually}} ()
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_ac018f96828cc85f8c9514388fbcbceb7}\label{class_audio_plugin_audio_processor_ac018f96828cc85f8c9514388fbcbceb7} 
+bool \& {\bfseries is\+Loading\+Preset\+Flag} ()
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_ae837d2a653780449a2ac335e941ada51}\label{class_audio_plugin_audio_processor_ae837d2a653780449a2ac335e941ada51} 
+void {\bfseries set\+Loading\+Preset\+Flag} (bool loading\+Preset\+Flag)
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a94595eab00d686995bf9d9de0650dee6}\label{class_audio_plugin_audio_processor_a94595eab00d686995bf9d9de0650dee6} 
+std\+::map$<$ juce\+::\+String, std\+::atomic$<$ float $>$ \texorpdfstring{$\ast$}{*} $>$ \& {\bfseries get\+Param\+Map} ()
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_ac189bcfb301a09a68b6239f02206da3d}\label{class_audio_plugin_audio_processor_ac189bcfb301a09a68b6239f02206da3d} 
+\mbox{\hyperlink{class_pulsar_synth_engine}{Pulsar\+Synth\+Engine}} \& {\bfseries get\+Pulsar\+Synth\+Engine} ()
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a21ae99102d4ddbe7289d58fc4ddb449d}\label{class_audio_plugin_audio_processor_a21ae99102d4ddbe7289d58fc4ddb449d} 
+void {\bfseries set\+Pulsar\+Synth\+Engine} (\mbox{\hyperlink{class_pulsar_synth_engine}{Pulsar\+Synth\+Engine}} \&pulsar\+Synth\+Engine)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_audio_plugin_audio_processor_a8bf6b44d07cb80f42fca0210b8035a2b}\label{class_audio_plugin_audio_processor_a8bf6b44d07cb80f42fca0210b8035a2b} 
+juce\+::\+Audio\+Processor\+Value\+Tree\+State {\bfseries apvts}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_audio_plugin_audio_processor_a9bc08bfd66a0d48d7866bdd92707ee1f}\index{AudioPluginAudioProcessor@{AudioPluginAudioProcessor}!parameterChanged@{parameterChanged}}
+\index{parameterChanged@{parameterChanged}!AudioPluginAudioProcessor@{AudioPluginAudioProcessor}}
+\doxysubsubsection{\texorpdfstring{parameterChanged()}{parameterChanged()}}
+{\footnotesize\ttfamily \label{class_audio_plugin_audio_processor_a9bc08bfd66a0d48d7866bdd92707ee1f} 
+void Audio\+Plugin\+Audio\+Processor\+::parameter\+Changed (\begin{DoxyParamCaption}\item[{const juce\+::\+String \&}]{parameter\+ID}{, }\item[{float}]{new\+Value}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}}
+
+Listen for changes in control parameters，注意： 1，automation will not trigger here and will directly modify the parameter values in apvts 2，get\+Raw\+Parameter\+Value() or get\+Parameter() methods is not guaranteed to return the up-\/to-\/date value but new\+Value is
+
+
+\begin{DoxyParams}{Parameters}
+{\em parameter\+ID} & parameter id \\
+\hline
+{\em new\+Value} & up-\/to-\/date value\\
+\hline
+\end{DoxyParams}
+监听控件参数变化，注意： 1，automation不会触发这里，会直接修改apvts中的参数值 2，get\+Raw\+Parameter\+Value() or get\+Parameter() methods is not guaranteed to return the up-\/to-\/date value but new\+Value is
+
+不放在plugineditor，因为窗口没打开过，仍还可以操作parameter，要将主线程和\+UI线程解耦 
+\begin{DoxyParams}{Parameters}
+{\em parameter\+ID} & parameter id \\
+\hline
+{\em new\+Value} & up-\/to-\/date value \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_audio_plugin_audio_processor_a07508b1cec2ad32e71a8a0f81483d4c0}\index{AudioPluginAudioProcessor@{AudioPluginAudioProcessor}!parameterChangedManually@{parameterChangedManually}}
+\index{parameterChangedManually@{parameterChangedManually}!AudioPluginAudioProcessor@{AudioPluginAudioProcessor}}
+\doxysubsubsection{\texorpdfstring{parameterChangedManually()}{parameterChangedManually()}}
+{\footnotesize\ttfamily \label{class_audio_plugin_audio_processor_a07508b1cec2ad32e71a8a0f81483d4c0} 
+void Audio\+Plugin\+Audio\+Processor\+::parameter\+Changed\+Manually (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Manually monitor the changes of the parameter and trigger the parameter\+Changed monitoring function 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Source/Plugin\+Processor.\+h\item 
+Source/Plugin\+Processor.\+cpp\end{DoxyCompactItemize}

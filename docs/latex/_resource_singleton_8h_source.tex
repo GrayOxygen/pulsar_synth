@@ -1,0 +1,57 @@
+\doxysection{Resource\+Singleton.\+h}
+\hypertarget{_resource_singleton_8h_source}{}\label{_resource_singleton_8h_source}\index{Source/include/ResourceSingleton.h@{Source/include/ResourceSingleton.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Created\ by\ Mr.\ Wang\ on\ 2025/4/20.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}Commons.h"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{class\ }BinaryResourceSingleton}
+\DoxyCodeLine{00012\ \{}
+\DoxyCodeLine{00013\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//Obtain\ the\ unique\ instance}}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{static}\ BinaryResourceSingleton\&\ getInstance()}
+\DoxyCodeLine{00016\ \ \ \ \ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ BinaryResourceSingleton\ instance;}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ instance;}
+\DoxyCodeLine{00019\ \ \ \ \ \}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//\ Remove\ the\ copy\ constructor\ and\ assignment\ operator\ to\ ensure\ that\ only\ a\ unique\ instance\ can\ be\ obtained}}
+\DoxyCodeLine{00022\ \ \ \ \ BinaryResourceSingleton(\textcolor{keyword}{const}\ BinaryResourceSingleton\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00023\ \ \ \ \ BinaryResourceSingleton\&\ operator=(\textcolor{keyword}{const}\ BinaryResourceSingleton\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00029\ \ \ \ \ std::map<juce::String,\ juce::String>\ \mbox{\hyperlink{class_binary_resource_singleton_a4175d97ccd5cd85064ffa7c0c7599097}{getBinaryIdFileNameMap}}()}
+\DoxyCodeLine{00030\ \ \ \ \ \{}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ binaryIdFileNameMap;}
+\DoxyCodeLine{00032\ \ \ \ \ \};}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00038\ \ \ \ \ \textcolor{keyword}{const}\ juce::StringArray\ \mbox{\hyperlink{class_binary_resource_singleton_a1a7a0aac5b49c43f1ab991c6a7395fcc}{getFileNameArray}}()}
+\DoxyCodeLine{00039\ \ \ \ \ \{}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ juce::StringArray\ fileNames;}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ \textcolor{keyword}{auto}\&\ pair\ :\ \mbox{\hyperlink{class_binary_resource_singleton_a4175d97ccd5cd85064ffa7c0c7599097}{getBinaryIdFileNameMap}}())}
+\DoxyCodeLine{00043\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00044\ \ \ \ \ \ \ \ \ \ \ \ \ fileNames.add(pair.second);}
+\DoxyCodeLine{00045\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00046\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ fileNames;}
+\DoxyCodeLine{00047\ \ \ \ \ \};}
+\DoxyCodeLine{00048\ }
+\DoxyCodeLine{00049\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{comment}{//id:value\ -\/>\ (1,2,3,4...):file\ name}}
+\DoxyCodeLine{00051\ \ \ \ \ std::map<juce::String,\ juce::String>\ binaryIdFileNameMap;}
+\DoxyCodeLine{00052\ }
+\DoxyCodeLine{00053\ \ \ \ \ \mbox{\hyperlink{class_binary_resource_singleton}{BinaryResourceSingleton}}()}
+\DoxyCodeLine{00054\ \ \ \ \ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \textcolor{comment}{//塞入BinaryData中所有资源文件名}}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ BinaryData::namedResourceListSize;\ ++i)}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ filename\ =\ BinaryData::namedResourceList[i];}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ binaryIdFileNameMap[\textcolor{keyword}{static\_cast<}juce::String\textcolor{keyword}{>}(i\ +\ 1)]\ =\ filename;}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00061\ \ \ \ \ \}}
+\DoxyCodeLine{00062\ \};}
+
+\end{DoxyCode}

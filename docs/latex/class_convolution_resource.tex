@@ -1,0 +1,119 @@
+\doxysection{Convolution\+Resource Class Reference}
+\hypertarget{class_convolution_resource}{}\label{class_convolution_resource}\index{ConvolutionResource@{ConvolutionResource}}
+
+
+{\ttfamily \#include $<$Convolution\+Resource.\+h$>$}
+
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_convolution_resource_a8efaf45ee8135a4d1806d5fb7734b1b6}\label{class_convolution_resource_a8efaf45ee8135a4d1806d5fb7734b1b6} 
+{\bfseries Convolution\+Resource} (double sample\+Rate, int samples\+Per\+Block, int num\+Channels)
+\item 
+\Hypertarget{class_convolution_resource_a68127b06a9d469158b5bb86f1f885d3b}\label{class_convolution_resource_a68127b06a9d469158b5bb86f1f885d3b} 
+juce\+::\+Memory\+Block \& {\bfseries get\+Last\+Impulse\+Memory\+Block1} ()
+\item 
+\Hypertarget{class_convolution_resource_afc1dae3b460ad8eed701625fa667bda9}\label{class_convolution_resource_afc1dae3b460ad8eed701625fa667bda9} 
+std\+::shared\+\_\+ptr$<$ juce\+::dsp\+::\+Convolution $>$ \& {\bfseries get\+Convolution} ()
+\item 
+\Hypertarget{class_convolution_resource_a76fe99c24d5c4605bcf61d5e1cb6deb1}\label{class_convolution_resource_a76fe99c24d5c4605bcf61d5e1cb6deb1} 
+void {\bfseries set\+Convolution} (const std\+::shared\+\_\+ptr$<$ juce\+::dsp\+::\+Convolution $>$ \&convolution)
+\item 
+\Hypertarget{class_convolution_resource_a160d88f4900a158bfbf160dd91f0b17f}\label{class_convolution_resource_a160d88f4900a158bfbf160dd91f0b17f} 
+void {\bfseries save\+Last\+Template\+Impulse\+Data} (const juce\+::\+Audio\+Buffer$<$ float $>$ \&last\+Template\+Buffer, double last\+Template\+Buffer\+Sample\+Rate, std\+::string file\+Name)
+\item 
+void \mbox{\hyperlink{class_convolution_resource_a48a9231705bfc959fcdd8a076cf22a5d}{save\+Template\+Impulse}} (juce\+::\+String selected\+Id)
+\item 
+void \mbox{\hyperlink{class_convolution_resource_a2c44c0f7acd9f472fa90aee32cd85520}{save\+Last\+Sample\+File\+As\+Block}} (const juce\+::\+File \&file)
+\item 
+void \mbox{\hyperlink{class_convolution_resource_a4ddb0aeeaac9665508b7f040830b097e}{load\+Sample\+Impulse\+File}} ()
+\item 
+void \mbox{\hyperlink{class_convolution_resource_a4c15e3d9a108db04e9cf332e5f7ec625}{load\+Template\+Impulse\+File}} ()
+\item 
+bool \mbox{\hyperlink{class_convolution_resource_ab1024795ea8d7671a6d20f32e508271e}{process\+Sample}} (juce\+::\+Audio\+Buffer$<$ float $>$ \&pulse\+Buffer)
+\item 
+\Hypertarget{class_convolution_resource_ac862ad6fbf8fd18327a9619eb20d00b5}\label{class_convolution_resource_ac862ad6fbf8fd18327a9619eb20d00b5} 
+std\+::unique\+\_\+ptr$<$ juce\+::\+Memory\+Block $>$ \& {\bfseries get\+Last\+Sample\+Impulse\+Memory\+Block} ()
+\item 
+\Hypertarget{class_convolution_resource_acb12e7baf40b51afb33dae9fd14504b9}\label{class_convolution_resource_acb12e7baf40b51afb33dae9fd14504b9} 
+void {\bfseries set\+Last\+Sample\+Impulse\+Memory\+Block} (std\+::unique\+\_\+ptr$<$ juce\+::\+Memory\+Block $>$ \&last\+Sample\+Impulse\+Memory\+Block)
+\item 
+\Hypertarget{class_convolution_resource_ae2bb3e5909dec463efba65c627bb69e6}\label{class_convolution_resource_ae2bb3e5909dec463efba65c627bb69e6} 
+std\+::unique\+\_\+ptr$<$ juce\+::\+Audio\+Buffer$<$ float $>$ $>$ \& {\bfseries get\+Last\+Template\+Buffer} ()
+\item 
+\Hypertarget{class_convolution_resource_a30bd46918469ecdd701fa2c74b7cc47f}\label{class_convolution_resource_a30bd46918469ecdd701fa2c74b7cc47f} 
+double \& {\bfseries get\+Last\+Template\+Data\+Size} ()
+\item 
+\Hypertarget{class_convolution_resource_afffcd9f7e81dd6b6f890c57b844446b8}\label{class_convolution_resource_afffcd9f7e81dd6b6f890c57b844446b8} 
+bool \& {\bfseries is\+Should\+Use\+Convolution} ()
+\item 
+\Hypertarget{class_convolution_resource_a65a7335063b400e999684b8d9c5957d7}\label{class_convolution_resource_a65a7335063b400e999684b8d9c5957d7} 
+void {\bfseries set\+Should\+Use\+Convolution} (bool should\+Use\+Convolution)
+\item 
+\Hypertarget{class_convolution_resource_aa3ce2c07d7c4d4c0fa796323912110f3}\label{class_convolution_resource_aa3ce2c07d7c4d4c0fa796323912110f3} 
+juce\+::\+Memory\+Block \& {\bfseries get\+Last\+Impulse\+Memory\+Block} ()
+\item 
+\Hypertarget{class_convolution_resource_ae45e9090e053a9709dace936e41afe35}\label{class_convolution_resource_ae45e9090e053a9709dace936e41afe35} 
+void {\bfseries set\+Last\+Impulse\+Memory\+Block} (const juce\+::\+Memory\+Block \&last\+Impulse\+Memory\+Block)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+All synth and voice share a \doxylink{class_convolution_resource}{Convolution\+Resource} to maintain impulse file data and do some convolution logic When initialized in prepare\+To\+Play, if the sample rate, sample per block, and num channels change, this Synth\+Engine will reinitialize the \doxylink{class_convolution_resource}{Convolution\+Resource} otherwise keep the instance same. 
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_convolution_resource_a4ddb0aeeaac9665508b7f040830b097e}\index{ConvolutionResource@{ConvolutionResource}!loadSampleImpulseFile@{loadSampleImpulseFile}}
+\index{loadSampleImpulseFile@{loadSampleImpulseFile}!ConvolutionResource@{ConvolutionResource}}
+\doxysubsubsection{\texorpdfstring{loadSampleImpulseFile()}{loadSampleImpulseFile()}}
+{\footnotesize\ttfamily \label{class_convolution_resource_a4ddb0aeeaac9665508b7f040830b097e} 
+void Convolution\+Resource\+::load\+Sample\+Impulse\+File (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+use saved memory block to load it as impulse response \Hypertarget{class_convolution_resource_a4c15e3d9a108db04e9cf332e5f7ec625}\index{ConvolutionResource@{ConvolutionResource}!loadTemplateImpulseFile@{loadTemplateImpulseFile}}
+\index{loadTemplateImpulseFile@{loadTemplateImpulseFile}!ConvolutionResource@{ConvolutionResource}}
+\doxysubsubsection{\texorpdfstring{loadTemplateImpulseFile()}{loadTemplateImpulseFile()}}
+{\footnotesize\ttfamily \label{class_convolution_resource_a4c15e3d9a108db04e9cf332e5f7ec625} 
+void Convolution\+Resource\+::load\+Template\+Impulse\+File (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+use template buffer to load it as impulse response \Hypertarget{class_convolution_resource_ab1024795ea8d7671a6d20f32e508271e}\index{ConvolutionResource@{ConvolutionResource}!processSample@{processSample}}
+\index{processSample@{processSample}!ConvolutionResource@{ConvolutionResource}}
+\doxysubsubsection{\texorpdfstring{processSample()}{processSample()}}
+{\footnotesize\ttfamily \label{class_convolution_resource_ab1024795ea8d7671a6d20f32e508271e} 
+bool Convolution\+Resource\+::process\+Sample (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Buffer$<$ float $>$ \&}]{pulse\+Buffer}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+do convolution logic 
+\begin{DoxyParams}{Parameters}
+{\em pulse\+Buffer} & Data sources that require convolution \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Return the sample after convolution 
+\end{DoxyReturn}
+\Hypertarget{class_convolution_resource_a2c44c0f7acd9f472fa90aee32cd85520}\index{ConvolutionResource@{ConvolutionResource}!saveLastSampleFileAsBlock@{saveLastSampleFileAsBlock}}
+\index{saveLastSampleFileAsBlock@{saveLastSampleFileAsBlock}!ConvolutionResource@{ConvolutionResource}}
+\doxysubsubsection{\texorpdfstring{saveLastSampleFileAsBlock()}{saveLastSampleFileAsBlock()}}
+{\footnotesize\ttfamily \label{class_convolution_resource_a2c44c0f7acd9f472fa90aee32cd85520} 
+void Convolution\+Resource\+::save\+Last\+Sample\+File\+As\+Block (\begin{DoxyParamCaption}\item[{const juce\+::\+File \&}]{file}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+Save the file data to this \doxylink{class_convolution_resource}{Convolution\+Resource} object (in memory) 
+\begin{DoxyParams}{Parameters}
+{\em file} & file impulse file, such as the impulse file selected from the file selection window \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_convolution_resource_a48a9231705bfc959fcdd8a076cf22a5d}\index{ConvolutionResource@{ConvolutionResource}!saveTemplateImpulse@{saveTemplateImpulse}}
+\index{saveTemplateImpulse@{saveTemplateImpulse}!ConvolutionResource@{ConvolutionResource}}
+\doxysubsubsection{\texorpdfstring{saveTemplateImpulse()}{saveTemplateImpulse()}}
+{\footnotesize\ttfamily \label{class_convolution_resource_a48a9231705bfc959fcdd8a076cf22a5d} 
+void Convolution\+Resource\+::save\+Template\+Impulse (\begin{DoxyParamCaption}\item[{juce\+::\+String}]{selected\+Id}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+According to the file id, read the impulse file under Resources(binary) and save it to this object (in memory), and then directly load it as impulse response
+
+
+\begin{DoxyParams}{Parameters}
+{\em selected\+Id} & The id of the impulse file combobox, that is, the id of the binary file under Resources \\
+\hline
+\end{DoxyParams}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Source/include/Convolution\+Resource.\+h\end{DoxyCompactItemize}

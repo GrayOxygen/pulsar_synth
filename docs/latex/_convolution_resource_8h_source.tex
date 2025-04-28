@@ -1,0 +1,199 @@
+\doxysection{Convolution\+Resource.\+h}
+\hypertarget{_convolution_resource_8h_source}{}\label{_convolution_resource_8h_source}\index{Source/include/ConvolutionResource.h@{Source/include/ConvolutionResource.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Created\ by\ Mr.\ Wang\ on\ 2025/4/20.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <ResourceSingleton.h>}}
+\DoxyCodeLine{00006\ }
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}Commons.h"{}}}
+\DoxyCodeLine{00013\ \textcolor{keyword}{class\ }ConvolutionResource}
+\DoxyCodeLine{00014\ \{}
+\DoxyCodeLine{00015\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00016\ \ \ \ \ ConvolutionResource(\textcolor{keywordtype}{double}\ sampleRate,\ \textcolor{keywordtype}{int}\ samplesPerBlock,\ \textcolor{keywordtype}{int}\ numChannels)}
+\DoxyCodeLine{00017\ \ \ \ \ \{}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ prepare(sampleRate,\ samplesPerBlock,\ numChannels);}
+\DoxyCodeLine{00019\ \ \ \ \ \}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ [[nodiscard]]\ juce::MemoryBlock\&\ getLastImpulseMemoryBlock1()}
+\DoxyCodeLine{00022\ \ \ \ \ \{}
+\DoxyCodeLine{00023\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ lastImpulseMemoryBlock;}
+\DoxyCodeLine{00024\ \ \ \ \ \}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ [[nodiscard]]\ std::shared\_ptr<juce::dsp::Convolution>\&\ getConvolution()}
+\DoxyCodeLine{00027\ \ \ \ \ \{}
+\DoxyCodeLine{00028\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ convolution;}
+\DoxyCodeLine{00029\ \ \ \ \ \}}
+\DoxyCodeLine{00030\ }
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordtype}{void}\ setConvolution(\textcolor{keyword}{const}\ std::shared\_ptr<juce::dsp::Convolution>\&\ convolution)}
+\DoxyCodeLine{00032\ \ \ \ \ \{}
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ this-\/>convolution\ =\ convolution;}
+\DoxyCodeLine{00034\ \ \ \ \ \}}
+\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00036\ \ \ \ \ \textcolor{keywordtype}{void}\ saveLastTemplateImpulseData(\textcolor{keyword}{const}\ juce::AudioBuffer<float>\&\ lastTemplateBuffer,}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ lastTemplateBufferSampleRate,\ std::string\ fileName)}
+\DoxyCodeLine{00038\ \ \ \ \ \{}
+\DoxyCodeLine{00039\ \ \ \ \ \ \ \ \ this-\/>lastTemplateBuffer\ =\ std::make\_unique<juce::AudioBuffer<float>>(lastTemplateBuffer);}
+\DoxyCodeLine{00040\ \ \ \ \ \ \ \ \ this-\/>lastTemplateBufferSampleRate\ =\ lastTemplateBufferSampleRate;}
+\DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ this-\/>sampleImpulseFilePath\ =\ fileName;}
+\DoxyCodeLine{00042\ \ \ \ \ \}}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_convolution_resource_a48a9231705bfc959fcdd8a076cf22a5d}{saveTemplateImpulse}}(juce::String\ selectedId)}
+\DoxyCodeLine{00051\ \ \ \ \ \{}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ resourceName\ =\ (BinaryResourceSingleton::getInstance().getBinaryIdFileNameMap()[selectedId]).}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ toRawUTF8();}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ fileSampleRate;}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ std::unique\_ptr<juce::AudioBuffer<float>>\ bf;}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespacewhy_adac43307a480960cdd60d0c79b6fdecd}{why::readFileFromResources}}(resourceName,\ fileSampleRate,\ bf))}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ saveLastTemplateImpulseData(*bf,\ fileSampleRate,\ std::string(resourceName));}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_convolution_resource_a4c15e3d9a108db04e9cf332e5f7ec625}{loadTemplateImpulseFile}}();}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00062\ \ \ \ \ \}}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00068\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_convolution_resource_a2c44c0f7acd9f472fa90aee32cd85520}{saveLastSampleFileAsBlock}}(\textcolor{keyword}{const}\ juce::File\&\ file)}
+\DoxyCodeLine{00069\ \ \ \ \ \{}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (file.getSize()\ <=\ 0)}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ juce::MemoryBlock\ memBlock;}
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ file.loadFileAsData(memBlock);}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ std::unique\_ptr<juce::MemoryBlock>\ memBlockPtr\ =\ std::make\_unique<juce::MemoryBlock>(memBlock);}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ setLastSampleImpulseMemoryBlock(memBlockPtr);}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ this-\/>sampleImpulseFilePath\ =\ file.getFullPathName().toStdString();}
+\DoxyCodeLine{00079\ \ \ \ \ \}}
+\DoxyCodeLine{00080\ }
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_convolution_resource_a4ddb0aeeaac9665508b7f040830b097e}{loadSampleImpulseFile}}()}
+\DoxyCodeLine{00085\ \ \ \ \ \{}
+\DoxyCodeLine{00086\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (getLastSampleImpulseMemoryBlock()-\/>getSize()\ <=\ 0)}
+\DoxyCodeLine{00087\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00088\ \ \ \ \ \ \ \ \ \ \ \ \ setShouldUseConvolution(\textcolor{keyword}{false});}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ setShouldUseConvolution(\textcolor{keyword}{true});}
+\DoxyCodeLine{00092\ }
+\DoxyCodeLine{00093\ \ \ \ \ \ \ \ \ \textcolor{comment}{//real\ load\ impulse\ file}}
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ convolution-\/>loadImpulseResponse(}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ getLastSampleImpulseMemoryBlock()-\/>getData(),}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ getLastSampleImpulseMemoryBlock()-\/>getSize(),}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ juce::dsp::Convolution::Stereo::yes,}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ juce::dsp::Convolution::Trim::yes,}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//TODO\ There\ is\ no\ limit.\ If\ a\ large\ file\ is\ passed\ in,\ it\ will\ consume\ a\ lot\ of\ performance.\ Originally,}}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//1024*8\ sample\ sizes\ were\ directly\ fixed,\ but\ later\ it\ can\ be\ changed\ to\ allow\ users\ to\ modify\ them\ manually}}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \ \ \ \ 0,}
+\DoxyCodeLine{00102\ \ \ \ \ \ \ \ \ \ \ \ \ juce::dsp::Convolution::Normalise::yes);\ \textcolor{comment}{//\ 0\ =\ full\ IR}}
+\DoxyCodeLine{00103\ \ \ \ \ \}}
+\DoxyCodeLine{00104\ }
+\DoxyCodeLine{00108\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_convolution_resource_a4c15e3d9a108db04e9cf332e5f7ec625}{loadTemplateImpulseFile}}()}
+\DoxyCodeLine{00109\ \ \ \ \ \{}
+\DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (lastTemplateBufferSampleRate\ <=\ 0\ ||\ lastTemplateBuffer-\/>getNumSamples()\ <=\ 0)}
+\DoxyCodeLine{00111\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \ \ \ \ setShouldUseConvolution(\textcolor{keyword}{false});}
+\DoxyCodeLine{00113\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return};}
+\DoxyCodeLine{00114\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00115\ \ \ \ \ \ \ \ \ setShouldUseConvolution(\textcolor{keyword}{true});}
+\DoxyCodeLine{00116\ }
+\DoxyCodeLine{00117\ \ \ \ \ \ \ \ \ \textcolor{comment}{//Avoid\ the\ data\ inside\ the\ pointer\ becoming\ empty\ after\ the\ move,\ as\ the\ data\ in\ the\ buffer\ has\ been\ moved}}
+\DoxyCodeLine{00118\ \ \ \ \ \ \ \ \ std::unique\_ptr<juce::AudioBuffer<float>>\ clonedBuffer\ =\ std::make\_unique<juce::AudioBuffer<float>>(}
+\DoxyCodeLine{00119\ \ \ \ \ \ \ \ \ \ \ \ \ *lastTemplateBuffer);}
+\DoxyCodeLine{00120\ }
+\DoxyCodeLine{00121\ \ \ \ \ \ \ \ \ \textcolor{comment}{//The\ built-\/in\ impulse\ audio\ has\ all\ been\ processed\ and\ won't\ be\ too\ long}}
+\DoxyCodeLine{00122\ \ \ \ \ \ \ \ \ convolution-\/>loadImpulseResponse(}
+\DoxyCodeLine{00123\ \ \ \ \ \ \ \ \ \ \ \ \ std::move(*clonedBuffer),}
+\DoxyCodeLine{00124\ \ \ \ \ \ \ \ \ \ \ \ \ lastTemplateBufferSampleRate,}
+\DoxyCodeLine{00125\ \ \ \ \ \ \ \ \ \ \ \ \ juce::dsp::Convolution::Stereo::yes,}
+\DoxyCodeLine{00126\ \ \ \ \ \ \ \ \ \ \ \ \ juce::dsp::Convolution::Trim::yes,}
+\DoxyCodeLine{00127\ \ \ \ \ \ \ \ \ \ \ \ \ juce::dsp::Convolution::Normalise::yes);}
+\DoxyCodeLine{00128\ \ \ \ \ \}}
+\DoxyCodeLine{00129\ }
+\DoxyCodeLine{00135\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_convolution_resource_ab1024795ea8d7671a6d20f32e508271e}{processSample}}(juce::AudioBuffer<float>\&\ pulseBuffer)}
+\DoxyCodeLine{00136\ \ \ \ \ \{}
+\DoxyCodeLine{00137\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!shouldUseConvolution)}
+\DoxyCodeLine{00138\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00139\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00140\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00141\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (convolution-\/>getCurrentIRSize()\ >\ 0\ \&\&\ shouldUseConvolution)}
+\DoxyCodeLine{00142\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00143\ \ \ \ \ \ \ \ \ \ \ \ \ juce::dsp::AudioBlock<float>\ block(pulseBuffer);}
+\DoxyCodeLine{00144\ \ \ \ \ \ \ \ \ \ \ \ \ juce::dsp::ProcessContextReplacing<float>\ context(block);}
+\DoxyCodeLine{00145\ \ \ \ \ \ \ \ \ \ \ \ \ convolution-\/>process(context);}
+\DoxyCodeLine{00146\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00147\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00148\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00149\ \ \ \ \ \}}
+\DoxyCodeLine{00150\ }
+\DoxyCodeLine{00151\ \ \ \ \ [[nodiscard]]\ std::unique\_ptr<juce::MemoryBlock>\&\ getLastSampleImpulseMemoryBlock()}
+\DoxyCodeLine{00152\ \ \ \ \ \{}
+\DoxyCodeLine{00153\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ lastSampleImpulseMemoryBlock;}
+\DoxyCodeLine{00154\ \ \ \ \ \}}
+\DoxyCodeLine{00155\ }
+\DoxyCodeLine{00156\ \ \ \ \ \textcolor{keywordtype}{void}\ setLastSampleImpulseMemoryBlock(std::unique\_ptr<juce::MemoryBlock>\&\ lastSampleImpulseMemoryBlock)}
+\DoxyCodeLine{00157\ \ \ \ \ \{}
+\DoxyCodeLine{00158\ \ \ \ \ \ \ \ \ this-\/>lastSampleImpulseMemoryBlock\ =\ std::move(lastSampleImpulseMemoryBlock);}
+\DoxyCodeLine{00159\ \ \ \ \ \}}
+\DoxyCodeLine{00160\ }
+\DoxyCodeLine{00161\ \ \ \ \ [[nodiscard]]\ std::unique\_ptr<juce::AudioBuffer<float>>\&\ getLastTemplateBuffer()}
+\DoxyCodeLine{00162\ \ \ \ \ \{}
+\DoxyCodeLine{00163\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ lastTemplateBuffer;}
+\DoxyCodeLine{00164\ \ \ \ \ \}}
+\DoxyCodeLine{00165\ }
+\DoxyCodeLine{00166\ \ \ \ \ [[nodiscard]]\ \textcolor{keywordtype}{double}\&\ getLastTemplateDataSize()}
+\DoxyCodeLine{00167\ \ \ \ \ \{}
+\DoxyCodeLine{00168\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ lastTemplateBufferSampleRate;}
+\DoxyCodeLine{00169\ \ \ \ \ \}}
+\DoxyCodeLine{00170\ }
+\DoxyCodeLine{00171\ \ \ \ \ [[nodiscard]]\ \textcolor{keywordtype}{bool}\&\ isShouldUseConvolution()}
+\DoxyCodeLine{00172\ \ \ \ \ \{}
+\DoxyCodeLine{00173\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ shouldUseConvolution;}
+\DoxyCodeLine{00174\ \ \ \ \ \}}
+\DoxyCodeLine{00175\ }
+\DoxyCodeLine{00176\ \ \ \ \ \textcolor{keywordtype}{void}\ setShouldUseConvolution(\textcolor{keywordtype}{bool}\ shouldUseConvolution)}
+\DoxyCodeLine{00177\ \ \ \ \ \{}
+\DoxyCodeLine{00178\ \ \ \ \ \ \ \ \ this-\/>shouldUseConvolution\ =\ shouldUseConvolution;}
+\DoxyCodeLine{00179\ \ \ \ \ \}}
+\DoxyCodeLine{00180\ }
+\DoxyCodeLine{00181\ \ \ \ \ [[nodiscard]]\ juce::MemoryBlock\&\ getLastImpulseMemoryBlock()}
+\DoxyCodeLine{00182\ \ \ \ \ \{}
+\DoxyCodeLine{00183\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ lastImpulseMemoryBlock;}
+\DoxyCodeLine{00184\ \ \ \ \ \}}
+\DoxyCodeLine{00185\ }
+\DoxyCodeLine{00186\ \ \ \ \ \textcolor{keywordtype}{void}\ setLastImpulseMemoryBlock(\textcolor{keyword}{const}\ juce::MemoryBlock\&\ lastImpulseMemoryBlock)}
+\DoxyCodeLine{00187\ \ \ \ \ \{}
+\DoxyCodeLine{00188\ \ \ \ \ \ \ \ \ this-\/>lastImpulseMemoryBlock\ =\ lastImpulseMemoryBlock;}
+\DoxyCodeLine{00189\ \ \ \ \ \}}
+\DoxyCodeLine{00190\ }
+\DoxyCodeLine{00191\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00192\ \ \ \ \ \textcolor{keywordtype}{void}\ prepare(\textcolor{keywordtype}{double}\ sampleRate,\ \textcolor{keywordtype}{int}\ samplesPerBlock,\ \textcolor{keywordtype}{int}\ numChannels)}
+\DoxyCodeLine{00193\ \ \ \ \ \{}
+\DoxyCodeLine{00194\ \ \ \ \ \ \ \ \ \textcolor{comment}{//config\ convolution}}
+\DoxyCodeLine{00195\ \ \ \ \ \ \ \ \ spec.sampleRate\ =\ sampleRate;}
+\DoxyCodeLine{00196\ \ \ \ \ \ \ \ \ spec.maximumBlockSize\ =\ samplesPerBlock;}
+\DoxyCodeLine{00197\ \ \ \ \ \ \ \ \ spec.numChannels\ =\ numChannels;}
+\DoxyCodeLine{00198\ \ \ \ \ \ \ \ \ convolution-\/>prepare(spec);}
+\DoxyCodeLine{00199\ \ \ \ \ \}}
+\DoxyCodeLine{00200\ }
+\DoxyCodeLine{00201\ \ \ \ \ \textcolor{comment}{//Used\ to\ store\ the\ last\ selected\ sample\ impulse\ file}}
+\DoxyCodeLine{00202\ \ \ \ \ std::unique\_ptr<juce::MemoryBlock>\ lastSampleImpulseMemoryBlock\ =\ std::make\_unique<juce::MemoryBlock>();}
+\DoxyCodeLine{00203\ \ \ \ \ juce::MemoryBlock\ lastImpulseMemoryBlock;}
+\DoxyCodeLine{00204\ \ \ \ \ std::string\ sampleImpulseFilePath;}
+\DoxyCodeLine{00205\ }
+\DoxyCodeLine{00206\ \ \ \ \ \textcolor{comment}{//Used\ to\ store\ the\ template\ impulse\ file\ of\ the\ last\ selection}}
+\DoxyCodeLine{00207\ \ \ \ \ std::unique\_ptr<juce::AudioBuffer<float>>\ lastTemplateBuffer\ =\ std::make\_unique<juce::AudioBuffer<float>>(2,\ 1024);}
+\DoxyCodeLine{00208\ }
+\DoxyCodeLine{00209\ \ \ \ \ \textcolor{keywordtype}{double}\ lastTemplateBufferSampleRate\ =\ 0;}
+\DoxyCodeLine{00210\ }
+\DoxyCodeLine{00211\ \ \ \ \ \textcolor{comment}{//Whether\ the\ conditions\ for\ performing\ convolution\ operations\ are\ met}}
+\DoxyCodeLine{00212\ \ \ \ \ \textcolor{comment}{//(to\ avoid\ invalid\ operations\ and\ affect\ performance)\ :}}
+\DoxyCodeLine{00213\ \ \ \ \ \textcolor{comment}{//The\ impulse\ menu\ selects\ sample\ impulse\ but\ memory\ block\ is\ empty,\ which\ is\ false}}
+\DoxyCodeLine{00214\ \ \ \ \ \textcolor{comment}{//When\ template\ impulse\ is\ selected\ in\ the\ impulse\ menu\ but\ there\ is\ no\ template\ buffer,\ it\ is\ false}}
+\DoxyCodeLine{00215\ \ \ \ \ \textcolor{keywordtype}{bool}\ shouldUseConvolution\ =\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00216\ }
+\DoxyCodeLine{00217\ \ \ \ \ std::shared\_ptr<juce::dsp::Convolution>\ convolution\ =\ std::make\_shared<juce::dsp::Convolution>();}
+\DoxyCodeLine{00218\ \ \ \ \ juce::dsp::ProcessSpec\ spec;}
+\DoxyCodeLine{00219\ \};}
+
+\end{DoxyCode}

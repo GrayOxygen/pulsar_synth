@@ -1,0 +1,468 @@
+\doxysection{Pulsar\+Synth\+Voice Class Reference}
+\hypertarget{class_pulsar_synth_voice}{}\label{class_pulsar_synth_voice}\index{PulsarSynthVoice@{PulsarSynthVoice}}
+
+
+{\ttfamily \#include $<$Pulsar\+Synth\+Voice.\+h$>$}
+
+Inheritance diagram for Pulsar\+Synth\+Voice\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=2.000000cm]{class_pulsar_synth_voice}
+\end{center}
+\end{figure}
+\doxysubsubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{class_pulsar_synth_voice_a6b5534497d76de2b469cb901c9490919}\label{class_pulsar_synth_voice_a6b5534497d76de2b469cb901c9490919} 
+void {\bfseries start\+Note} (int midi\+Note\+Number, float velocity, Synthesiser\+Sound \texorpdfstring{$\ast$}{*}sound, int current\+Pitch\+Wheel\+Position) override
+\item 
+\Hypertarget{class_pulsar_synth_voice_a6901e8c0ffd481f9a99ef6c8323a3596}\label{class_pulsar_synth_voice_a6901e8c0ffd481f9a99ef6c8323a3596} 
+void {\bfseries stop\+Note} (float, bool allow\+Tail\+Off) override
+\item 
+\Hypertarget{class_pulsar_synth_voice_ad8ac6b7c243b2e9a0ad3e87ab1d0e055}\label{class_pulsar_synth_voice_ad8ac6b7c243b2e9a0ad3e87ab1d0e055} 
+void {\bfseries process\+Sample\+With\+Convolution} (juce\+::\+Audio\+Sample\+Buffer \&output\+Buffer, int start\+Sample, int num\+Samples, \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why\+::\+Play\+Mode\+Enum}} current\+Play\+Mode\+Enum)
+\item 
+\Hypertarget{class_pulsar_synth_voice_a700ecc3ea80cb56dccc6a2f2b56b37de}\label{class_pulsar_synth_voice_a700ecc3ea80cb56dccc6a2f2b56b37de} 
+void {\bfseries render\+Next\+Block} (juce\+::\+Audio\+Sample\+Buffer \&output\+Buffer, int start\+Sample, int num\+Samples) override
+\item 
+\Hypertarget{class_pulsar_synth_voice_a51e36bbc81f68a1a7bb931ea8128f5e6}\label{class_pulsar_synth_voice_a51e36bbc81f68a1a7bb931ea8128f5e6} 
+void {\bfseries render\+Next\+Block\+Directly} (juce\+::\+Audio\+Sample\+Buffer \&output\+Buffer, juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}audio\+Play\+Head, int start\+Sample, int num\+Samples, \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why\+::\+Play\+Mode\+Enum}} current\+Play\+Mode\+Enum)
+\item 
+\Hypertarget{class_pulsar_synth_voice_a759e5ff262b1ad22ee4068c62c181322}\label{class_pulsar_synth_voice_a759e5ff262b1ad22ee4068c62c181322} 
+void {\bfseries pitch\+Wheel\+Moved} (int) override
+\item 
+\Hypertarget{class_pulsar_synth_voice_aa2fa97325c8bdafdba7be30ca4a50e52}\label{class_pulsar_synth_voice_aa2fa97325c8bdafdba7be30ca4a50e52} 
+void {\bfseries controller\+Moved} (int, int) override
+\item 
+\Hypertarget{class_pulsar_synth_voice_a20fe8d4f99bd696a1577ddf0e10968c5}\label{class_pulsar_synth_voice_a20fe8d4f99bd696a1577ddf0e10968c5} 
+bool {\bfseries can\+Play\+Sound} (juce\+::\+Synthesiser\+Sound \texorpdfstring{$\ast$}{*}sound) override
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_a3876ce48c87cf088c9c01c69540bdcb2}{set\+Pulsar\+Silence}} (float duty\+Cylce\+Ratio)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_aefafbaf09fc34e6a55eb1d07fb9cd4ff}{change\+To\+New\+Train\+After\+Pulsar\+Period\+Or\+Train\+End}} (bool bpm\+Changed\+Flag)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_ab4902ff5f4deb6aee6ec974a9cb3830d}{real\+Change\+Train\+Config}} ()
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_a145be0285bbf2a54e1ecc1b98221cfee}{init\+Train}} (int duration\+Len, int interval\+Silence\+Len, float is\+Loop, int train\+Len)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_aa00019c1b66f6cfeb2baa00ccfeb8149}{reset\+Train\+Initial\+Sate}} ()
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_a4749f8075207ccfc1d5d3642b9440866}{reset\+Train}} (int duration\+Len, int interval\+Silence\+Len, float is\+Loop, int train\+Len)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_af24e1e956468c6cae41bc5536a3af9da}{init\+Synth\+Voice}} (double sample\+Rate, std\+::unique\+\_\+ptr$<$ juce\+::\+Audio\+Buffer$<$ float $>$ $>$ \&sample\+Buffer, juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}audio\+Play\+Head)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_ac92acc4cb5e1322051e574b8afbfdc0e}{connect\+Parameters}} (juce\+::\+Audio\+Processor\+Value\+Tree\+State \&apvts)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_aaca0259b7f0b63250c0c8f42ba93c223}{mapping\+Params}} (const juce\+::\+Audio\+Processor\+Value\+Tree\+State \&apvts)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_a906bda8f64bc393d118bdf017ea8ee5e}{mapping\+One\+Param}} (const juce\+::\+Audio\+Processor\+Value\+Tree\+State \&apvts, juce\+::\+String parameter\+ID, float new\+Value)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_ac3110eed2d314f3a8b7e6bc44b3bdce0}{parameter\+Changed}} (juce\+::\+Audio\+Processor\+Value\+Tree\+State \&apvts, juce\+::\+String parameter\+ID, float new\+Value, bool \&is\+Generated\+Stochastic\+Mask)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_a15c1e952187e5eb2f17fccedec66b4bb}{reload\+Preset}} (juce\+::\+Audio\+Processor\+Value\+Tree\+State \&apvts)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_ad84d144f2ae9221dbb59a65f0bbf6082}{refresh\+Pulsaret\+Adsr}} (float pulsar\+Duty\+Cycle\+Time)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_a3161ecdde9f214dd635ada9135f1c40d}{mask}} (bool \&mask\+Pass\+Flag, bool \&exist\+Mask)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_aa4b39d14d7c8787b3907d186d4885d83}{change\+Stage}} (int pulsar\+Duty\+Cycle\+Samples, int intra\+Silence\+Samples, int inter\+Train\+Silence\+Samples, int train\+Duty\+Cycle\+Samples)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_a7cfc34ed0b908af1a886da72b4da8301}{calc\+New\+Pulsar\+Freq}} (float \&pulsar\+Mod\+Freq, bool silence\+To\+Pulse\+Flag)
+\item 
+float \mbox{\hyperlink{class_pulsar_synth_voice_a06927694e2701c0d4a263bb75116bcf1}{cal\+Sample\+By\+State}} (bool pass\+Mask\+Flag, bool exist\+Mask, float pulsar\+Mod\+Freq)
+\item 
+void \mbox{\hyperlink{class_pulsar_synth_voice_abbc80c2ec5febf2cfef680187bc5476d}{reset\+Train\+Related\+Samples4\+Location}} ()
+\item 
+float \mbox{\hyperlink{class_pulsar_synth_voice_a5a1aa36eb18b6f76d78ffd7ec063d4c5}{process\+Sample}} ()
+\item 
+float \mbox{\hyperlink{class_pulsar_synth_voice_aa100908d92f3409693f96b75ed510f87}{calc\+Actual\+Pulse}} (float pulsar\+Mod\+Freq)
+\item 
+float \mbox{\hyperlink{class_pulsar_synth_voice_a46c5e089267094fdcbc806bebcd1b0d3}{calc\+Formant\+Lfo\+Interpolation}} (float pulsar\+Mod\+Freq, float amount)
+\item 
+float \mbox{\hyperlink{class_pulsar_synth_voice_abfcddd316f1b287d96ff9fbbf3fbc995}{calc\+Amp\+Lfo\+Interpolation}} (float pulsar\+Mod\+Freq, float amount)
+\item 
+\Hypertarget{class_pulsar_synth_voice_aba4231fb98bff22f6b2fb15ecd3c6fc8}\label{class_pulsar_synth_voice_aba4231fb98bff22f6b2fb15ecd3c6fc8} 
+bool {\bfseries is\+Current\+Cacluated\+Pulse} () const
+\item 
+\Hypertarget{class_pulsar_synth_voice_a71e97e84939fad64596f0add571f3016}\label{class_pulsar_synth_voice_a71e97e84939fad64596f0add571f3016} 
+std\+::atomic$<$ float $>$ \texorpdfstring{$\ast$}{*}\& {\bfseries get\+Train\+Duty\+Cycle\+Len\+Param} ()
+\item 
+\Hypertarget{class_pulsar_synth_voice_a536390224297d63755112a33b10cab8b}\label{class_pulsar_synth_voice_a536390224297d63755112a33b10cab8b} 
+void {\bfseries set\+Train\+Duty\+Cycle\+Len\+Param} (std\+::atomic$<$ float $>$ \texorpdfstring{$\ast$}{*}train\+Duty\+Cycle\+Len\+Param)
+\item 
+float \mbox{\hyperlink{class_pulsar_synth_voice_ab75c995947c166b03334d2ca18b8088f}{get\+Output\+Gain}} ()
+\item 
+int \mbox{\hyperlink{class_pulsar_synth_voice_abed103c588a2c7224df6ae39e5cf3583}{init\+Bpm\+From\+Daw}} (juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}audio\+Play\+Head)
+\item 
+bool \mbox{\hyperlink{class_pulsar_synth_voice_a180e5997173293e74baf529f3502ef3f}{update\+Bpm\+Directly}} (float bpm)
+\item 
+\Hypertarget{class_pulsar_synth_voice_a160729c86e90b92c48ee3d71b7d2dace}\label{class_pulsar_synth_voice_a160729c86e90b92c48ee3d71b7d2dace} 
+std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_common_voice_sate}{Common\+Voice\+Sate}} $>$ \& {\bfseries get\+Common\+Voice\+Sate} ()
+\item 
+\Hypertarget{class_pulsar_synth_voice_ad745da8eede12fb94f3e20a9c1959979}\label{class_pulsar_synth_voice_ad745da8eede12fb94f3e20a9c1959979} 
+void {\bfseries set\+Common\+Voice\+Sate} (std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_common_voice_sate}{Common\+Voice\+Sate}} $>$ \&common\+Voice\+Sate)
+\item 
+\Hypertarget{class_pulsar_synth_voice_aa573ad6a85ead2fccd44f6e4a7ac245d}\label{class_pulsar_synth_voice_aa573ad6a85ead2fccd44f6e4a7ac245d} 
+bool \& {\bfseries is\+Sound\+Off\+When\+Switch\+Play\+Mode} ()
+\item 
+\Hypertarget{class_pulsar_synth_voice_a3cb245f33662756cdb992c71dba23490}\label{class_pulsar_synth_voice_a3cb245f33662756cdb992c71dba23490} 
+void {\bfseries set\+Sound\+Off\+When\+Switch\+Play\+Mode} (bool sound\+Off\+When\+Switch\+Play\+Mode)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+pulsar synth voice\+: The core logic of pulsar is implemented in voice 
+
+\doxysubsection{Member Function Documentation}
+\Hypertarget{class_pulsar_synth_voice_aa100908d92f3409693f96b75ed510f87}\index{PulsarSynthVoice@{PulsarSynthVoice}!calcActualPulse@{calcActualPulse}}
+\index{calcActualPulse@{calcActualPulse}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{calcActualPulse()}{calcActualPulse()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_aa100908d92f3409693f96b75ed510f87} 
+float Pulsar\+Synth\+Voice\+::calc\+Actual\+Pulse (\begin{DoxyParamCaption}\item[{float}]{pulsar\+Mod\+Freq}{}\end{DoxyParamCaption})}
+
+calculate sample
+
+
+\begin{DoxyParams}{Parameters}
+{\em pulsar\+Mod\+Freq} & the newest frequency for sample calculation \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+sample 
+\end{DoxyReturn}
+\Hypertarget{class_pulsar_synth_voice_abfcddd316f1b287d96ff9fbbf3fbc995}\index{PulsarSynthVoice@{PulsarSynthVoice}!calcAmpLfoInterpolation@{calcAmpLfoInterpolation}}
+\index{calcAmpLfoInterpolation@{calcAmpLfoInterpolation}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{calcAmpLfoInterpolation()}{calcAmpLfoInterpolation()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_abfcddd316f1b287d96ff9fbbf3fbc995} 
+float Pulsar\+Synth\+Voice\+::calc\+Amp\+Lfo\+Interpolation (\begin{DoxyParamCaption}\item[{float}]{pulsar\+Mod\+Freq}{, }\item[{float}]{amount}{}\end{DoxyParamCaption})}
+
+Smoothly transition different waveforms in the waveform table to apply AM modulation with different waveform characteristics
+
+
+\begin{DoxyParams}{Parameters}
+{\em pulsar\+Mod\+Freq} & new pulsar modulation frequency \\
+\hline
+{\em amount} & decide how much modulation, 0.\+0f -\/ 1.\+0f \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\Hypertarget{class_pulsar_synth_voice_a46c5e089267094fdcbc806bebcd1b0d3}\index{PulsarSynthVoice@{PulsarSynthVoice}!calcFormantLfoInterpolation@{calcFormantLfoInterpolation}}
+\index{calcFormantLfoInterpolation@{calcFormantLfoInterpolation}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{calcFormantLfoInterpolation()}{calcFormantLfoInterpolation()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_a46c5e089267094fdcbc806bebcd1b0d3} 
+float Pulsar\+Synth\+Voice\+::calc\+Formant\+Lfo\+Interpolation (\begin{DoxyParamCaption}\item[{float}]{pulsar\+Mod\+Freq}{, }\item[{float}]{amount}{}\end{DoxyParamCaption})}
+
+Smoothly transition different waveforms in the waveform table to apply FM modulation with different waveform characteristics
+
+
+\begin{DoxyParams}{Parameters}
+{\em pulsar\+Mod\+Freq} & new pulsar modulation frequency \\
+\hline
+{\em amount} & decide how much modulation, 0.\+0f -\/ 1.\+0f \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\Hypertarget{class_pulsar_synth_voice_a7cfc34ed0b908af1a886da72b4da8301}\index{PulsarSynthVoice@{PulsarSynthVoice}!calcNewPulsarFreq@{calcNewPulsarFreq}}
+\index{calcNewPulsarFreq@{calcNewPulsarFreq}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{calcNewPulsarFreq()}{calcNewPulsarFreq()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_a7cfc34ed0b908af1a886da72b4da8301} 
+void Pulsar\+Synth\+Voice\+::calc\+New\+Pulsar\+Freq (\begin{DoxyParamCaption}\item[{float \&}]{pulsar\+Mod\+Freq}{, }\item[{bool}]{silence\+To\+Pulse\+Flag}{}\end{DoxyParamCaption})}
+
+calculate new modulated pulsar frequency
+
+If the silence\+To\+Pulse\+Flag is false, the pulsar duty cycle is used as the basis for frequency calculation If silence\+To\+Pulse\+Flag is true, the length of pulsar silence is used as the basis for frequency calculation
+
+
+\begin{DoxyParams}{Parameters}
+{\em pulsar\+Mod\+Freq} & The new freq/result will be modified into this parameter \\
+\hline
+{\em silence\+To\+Pulse\+Flag} & Was it once silence and now it is pulse \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_a06927694e2701c0d4a263bb75116bcf1}\index{PulsarSynthVoice@{PulsarSynthVoice}!calSampleByState@{calSampleByState}}
+\index{calSampleByState@{calSampleByState}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{calSampleByState()}{calSampleByState()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_a06927694e2701c0d4a263bb75116bcf1} 
+float Pulsar\+Synth\+Voice\+::cal\+Sample\+By\+State (\begin{DoxyParamCaption}\item[{bool}]{pass\+Mask\+Flag}{, }\item[{bool}]{exist\+Mask}{, }\item[{float}]{pulsar\+Mod\+Freq}{}\end{DoxyParamCaption})}
+
+process the final samples respectively based on the state
+
+
+\begin{DoxyParams}{Parameters}
+{\em pass\+Mask\+Flag} & passed by mask or not \\
+\hline
+{\em exist\+Mask} & mask exist or not \\
+\hline
+{\em pulsar\+Mod\+Freq} & modulate frequency \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\Hypertarget{class_pulsar_synth_voice_aa4b39d14d7c8787b3907d186d4885d83}\index{PulsarSynthVoice@{PulsarSynthVoice}!changeStage@{changeStage}}
+\index{changeStage@{changeStage}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{changeStage()}{changeStage()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_aa4b39d14d7c8787b3907d186d4885d83} 
+void Pulsar\+Synth\+Voice\+::change\+Stage (\begin{DoxyParamCaption}\item[{int}]{pulsar\+Duty\+Cycle\+Samples}{, }\item[{int}]{intra\+Silence\+Samples}{, }\item[{int}]{inter\+Train\+Silence\+Samples}{, }\item[{int}]{train\+Duty\+Cycle\+Samples}{}\end{DoxyParamCaption})}
+
+enter to the next stage
+
+
+\begin{DoxyParams}{Parameters}
+{\em pulsar\+Duty\+Cycle\+Samples} & current pulsar duty cycle samples \\
+\hline
+{\em intra\+Silence\+Samples} & current pulsar silence samples \\
+\hline
+{\em inter\+Train\+Silence\+Samples} & current train interval silence samples \\
+\hline
+{\em train\+Duty\+Cycle\+Samples} & current train duty cycle samples \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_aefafbaf09fc34e6a55eb1d07fb9cd4ff}\index{PulsarSynthVoice@{PulsarSynthVoice}!changeToNewTrainAfterPulsarPeriodOrTrainEnd@{changeToNewTrainAfterPulsarPeriodOrTrainEnd}}
+\index{changeToNewTrainAfterPulsarPeriodOrTrainEnd@{changeToNewTrainAfterPulsarPeriodOrTrainEnd}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{changeToNewTrainAfterPulsarPeriodOrTrainEnd()}{changeToNewTrainAfterPulsarPeriodOrTrainEnd()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_aefafbaf09fc34e6a55eb1d07fb9cd4ff} 
+void Pulsar\+Synth\+Voice\+::change\+To\+New\+Train\+After\+Pulsar\+Period\+Or\+Train\+End (\begin{DoxyParamCaption}\item[{bool}]{bpm\+Changed\+Flag}{}\end{DoxyParamCaption})}
+
+If the train-\/related parameters indicate that the train has changed, wait for the next pulsar silence or train silence to end and enter the new train. If all silos are 0, then after the most recent pulse ends, enter a new train
+
+
+\begin{DoxyParams}{Parameters}
+{\em bpm\+Changed\+Flag} & is bpm changed or not \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_ac92acc4cb5e1322051e574b8afbfdc0e}\index{PulsarSynthVoice@{PulsarSynthVoice}!connectParameters@{connectParameters}}
+\index{connectParameters@{connectParameters}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{connectParameters()}{connectParameters()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_ac92acc4cb5e1322051e574b8afbfdc0e} 
+void Pulsar\+Synth\+Voice\+::connect\+Parameters (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Processor\+Value\+Tree\+State \&}]{apvts}{}\end{DoxyParamCaption})}
+
+init audip parameter to synth voice 
+\begin{DoxyParams}{Parameters}
+{\em apvts} & \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_ab75c995947c166b03334d2ca18b8088f}\index{PulsarSynthVoice@{PulsarSynthVoice}!getOutputGain@{getOutputGain}}
+\index{getOutputGain@{getOutputGain}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{getOutputGain()}{getOutputGain()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_ab75c995947c166b03334d2ca18b8088f} 
+float Pulsar\+Synth\+Voice\+::get\+Output\+Gain (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+get output gain by converting db value \begin{DoxyReturn}{Returns}
+output gain 
+\end{DoxyReturn}
+\Hypertarget{class_pulsar_synth_voice_abed103c588a2c7224df6ae39e5cf3583}\index{PulsarSynthVoice@{PulsarSynthVoice}!initBpmFromDaw@{initBpmFromDaw}}
+\index{initBpmFromDaw@{initBpmFromDaw}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{initBpmFromDaw()}{initBpmFromDaw()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_abed103c588a2c7224df6ae39e5cf3583} 
+int Pulsar\+Synth\+Voice\+::init\+Bpm\+From\+Daw (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}}]{audio\+Play\+Head}{}\end{DoxyParamCaption})}
+
+init bpm use DAW BPM 
+\begin{DoxyParams}{Parameters}
+{\em audio\+Play\+Head} & audio play head \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+1\+: changed a different bpm; 0 \+:no need to update 
+\end{DoxyReturn}
+\Hypertarget{class_pulsar_synth_voice_af24e1e956468c6cae41bc5536a3af9da}\index{PulsarSynthVoice@{PulsarSynthVoice}!initSynthVoice@{initSynthVoice}}
+\index{initSynthVoice@{initSynthVoice}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{initSynthVoice()}{initSynthVoice()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_af24e1e956468c6cae41bc5536a3af9da} 
+void Pulsar\+Synth\+Voice\+::init\+Synth\+Voice (\begin{DoxyParamCaption}\item[{double}]{sample\+Rate}{, }\item[{std\+::unique\+\_\+ptr$<$ juce\+::\+Audio\+Buffer$<$ float $>$ $>$ \&}]{sample\+Buffer}{, }\item[{juce\+::\+Audio\+Play\+Head \texorpdfstring{$\ast$}{*}}]{audio\+Play\+Head}{}\end{DoxyParamCaption})}
+
+!!!!!!\+Initializing all train and pulsar related config is equivalent to the overall initialization entry!!!!!!
+
+
+\begin{DoxyParams}{Parameters}
+{\em sample\+Rate} & sample rate \\
+\hline
+{\em sample\+Buffer} & sample buffer \\
+\hline
+{\em audio\+Play\+Head} & audio play head to get play position \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_a145be0285bbf2a54e1ecc1b98221cfee}\index{PulsarSynthVoice@{PulsarSynthVoice}!initTrain@{initTrain}}
+\index{initTrain@{initTrain}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{initTrain()}{initTrain()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_a145be0285bbf2a54e1ecc1b98221cfee} 
+void Pulsar\+Synth\+Voice\+::init\+Train (\begin{DoxyParamCaption}\item[{int}]{duration\+Len}{, }\item[{int}]{interval\+Silence\+Len}{, }\item[{float}]{is\+Loop}{, }\item[{int}]{train\+Len}{}\end{DoxyParamCaption})}
+
+init train
+
+
+\begin{DoxyParams}{Parameters}
+{\em duration\+Len} & train duty cycle length \\
+\hline
+{\em interval\+Silence\+Len} & train interval silence length \\
+\hline
+{\em is\+Loop} & loop or not \\
+\hline
+{\em train\+Len} & train length \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_a906bda8f64bc393d118bdf017ea8ee5e}\index{PulsarSynthVoice@{PulsarSynthVoice}!mappingOneParam@{mappingOneParam}}
+\index{mappingOneParam@{mappingOneParam}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{mappingOneParam()}{mappingOneParam()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_a906bda8f64bc393d118bdf017ea8ee5e} 
+void Pulsar\+Synth\+Voice\+::mapping\+One\+Param (\begin{DoxyParamCaption}\item[{const juce\+::\+Audio\+Processor\+Value\+Tree\+State \&}]{apvts}{, }\item[{juce\+::\+String}]{parameter\+ID}{, }\item[{float}]{new\+Value}{}\end{DoxyParamCaption})}
+
+Map only a single parameter in the parameter\+Changed event, because only this value is guaranteed to be up-\/to-\/date not apvts.\+get\+Raw\+Parameter\+Value (as juce\textquotesingle{}s documentation notice) 
+\begin{DoxyParams}{Parameters}
+{\em apvts} & tree state \\
+\hline
+{\em parameter\+ID} & parameter id \\
+\hline
+{\em new\+Value} & up-\/to-\/date value \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_aaca0259b7f0b63250c0c8f42ba93c223}\index{PulsarSynthVoice@{PulsarSynthVoice}!mappingParams@{mappingParams}}
+\index{mappingParams@{mappingParams}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{mappingParams()}{mappingParams()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_aaca0259b7f0b63250c0c8f42ba93c223} 
+void Pulsar\+Synth\+Voice\+::mapping\+Params (\begin{DoxyParamCaption}\item[{const juce\+::\+Audio\+Processor\+Value\+Tree\+State \&}]{apvts}{}\end{DoxyParamCaption})}
+
+Mapping the parameters maintained by juce to the parameters of synth 
+\begin{DoxyParams}{Parameters}
+{\em apvts} & \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_a3161ecdde9f214dd635ada9135f1c40d}\index{PulsarSynthVoice@{PulsarSynthVoice}!mask@{mask}}
+\index{mask@{mask}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{mask()}{mask()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_a3161ecdde9f214dd635ada9135f1c40d} 
+void Pulsar\+Synth\+Voice\+::mask (\begin{DoxyParamCaption}\item[{bool \&}]{mask\+Pass\+Flag}{, }\item[{bool \&}]{exist\+Mask}{}\end{DoxyParamCaption})}
+
+whether the current sample has passed the mask
+
+
+\begin{DoxyParams}{Parameters}
+{\em mask\+Pass\+Flag} & The result will be written and updated to this parameter\+: whether the mask has been passed \\
+\hline
+{\em exist\+Mask} & The result will be written and updated to this parameter\+: whether the mask exist \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_ac3110eed2d314f3a8b7e6bc44b3bdce0}\index{PulsarSynthVoice@{PulsarSynthVoice}!parameterChanged@{parameterChanged}}
+\index{parameterChanged@{parameterChanged}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{parameterChanged()}{parameterChanged()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_ac3110eed2d314f3a8b7e6bc44b3bdce0} 
+void Pulsar\+Synth\+Voice\+::parameter\+Changed (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Processor\+Value\+Tree\+State \&}]{apvts}{, }\item[{juce\+::\+String}]{parameter\+ID}{, }\item[{float}]{new\+Value}{, }\item[{bool \&}]{is\+Generated\+Stochastic\+Mask}{}\end{DoxyParamCaption})}
+
+When Audio\+Processor\+Value\+Tree\+State parameter\+Changed listening is after the callback, the method will be triggered
+
+
+\begin{DoxyParams}{Parameters}
+{\em apvts} & tree state \\
+\hline
+{\em parameter\+ID} & parameter id \\
+\hline
+{\em new\+Value} & up-\/to-\/date value \\
+\hline
+{\em is\+Generated\+Stochastic\+Mask} & has generated this time? true yes, false no \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_a5a1aa36eb18b6f76d78ffd7ec063d4c5}\index{PulsarSynthVoice@{PulsarSynthVoice}!processSample@{processSample}}
+\index{processSample@{processSample}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{processSample()}{processSample()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_a5a1aa36eb18b6f76d78ffd7ec063d4c5} 
+float Pulsar\+Synth\+Voice\+::process\+Sample (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+This method is executed to calculate the sample in both auto and midi modes \begin{DoxyReturn}{Returns}
+calculated sample 
+\end{DoxyReturn}
+\Hypertarget{class_pulsar_synth_voice_ab4902ff5f4deb6aee6ec974a9cb3830d}\index{PulsarSynthVoice@{PulsarSynthVoice}!realChangeTrainConfig@{realChangeTrainConfig}}
+\index{realChangeTrainConfig@{realChangeTrainConfig}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{realChangeTrainConfig()}{realChangeTrainConfig()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_ab4902ff5f4deb6aee6ec974a9cb3830d} 
+void Pulsar\+Synth\+Voice\+::real\+Change\+Train\+Config (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+Update the latest train config directly to synth without any delay \Hypertarget{class_pulsar_synth_voice_ad84d144f2ae9221dbb59a65f0bbf6082}\index{PulsarSynthVoice@{PulsarSynthVoice}!refreshPulsaretAdsr@{refreshPulsaretAdsr}}
+\index{refreshPulsaretAdsr@{refreshPulsaretAdsr}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{refreshPulsaretAdsr()}{refreshPulsaretAdsr()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_ad84d144f2ae9221dbb59a65f0bbf6082} 
+void Pulsar\+Synth\+Voice\+::refresh\+Pulsaret\+Adsr (\begin{DoxyParamCaption}\item[{float}]{pulsar\+Duty\+Cycle\+Time}{}\end{DoxyParamCaption})}
+
+refresh adsr 
+\begin{DoxyParams}{Parameters}
+{\em pulsar\+Duty\+Cycle\+Time} & \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_a15c1e952187e5eb2f17fccedec66b4bb}\index{PulsarSynthVoice@{PulsarSynthVoice}!reloadPreset@{reloadPreset}}
+\index{reloadPreset@{reloadPreset}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{reloadPreset()}{reloadPreset()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_a15c1e952187e5eb2f17fccedec66b4bb} 
+void Pulsar\+Synth\+Voice\+::reload\+Preset (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Processor\+Value\+Tree\+State \&}]{apvts}{}\end{DoxyParamCaption})}
+
+refresh preset to synth voice 
+\begin{DoxyParams}{Parameters}
+{\em apvts} & tree state \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_a4749f8075207ccfc1d5d3642b9440866}\index{PulsarSynthVoice@{PulsarSynthVoice}!resetTrain@{resetTrain}}
+\index{resetTrain@{resetTrain}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{resetTrain()}{resetTrain()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_a4749f8075207ccfc1d5d3642b9440866} 
+void Pulsar\+Synth\+Voice\+::reset\+Train (\begin{DoxyParamCaption}\item[{int}]{duration\+Len}{, }\item[{int}]{interval\+Silence\+Len}{, }\item[{float}]{is\+Loop}{, }\item[{int}]{train\+Len}{}\end{DoxyParamCaption})}
+
+Reset the train according to the specified parameters\+:
+
+In midi mode, start\+Note will trigger this func In the auto and midi mode, when the train parameter changes, process\+Sample will trigger this func In midi mode, render\+Next\+Block\+Directly will trigger this func during the first playback
+
+
+\begin{DoxyParams}{Parameters}
+{\em duration\+Len} & train duty cycle length \\
+\hline
+{\em interval\+Silence\+Len} & train interval silence \\
+\hline
+{\em is\+Loop} & loop or not \\
+\hline
+{\em train\+Len} & train length \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_aa00019c1b66f6cfeb2baa00ccfeb8149}\index{PulsarSynthVoice@{PulsarSynthVoice}!resetTrainInitialSate@{resetTrainInitialSate}}
+\index{resetTrainInitialSate@{resetTrainInitialSate}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{resetTrainInitialSate()}{resetTrainInitialSate()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_aa00019c1b66f6cfeb2baa00ccfeb8149} 
+void Pulsar\+Synth\+Voice\+::reset\+Train\+Initial\+Sate (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+reset train related status to initial \Hypertarget{class_pulsar_synth_voice_abbc80c2ec5febf2cfef680187bc5476d}\index{PulsarSynthVoice@{PulsarSynthVoice}!resetTrainRelatedSamples4Location@{resetTrainRelatedSamples4Location}}
+\index{resetTrainRelatedSamples4Location@{resetTrainRelatedSamples4Location}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{resetTrainRelatedSamples4Location()}{resetTrainRelatedSamples4Location()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_abbc80c2ec5febf2cfef680187bc5476d} 
+void Pulsar\+Synth\+Voice\+::reset\+Train\+Related\+Samples4\+Location (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+When reset train, recalculate the relevant samples to locate the play position info \Hypertarget{class_pulsar_synth_voice_a3876ce48c87cf088c9c01c69540bdcb2}\index{PulsarSynthVoice@{PulsarSynthVoice}!setPulsarSilence@{setPulsarSilence}}
+\index{setPulsarSilence@{setPulsarSilence}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{setPulsarSilence()}{setPulsarSilence()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_a3876ce48c87cf088c9c01c69540bdcb2} 
+void Pulsar\+Synth\+Voice\+::set\+Pulsar\+Silence (\begin{DoxyParamCaption}\item[{float}]{duty\+Cylce\+Ratio}{}\end{DoxyParamCaption})}
+
+calculate pulsar silence time 
+\begin{DoxyParams}{Parameters}
+{\em duty\+Cylce\+Ratio} & pulsar duty cycle ratio = pulsar duty cycle/pulsar period \\
+\hline
+\end{DoxyParams}
+\Hypertarget{class_pulsar_synth_voice_a180e5997173293e74baf529f3502ef3f}\index{PulsarSynthVoice@{PulsarSynthVoice}!updateBpmDirectly@{updateBpmDirectly}}
+\index{updateBpmDirectly@{updateBpmDirectly}!PulsarSynthVoice@{PulsarSynthVoice}}
+\doxysubsubsection{\texorpdfstring{updateBpmDirectly()}{updateBpmDirectly()}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_voice_a180e5997173293e74baf529f3502ef3f} 
+bool Pulsar\+Synth\+Voice\+::update\+Bpm\+Directly (\begin{DoxyParamCaption}\item[{float}]{bpm}{}\end{DoxyParamCaption})}
+
+Just update bpm 
+\begin{DoxyParams}{Parameters}
+{\em bpm} & new bpm \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true\+: changed a different bpm false\+:no need to update 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+Source/include/Pulsar\+Synth\+Voice.\+h\item 
+Source/src/Pulsar\+Synth\+Voice.\+cpp\end{DoxyCompactItemize}
