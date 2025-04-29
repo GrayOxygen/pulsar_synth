@@ -2,7 +2,7 @@
 // Created by Mr. Wang on 2025/4/20.
 //
 #pragma once
-#include <ResourceSingleton.h>
+#include <BinaryResourceSingleton.h>
 
 #include "Commons.h"
 /**
@@ -47,16 +47,16 @@ public:
      *
      * @param selectedId The id of the impulse file combobox, that is, the id of the binary file under Resources
      */
-    void saveTemplateImpulse(juce::String selectedId)
+    void saveTemplateImpulse(int selectedId)
     {
-        const char* resourceName = (BinaryResourceSingleton::getInstance().getBinaryIdFileNameMap()[selectedId]).
-            toRawUTF8();
         double fileSampleRate;
         std::unique_ptr<juce::AudioBuffer<float>> bf;
+        juce::String resourceName = why::resourceIdToName[selectedId];
 
-        if (why::readFileFromResources(resourceName, fileSampleRate, bf))
+        if (resourceName.isNotEmpty() && BinaryResourceSingleton::getInstance().readFileFromResources(
+            resourceName.toRawUTF8(), fileSampleRate, bf))
         {
-            saveLastTemplateImpulseData(*bf, fileSampleRate, std::string(resourceName));
+            saveLastTemplateImpulseData(*bf, fileSampleRate, resourceName.toRawUTF8());
             loadTemplateImpulseFile();
         }
     }

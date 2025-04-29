@@ -73,7 +73,7 @@ public:
         {
             pulsarSynthForMidi->allNotesOff(channel, false);
         }
-        pulsarSynthForAuto->triggerSoundOffWhenSwitchPlayMode();
+        pulsarSynthForAuto->triggerSoundOffWhenSwitchPlayMode(true);
     }
 
     /**
@@ -106,7 +106,7 @@ public:
 
         if (impulseSwitchIndex == static_cast<int>(why::ImpulseSwitchEnum::Template))
         {
-            getConvolutionResource()->saveTemplateImpulse(juce::String(index + 1));
+            getConvolutionResource()->saveTemplateImpulse(index + 1);
         }
 
         //Display the latest sample impulse option and (must) directly load the file into the convolution resource

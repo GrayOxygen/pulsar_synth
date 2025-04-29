@@ -18,6 +18,17 @@ namespace why
     // This plugin is only affected by the speed of the plugin
     extern std::atomic<float> bpm;
     // extern std::atomic<double> sampleRate;
+    extern std::atomic<double> sampleRate;
+
+    //ensure the relation id(or combobox index) and resource name is one-to-one,
+    // !!!There are new additions or modifications in the subsequent resource. The mapping relationship can also be
+    // kept unchanged by modifying the filename corresponding to the id. If the file is deleted, the file mapping of
+    // the preset will inevitably become invalid. In addition, maximum compatibility is guaranteed!!!
+    //  For example, if the initial file has a1, a3, a5, and the preset records index=2, which points a3.
+    //  When the plugin is upgraded and a2 is added, then index=2 in the preset will point to a2.
+    // However, if 1=a1, 2=a3, 3=a5, and the newly added file is 4=a2, then the relationship between
+    // the name and id of the previous file has no effect at all
+    extern std::map<int, juce::String> resourceIdToName;
 
     /**
      * pulse state, precisely speaking, which stage the pulsar train is currently in
@@ -153,6 +164,4 @@ namespace why
      * @return current thread id
      */
     std::string getThreadIdStr();
-    bool readFileFromResources(const char* resourceName, double& sampleRate,
-                               std::unique_ptr<juce::AudioBuffer<float>>& bf);
 }

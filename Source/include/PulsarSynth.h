@@ -44,13 +44,13 @@ public:
      * When switching the play mode, turn off all sounds.
      * The auto mode will be played in the playback of the next daw, and the midi mode will be played in the next note
      */
-    void triggerSoundOffWhenSwitchPlayMode()
+    void triggerSoundOffWhenSwitchPlayMode(bool closeFlag)
     {
         for (int i = 0; i < getNumVoices(); ++i)
         {
             juce::SynthesiserVoice* voice = getVoice(i);
             PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-            pulsarVoice->setSoundOffWhenSwitchPlayMode(true);
+            pulsarVoice->setSoundOffWhenSwitchPlayMode(closeFlag);
         }
     }
 

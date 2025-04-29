@@ -1,6 +1,6 @@
 #include "PluginProcessor.h"
 
-#include <ResourceSingleton.h>
+#include <BinaryResourceSingleton.h>
 
 #include "PluginEditor.h"
 #include "PulsarSynth.h"

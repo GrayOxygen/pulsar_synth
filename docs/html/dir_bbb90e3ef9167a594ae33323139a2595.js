@@ -9,5 +9,5 @@ var dir_bbb90e3ef9167a594ae33323139a2595 =
     [ "PulsarSynthEngine.h", "_pulsar_synth_engine_8h_source.html", null ],
     [ "PulsarSynthSound.h", "_pulsar_synth_sound_8h_source.html", null ],
     [ "PulsarSynthVoice.h", "_pulsar_synth_voice_8h_source.html", null ],
-    [ "ResourceSingleton.h", "_resource_singleton_8h_source.html", null ]
+    [ "BinaryResourceSingleton.h", "_resource_singleton_8h_source.html", null ]
 ];

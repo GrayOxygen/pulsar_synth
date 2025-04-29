@@ -1,9 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include <BinaryData.h>
-
-#include "ConvolutionResource.h"
-#include "ResourceSingleton.h"
+#include "BinaryResourceSingleton.h"
 
 //===================================核心逻辑 START===========================================
 
@@ -29,6 +26,9 @@ AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudi
 
     //trigger event
     initUITriggerEvent();
+
+    //设置初始值：上一次窗口打开的值
+    setLastValueAfterCloseWindow();
 
     //The listening of apvts is placed at the end to ensure that the modifications will not be overwritten
     //by the previous logic. When DAW opens the project, it may call setStateInformation multiple times,
@@ -56,6 +56,29 @@ void AudioPluginAudioProcessorEditor::paint(juce::Graphics& g)
     // g.setFont(15.0f);
     // g.drawFittedText("Hello Mr. Wang! When will you return to the distant planet",
     // getLocalBounds(), juce::Justification::centred, 1);
+}
+
+void AudioPluginAudioProcessorEditor::setLastValueAfterCloseWindow()
+{
+    juce::String currentStochasticMaskStr = juce::String(processorRef.getPulsarSynthEngine().
+                                                                      getCurrentPulsarSynth()->
+                                                                      getStochasticMaskStr());
+    if (stochasticMaskTextEditor.getText() != currentStochasticMaskStr)
+    {
+        //property将会被存为state information，用来恢复参数
+        processorRef.apvts.state.setProperty(why::PropertyID::stochasticMask, currentStochasticMaskStr, nullptr);
+        //展示最新stochastic mask
+        stochasticMaskTextEditor.setText(currentStochasticMaskStr);
+    }
+    if (!processorRef.apvts.state.getProperty(why::PropertyID::burstMask).isVoid())
+    {
+        burstMaskTextEditor.setText(processorRef.apvts.state.getProperty(why::PropertyID::burstMask).toString());
+    }
+    if (!processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).isVoid())
+    {
+        sampleImpulsePathTextEditor.setText(
+            processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString());
+    }
 }
 
 /**
@@ -794,7 +817,7 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
     //template impulse file下拉框
     impulseTemplateFileComboBox.onChange = [&]
     {
-        saveTemplateImpulseThenLoadAfterSelect(juce::String(impulseTemplateFileComboBox.getSelectedId()));
+        saveTemplateImpulseThenLoadAfterSelect(impulseTemplateFileComboBox.getSelectedId());
     };
 
     //reload preset时，如果数据变化也会体现在event
@@ -802,7 +825,7 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
     {
         if (impulseSwitchComboBox.getSelectedId() == static_cast<int>(why::ImpulseSwitchEnum::Template) + 1)
         {
-            saveTemplateImpulseThenLoadAfterSelect(juce::String(impulseTemplateFileComboBox.getSelectedId()));
+            saveTemplateImpulseThenLoadAfterSelect(impulseTemplateFileComboBox.getSelectedId());
         }
         if (impulseSwitchComboBox.getSelectedId() == static_cast<int>(why::ImpulseSwitchEnum::Sample) + 1)
         {
@@ -952,17 +975,16 @@ void AudioPluginAudioProcessorEditor::loadTemplateImpulseWhenSelected()
  * Save the binary file under Resources to synth. If impulse selects the template file, it will be loaded as
  * impulse response
 */
-void AudioPluginAudioProcessorEditor::saveTemplateImpulseThenLoadAfterSelect(juce::String selectedId)
+void AudioPluginAudioProcessorEditor::saveTemplateImpulseThenLoadAfterSelect(int selectedId)
 {
-    const char* resourceName = (BinaryResourceSingleton::getInstance().getBinaryIdFileNameMap()[selectedId]).
-        toRawUTF8();
     double fileSampleRate;
     std::unique_ptr<juce::AudioBuffer<float>> bf;
 
-    if (why::readFileFromResources(resourceName, fileSampleRate, bf))
+    if (BinaryResourceSingleton::getInstance().readFileFromResources(why::resourceIdToName[selectedId].toRawUTF8(),
+                                                                     fileSampleRate, bf))
     {
         processorRef.getPulsarSynthEngine().getConvolutionResource()->saveLastTemplateImpulseData(
-            *bf, fileSampleRate, std::string(resourceName));
+            *bf, fileSampleRate, why::resourceIdToName[selectedId].toRawUTF8());
         loadTemplateImpulseWhenSelected();
     }
 }
@@ -973,13 +995,11 @@ void AudioPluginAudioProcessorEditor::saveTemplateImpulseThenLoadAfterSelect(juc
 void AudioPluginAudioProcessorEditor::initTemplateImpulseComboboxNames()
 {
     // impulseTemplateFileComboBox.removeAllChildren();
-
     // 塞入 BinaryData 中所有资源文件名
-    for (int i = 0; i < BinaryResourceSingleton::getInstance().getBinaryIdFileNameMap().size(); ++i)
+    for (std::pair<const int, juce::String>& pair : why::resourceIdToName)
     {
-        impulseTemplateFileComboBox.addItem(
-            BinaryResourceSingleton::getInstance().getBinaryIdFileNameMap().at(juce::String(i + 1)),
-            i + 1); // ID 从 1 开始,apvts返回的parametervalue是从0开始
+        impulseTemplateFileComboBox.addItem(pair.second, pair.first);
+        // ID 从 1 开始,apvts返回的parametervalue是从0开始
     }
 
     // 可选：设置默认选择项

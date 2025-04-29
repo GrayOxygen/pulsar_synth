@@ -8,6 +8,74 @@ namespace why
     std::atomic<float> bpm(120);
     // std::atomic<double> sampleRate(44100.0);
 
+    //id from 1(=item id in combobox), The display order is sorted by id
+    std::map<int, juce::String> resourceIdToName = {
+        {1, "11L-hey.wav"},
+        {2, "11L-tea in chineses.wav"},
+        {3, "18366 water drop.wav"},
+        {4, "387982 car door.wav"},
+        {5, "388005 battle swish.wav"},
+        {6, "388055 sax.wav"},
+        {7, "388534 zigzag.wav"},
+        {8, "388604 machine motion2.wav"},
+        {9, "388607 machine motion.wav"},
+        {10, "388679 ding.wav"},
+        {11, "389036 noisy scratch.wav"},
+        {12, "389185 metal drop.wav"},
+        {13, "389662 flip book.wav"},
+        {14, "389997 drop water.wav"},
+        {15, "390150 reverse.wav"},
+        {16, "390667 bubble.wav"},
+        {17, "391154 cough.wav"},
+        {18, "391245 finger dot.wav"},
+        {19, "391281 crack.wav"},
+        {20, "391468 fart.wav"},
+        {21, "391508 sweep spiral.wav"},
+        {22, "391520 frog.wav"},
+        {23, "391547 girl laugh.wav"},
+        {24, "391962 machine.wav"},
+        {25, "392026 bark2.wav"},
+        {26, "392029 donkey.wav"},
+        {27, "393363 hey.wav"},
+        {28, "393659 noisy hit.wav"},
+        {29, "394131 piano.wav"},
+        {30, "394317 phone ring.wav"},
+        {31, "394433 whoosh.wav"},
+        {32, "394889 knock door.wav"},
+        {33, "395166 violin.wav"},
+        {34, "395283 small wood block.wav"},
+        {35, "395502 bell vibra.wav"},
+        {36, "396286 bell ding.wav"},
+        {37, "396287 bell.wav"},
+        {38, "396893 footstep.wav"},
+        {39, "397471 sweep.wav"},
+        {40, "398885 bark.wav"},
+        {41, "398921 squeak.wav"},
+        {42, "398990 scrape.wav"},
+        {43, "399003 bottle cap.wav"},
+        {44, "399523 string.wav"},
+        {45, "462035 chime.wav"},
+        {46, "462069 storm.wav"},
+        {47, "462241 sword.wav"},
+        {48, "462345 elec guitar.wav"},
+        {49, "462362 crowd clap.wav"},
+        {50, "487463 trumpet low.wav"},
+        {51, "487464 trumpet hight.wav"},
+        {52, "545951 battle.wav"},
+        {53, "546085 thanks.wav"},
+        {54, "546199 background.wav"},
+        {55, "546257 hiccup.wav"},
+        {56, "576648 crash.wav"},
+        {57, "576707 snare.wav"},
+        {58, "576753 tom.wav"},
+        {59, "576961 snap.wav"},
+        {60, "577050 swish.wav"},
+        {61, "577442 paper.wav"},
+        {62, "577443 zip.wav"},
+        {63, "577454 wood.wav"},
+        {64, "I love you in chinese.wav"},
+    };
+
     juce::StringArray getPlayModeArray()
     {
         juce::StringArray names = {"Off", "Auto", "Midi"};
@@ -132,44 +200,5 @@ namespace why
         std::ostringstream oss;
         oss << std::this_thread::get_id();
         return oss.str();
-    }
-
-    /**
-     * read binary source file
-     * @param resourceName resource full name
-     * @param sampleRate sample rate of the file
-     * @param bf buffer
-     * @return true is success false failed
-     */
-    bool readFileFromResources(const char* resourceName, double& sampleRate,
-                               std::unique_ptr<juce::AudioBuffer<float>>& bf)
-    {
-        //读取template文件
-        int dataSize = 0;
-        const void* data = BinaryData::getNamedResource(resourceName, dataSize);
-
-        // data 是二进制数据的起始地址，dataSize 是它的大小
-        if (data != nullptr)
-        {
-            std::unique_ptr<juce::MemoryInputStream> stream;
-            stream.reset(new juce::MemoryInputStream(data, static_cast<size_t>(dataSize), false));
-            // 例如加载成 AudioBuffer
-            juce::AudioFormatManager formatManager;
-            formatManager.registerBasicFormats(); // 支持 WAV, AIFF 等常见格式
-
-            std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(std::move(stream)));
-
-            if (reader != nullptr)
-            {
-                juce::AudioBuffer<float> buffer(reader->numChannels, static_cast<int>(reader->lengthInSamples));
-                reader->read(&buffer, 0, static_cast<int>(reader->lengthInSamples), 0, true, true);
-                // 现在 buffer 就是你加载好的 impulse data
-
-                bf = std::make_unique<juce::AudioBuffer<float>>(buffer);
-                sampleRate = reader->sampleRate;
-            }
-            return true;
-        }
-        return false;
     }
 }

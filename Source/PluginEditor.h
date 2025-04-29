@@ -52,6 +52,11 @@ public:
 
     //========================================自定义方法======================================
     /**
+     * set lasted value after close window
+     */
+    void setLastValueAfterCloseWindow();
+
+    /**
      * Update the parameters of the preset to the UI
      */
     void refreshUIFromPreset();
@@ -89,7 +94,7 @@ public:
      *
      * @param selectedId
      */
-    void saveTemplateImpulseThenLoadAfterSelect(juce::String selectedId);
+    void saveTemplateImpulseThenLoadAfterSelect(int selectedId);
 
     void rebalanceStepHitValueDisplay();
 

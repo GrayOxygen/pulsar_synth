@@ -17,7 +17,6 @@
 #include <__ranges/common_view.h>
 
 #include "PulsarSynthSound.h"
-#include "ConvolutionResource.h"
 
 //================================================重写方法================================================
 void PulsarSynthVoice::startNote(int midiNoteNumber,
@@ -36,6 +35,7 @@ void PulsarSynthVoice::startNote(int midiNoteNumber,
     envelope.setParameters(param);
     envelope.noteOn();
     playing = true;
+    wasPlayingLastFrame = true;
 }
 
 //allowTailOff true，不会立即停止声音，走envelope noteoff停止；在此期间，renderNextBlock() 仍会继续跑，虽然 envelope 音量很小，但还是在输出 sample。
@@ -130,7 +130,7 @@ void PulsarSynthVoice::processSampleWithConvolution(juce::AudioSampleBuffer& out
         int i = sampleIndex - startSample;
 
         float pulse = this->processSample();
-        //TODO 相对化音量
+        //TODO 相对化音量，改为静音卷积后的结果
         // pulse = (!this->isCurrentCacluatedPulse()) ? pulse * 0.0 : pulse;
         float currentSample = pulse;
 
@@ -658,19 +658,22 @@ void PulsarSynthVoice::changeStage(int pulsarDutyCycleSamples, int intraSilenceS
 //modulation will affect the length of the pulse
 void PulsarSynthVoice::calcNewPulsarFreq(float& pulsarModFreq, bool silenceToPulseFlag)
 {
-    //The frequency of the pulse is finally by duty cycle
-    pulsarModFreq =
-        // commonVoiceSate->pulsarDutyCycleClusterLenParam->load() *
-        1.0 / (commonVoiceSate->pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
+    //开始的单个pulse频率
+    pulsarModFreq = 1.0 / (commonVoiceSate->pulsarDutyCycleRatioParam->load() * pulsarPeriodTime);
     //当ratio为1时，实际上也不存在silence了，所以无需计算新的freq
     if (silenceToPulseFlag && 1 != commonVoiceSate->pulsarDutyCycleRatioParam->load())
     {
         pulsarModFreq =
-            // commonVoiceSate->pulsarDutyCycleClusterLenParam->load() *
             1.0 / ((1 - commonVoiceSate->pulsarDutyCycleRatioParam->load()) * pulsarPeriodTime);
     }
+
+    //新的调制的频率
     float modFreq = calcFormantLfoInterpolation(pulsarModFreq, commonVoiceSate->sustainParam->load());
     pulsarModFreq = pulsarModFreq + pulsarModFreq * modFreq;
+
+    //The frequency of the pulse is finally by duty cycle
+    pulsarModFreq =
+        commonVoiceSate->pulsarDutyCycleClusterLenParam->load() * pulsarModFreq;
 }
 
 float PulsarSynthVoice::calSampleByState(bool passMaskFlag, bool existMask, float pulsarModFreq)
@@ -768,8 +771,8 @@ float PulsarSynthVoice::processSample()
     bool silenceToPulseFlag = existMask && currentState == why::PulsarStateEnum::IntraSilence && passMaskFlag;
 
     //The frequency after pulse duty cycle modulation will affect the length of the pulse
-    float pulsarModFreq;
-    calcNewPulsarFreq(pulsarModFreq, silenceToPulseFlag);
+    float newPulsarFreq;
+    calcNewPulsarFreq(newPulsarFreq, silenceToPulseFlag);
 
     // Modify the adsr time: Note that after masking, silence may also be pulse.
     // The proportional reference value of adsr should be adjusted in real time, that is,
@@ -792,7 +795,7 @@ float PulsarSynthVoice::processSample()
     }
 
     //calc sample
-    float s = calSampleByState(passMaskFlag, existMask, pulsarModFreq);
+    float s = calSampleByState(passMaskFlag, existMask, newPulsarFreq);
 
     hasPassedSampleNumInsideTrain++;
 
