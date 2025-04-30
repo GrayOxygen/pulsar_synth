@@ -6,7 +6,7 @@
 namespace why
 {
     std::atomic<float> bpm(120);
-    // std::atomic<double> sampleRate(44100.0);
+    std::atomic<double> sampleRate(44100.0);
 
     //id from 1(=item id in combobox), The display order is sorted by id
     std::map<int, juce::String> resourceIdToName = {

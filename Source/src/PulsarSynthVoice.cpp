@@ -156,15 +156,19 @@ void PulsarSynthVoice::processSampleWithConvolution(juce::AudioSampleBuffer& out
     // float targetPeak = 0.5f;
     // float gain = targetPeak / (peak + 1e-5f);
     // commonVoiceSate->pulseBuffer.applyGain(gain);
-    // // 限制音量
-    // float peak = commonVoiceSate->pulseBuffer.getMagnitude(0, commonVoiceSate->pulseBuffer.getNumSamples());
-    //
-    // float ceiling = 1.0f;
-    // if (peak > ceiling)
-    // {
-    //     float gain = ceiling / (peak + 1e-5f);
-    //     commonVoiceSate->pulseBuffer.applyGain(gain);
-    // }
+    // 限制音量
+    float peak = commonVoiceSate->pulseBuffer.getMagnitude(0, commonVoiceSate->pulseBuffer.getNumSamples());
+
+    float ceiling = 1.0f;
+    if (peak > ceiling)
+    {
+        float gain = ceiling / (peak + 1e-5f);
+        commonVoiceSate->pulseBuffer.applyGain(gain);
+    }
+
+    // 如果低于目标 -6dBFS，进行补偿
+    float gainNeeded = juce::Decibels::decibelsToGain(-6);
+    commonVoiceSate->pulseBuffer.applyGain(gainNeeded); // 应用平滑后的增益
 
     for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
     {

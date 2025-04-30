@@ -91,6 +91,11 @@ public:
         setShouldUseConvolution(true);
 
         //real load impulse file
+        float irSize = getLastSampleImpulseMemoryBlock()->getSize();
+        if (irSize > why::sampleRate)
+        {
+            irSize = 2046;
+        }
         convolution->loadImpulseResponse(
             getLastSampleImpulseMemoryBlock()->getData(),
             getLastSampleImpulseMemoryBlock()->getSize(),

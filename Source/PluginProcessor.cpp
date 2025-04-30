@@ -341,14 +341,14 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
     );
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
-            juce::ParameterID(why::ParameterID::pulsarWaveform, 1), "Pulsar Waveform", 0.0, 1.0, 0.0)
+            juce::ParameterID(why::ParameterID::pulsarWaveform, 1), "Pg Waveform", 0.0, 1.0, 0.0)
     );
 
     params.push_back(std::make_unique<juce::AudioParameterInt>(
-            juce::ParameterID(why::ParameterID::pulsarDutyCycleClusterLen, 1), "Pulsar Duty Cycle", 1, 32, 1)
+            juce::ParameterID(why::ParameterID::pulsarDutyCycleClusterLen, 1), "Pg DutyCycle Cluster", 1, 32, 1)
     );
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
-            juce::ParameterID(why::ParameterID::pulsarDutyCycleRatio, 1), "Pulsar Duty Cycle Ratio", 0.01, 1.0, 0.5)
+            juce::ParameterID(why::ParameterID::pulsarDutyCycleRatio, 1), "Pg DutyCycle Ratio", 0.01, 1.0, 0.5)
     );
 
     //lfo

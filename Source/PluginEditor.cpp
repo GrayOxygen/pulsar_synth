@@ -578,20 +578,20 @@ void AudioPluginAudioProcessorEditor::setUIStyle()
     pulsarWaveformSlider.setTextValueSuffix("");
     pulsarWaveformSlider.setRange(0.0, 1.0, 0.001);
 
-    pulsarWaveformLabel.setText("Pulsar Waveform", juce::dontSendNotification);
+    pulsarWaveformLabel.setText("Pg Waveform", juce::dontSendNotification);
 
     pulsarDutyCycleClusterLenSlider.setSliderStyle(juce::Slider::LinearVertical);
     pulsarDutyCycleClusterLenSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     pulsarDutyCycleClusterLenSlider.setTextValueSuffix("");
 
-    pulsarDutyCycleClusterLenLabel.setText("Pulsar Duty Cycle Cluster", juce::dontSendNotification);
+    pulsarDutyCycleClusterLenLabel.setText("Pg Duty Cycle Cluster", juce::dontSendNotification);
 
 
     pulsarDutyCycleRatioSlider.setSliderStyle(juce::Slider::LinearVertical);
     pulsarDutyCycleRatioSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
     pulsarDutyCycleRatioSlider.setTextValueSuffix("");
 
-    pulsarDutyCycleRatioLabel.setText("Pulsar Duty Cycle Ratio", juce::dontSendNotification);
+    pulsarDutyCycleRatioLabel.setText("Pg Duty Cycle Ratio", juce::dontSendNotification);
 
     //lfo
     ampLfoSlider.setSliderStyle(juce::Slider::LinearVertical);
