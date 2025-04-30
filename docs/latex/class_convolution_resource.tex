@@ -22,7 +22,7 @@ void {\bfseries set\+Convolution} (const std\+::shared\+\_\+ptr$<$ juce\+::dsp\+
 \Hypertarget{class_convolution_resource_a160d88f4900a158bfbf160dd91f0b17f}\label{class_convolution_resource_a160d88f4900a158bfbf160dd91f0b17f} 
 void {\bfseries save\+Last\+Template\+Impulse\+Data} (const juce\+::\+Audio\+Buffer$<$ float $>$ \&last\+Template\+Buffer, double last\+Template\+Buffer\+Sample\+Rate, std\+::string file\+Name)
 \item 
-void \mbox{\hyperlink{class_convolution_resource_a48a9231705bfc959fcdd8a076cf22a5d}{save\+Template\+Impulse}} (juce\+::\+String selected\+Id)
+void \mbox{\hyperlink{class_convolution_resource_a61dcfb39de730eb3b8809fedd8992234}{save\+Template\+Impulse}} (int selected\+Id)
 \item 
 void \mbox{\hyperlink{class_convolution_resource_a2c44c0f7acd9f472fa90aee32cd85520}{save\+Last\+Sample\+File\+As\+Block}} (const juce\+::\+File \&file)
 \item 
@@ -99,11 +99,11 @@ Save the file data to this \doxylink{class_convolution_resource}{Convolution\+Re
 {\em file} & file impulse file, such as the impulse file selected from the file selection window \\
 \hline
 \end{DoxyParams}
-\Hypertarget{class_convolution_resource_a48a9231705bfc959fcdd8a076cf22a5d}\index{ConvolutionResource@{ConvolutionResource}!saveTemplateImpulse@{saveTemplateImpulse}}
+\Hypertarget{class_convolution_resource_a61dcfb39de730eb3b8809fedd8992234}\index{ConvolutionResource@{ConvolutionResource}!saveTemplateImpulse@{saveTemplateImpulse}}
 \index{saveTemplateImpulse@{saveTemplateImpulse}!ConvolutionResource@{ConvolutionResource}}
 \doxysubsubsection{\texorpdfstring{saveTemplateImpulse()}{saveTemplateImpulse()}}
-{\footnotesize\ttfamily \label{class_convolution_resource_a48a9231705bfc959fcdd8a076cf22a5d} 
-void Convolution\+Resource\+::save\+Template\+Impulse (\begin{DoxyParamCaption}\item[{juce\+::\+String}]{selected\+Id}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily \label{class_convolution_resource_a61dcfb39de730eb3b8809fedd8992234} 
+void Convolution\+Resource\+::save\+Template\+Impulse (\begin{DoxyParamCaption}\item[{int}]{selected\+Id}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 According to the file id, read the impulse file under Resources(binary) and save it to this object (in memory), and then directly load it as impulse response
 

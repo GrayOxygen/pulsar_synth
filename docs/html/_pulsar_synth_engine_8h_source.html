@@ -168,7 +168,7 @@ $(function(){initNavTree('_pulsar_synth_engine_8h_source.html',''); initResizabl
 <div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>        {</div>
 <div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>            pulsarSynthForMidi-&gt;allNotesOff(channel, <span class="keyword">false</span>);</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        }</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        pulsarSynthForAuto-&gt;triggerSoundOffWhenSwitchPlayMode();</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        pulsarSynthForAuto-&gt;triggerSoundOffWhenSwitchPlayMode(<span class="keyword">true</span>);</div>
 <div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    }</div>
 </div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span></div>
@@ -197,7 +197,7 @@ $(function(){initNavTree('_pulsar_synth_engine_8h_source.html',''); initResizabl
 <div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
 <div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>        <span class="keywordflow">if</span> (impulseSwitchIndex == <span class="keyword">static_cast&lt;</span><span class="keywordtype">int</span><span class="keyword">&gt;</span>(why::ImpulseSwitchEnum::Template))</div>
 <div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        {</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>            <a class="code hl_function" href="class_pulsar_synth_engine.html#a6c60954f62666c09b9d6c567ac918270">getConvolutionResource</a>()-&gt;saveTemplateImpulse(juce::String(index + 1));</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>            <a class="code hl_function" href="class_pulsar_synth_engine.html#a6c60954f62666c09b9d6c567ac918270">getConvolutionResource</a>()-&gt;saveTemplateImpulse(index + 1);</div>
 <div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>        }</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
 <div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        <span class="comment">//Display the latest sample impulse option and (must) directly load the file into the convolution resource</span></div>
@@ -376,7 +376,7 @@ $(function(){initNavTree('_pulsar_synth_engine_8h_source.html',''); initResizabl
 <div class="ttc" id="aclass_pulsar_synth_sound_html"><div class="ttname"><a href="class_pulsar_synth_sound.html">PulsarSynthSound</a></div><div class="ttdef"><b>Definition</b> PulsarSynthSound.h:10</div></div>
 <div class="ttc" id="aclass_pulsar_synth_voice_html"><div class="ttname"><a href="class_pulsar_synth_voice.html">PulsarSynthVoice</a></div><div class="ttdef"><b>Definition</b> PulsarSynthVoice.h:12</div></div>
 <div class="ttc" id="aclass_pulsar_synth_voice_html_ac92acc4cb5e1322051e574b8afbfdc0e"><div class="ttname"><a href="class_pulsar_synth_voice.html#ac92acc4cb5e1322051e574b8afbfdc0e">PulsarSynthVoice::connectParameters</a></div><div class="ttdeci">void connectParameters(juce::AudioProcessorValueTreeState &amp;apvts)</div><div class="ttdef"><b>Definition</b> PulsarSynthVoice.cpp:299</div></div>
-<div class="ttc" id="anamespacewhy_html_a9d41a756b0927fb89e5473fecbb813c1"><div class="ttname"><a href="namespacewhy.html#a9d41a756b0927fb89e5473fecbb813c1">why::PlayModeEnum</a></div><div class="ttdeci">PlayModeEnum</div><div class="ttdef"><b>Definition</b> Commons.h:57</div></div>
+<div class="ttc" id="anamespacewhy_html_a9d41a756b0927fb89e5473fecbb813c1"><div class="ttname"><a href="namespacewhy.html#a9d41a756b0927fb89e5473fecbb813c1">why::PlayModeEnum</a></div><div class="ttdeci">PlayModeEnum</div><div class="ttdef"><b>Definition</b> Commons.h:68</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

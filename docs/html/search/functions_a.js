@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['readfilefromresources_0',['readFileFromResources',['../namespacewhy.html#adac43307a480960cdd60d0c79b6fdecd',1,'why']]],
+  ['readfilefromresources_0',['readFileFromResources',['../class_binary_resource_singleton.html#af3c5c027b0271abd31b809b6047d6401',1,'BinaryResourceSingleton']]],
   ['realchangetrainconfig_1',['realChangeTrainConfig',['../class_pulsar_synth_voice.html#ab4902ff5f4deb6aee6ec974a9cb3830d',1,'PulsarSynthVoice']]],
   ['rebalancestephitvaluedisplay_2',['rebalanceStepHitValueDisplay',['../class_audio_plugin_audio_processor_editor.html#a40b2f58d36b516cedb1c66c59349699b',1,'AudioPluginAudioProcessorEditor']]],
   ['refreshburstmask_3',['refreshBurstMask',['../class_pulsar_synth.html#a6aafb5c2e29b65a2fefa86c9a2a490d3',1,'PulsarSynth']]],

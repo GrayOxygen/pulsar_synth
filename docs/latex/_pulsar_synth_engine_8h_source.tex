@@ -59,7 +59,7 @@
 \DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \{}
 \DoxyCodeLine{00074\ \ \ \ \ \ \ \ \ \ \ \ \ pulsarSynthForMidi-\/>allNotesOff(channel,\ \textcolor{keyword}{false});}
 \DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \}}
-\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ pulsarSynthForAuto-\/>triggerSoundOffWhenSwitchPlayMode();}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ pulsarSynthForAuto-\/>triggerSoundOffWhenSwitchPlayMode(\textcolor{keyword}{true});}
 \DoxyCodeLine{00077\ \ \ \ \ \}}
 \DoxyCodeLine{00078\ }
 \DoxyCodeLine{00083\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_pulsar_synth_engine_a83786171da3d6eeaec92b9788c022b01}{executeCurSynthCallback}}(\textcolor{keyword}{const}\ std::function<\textcolor{keywordtype}{void}(std::shared\_ptr<PulsarSynth>\&)>\&\ func)}
@@ -84,7 +84,7 @@
 \DoxyCodeLine{00106\ }
 \DoxyCodeLine{00107\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (impulseSwitchIndex\ ==\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(why::ImpulseSwitchEnum::Template))}
 \DoxyCodeLine{00108\ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_pulsar_synth_engine_a6c60954f62666c09b9d6c567ac918270}{getConvolutionResource}}()-\/>saveTemplateImpulse(juce::String(index\ +\ 1));}
+\DoxyCodeLine{00109\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_pulsar_synth_engine_a6c60954f62666c09b9d6c567ac918270}{getConvolutionResource}}()-\/>saveTemplateImpulse(index\ +\ 1);}
 \DoxyCodeLine{00110\ \ \ \ \ \ \ \ \ \}}
 \DoxyCodeLine{00111\ }
 \DoxyCodeLine{00112\ \ \ \ \ \ \ \ \ \textcolor{comment}{//Display\ the\ latest\ sample\ impulse\ option\ and\ (must)\ directly\ load\ the\ file\ into\ the\ convolution\ resource}}

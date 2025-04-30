@@ -152,156 +152,159 @@ $(function(){initNavTree('_plugin_editor_8h_source.html',''); initResizable(true
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#a148a630e8343bec94ff7ca9919bb69ab">changeListenerCallback</a>(juce::ChangeBroadcaster* source) <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    <span class="comment">//========================================自定义方法======================================</span></div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#adddd3dec604ec19427a428d90a8407d7">refreshUIFromPreset</a>();</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="comment">//=======methods related to impulse file=======</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#adee16cd7e66e7526d011a295e88f2384">openFileChooser</a>();</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span></div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#aff60041477e101d2927c09dc63685e4a">saveFileIntoSynth</a>(<span class="keyword">const</span> juce::File&amp; file);</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span></div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#a517305b024f3f28f79dbaa7bed0ca9a1">loadSampleImpulseWhenSelected</a>();</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#a6610dded47fe8c5a29884ec34527889a">setLastValueAfterCloseWindow</a>();</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#adddd3dec604ec19427a428d90a8407d7">refreshUIFromPreset</a>();</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    <span class="comment">//=======methods related to impulse file=======</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#adee16cd7e66e7526d011a295e88f2384">openFileChooser</a>();</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span></div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#aff60041477e101d2927c09dc63685e4a">saveFileIntoSynth</a>(<span class="keyword">const</span> juce::File&amp; file);</div>
 <div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span></div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#ae00e380ff57e290a2e16b8fbd03a38fc">initTemplateImpulseComboboxNames</a>();</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#a517305b024f3f28f79dbaa7bed0ca9a1">loadSampleImpulseWhenSelected</a>();</div>
 <div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span></div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#a91be33ad930bc9f8146267ac2a956cae">loadTemplateImpulseWhenSelected</a>();</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#ae00e380ff57e290a2e16b8fbd03a38fc">initTemplateImpulseComboboxNames</a>();</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span></div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#a8936b2a243c0562db667ac75fe073804">saveTemplateImpulseThenLoadAfterSelect</a>(juce::String selectedId);</div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#a40b2f58d36b516cedb1c66c59349699b">rebalanceStepHitValueDisplay</a>();</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="comment">// This reference is provided as a quick way for your editor to access the processor object that created it.</span></div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    juce::AudioVisualiserComponent visualiser = juce::AudioVisualiserComponent(0); <span class="comment">// 波形显示组件</span></div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>    <span class="comment">//==============================自定义控件==============================</span></div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>    <span class="comment">//output gain</span></div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    juce::Label outputGainLabel;</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    juce::Slider outputGainSlider;</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; outputGainAttachment;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span> </div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="comment">//bpm</span></div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    juce::Slider bpmSlider;</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; bpmAttachment;</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>    <span class="comment">//play mode</span></div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    juce::Label playModeLabel;</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    juce::ComboBox playModeCombobox;</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::ComboBoxAttachment&gt; playModeComboboxAttachment;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#a91be33ad930bc9f8146267ac2a956cae">loadTemplateImpulseWhenSelected</a>();</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#a265b626213f74fcb8068835710493199">saveTemplateImpulseThenLoadAfterSelect</a>(<span class="keywordtype">int</span> selectedId);</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_audio_plugin_audio_processor_editor.html#a40b2f58d36b516cedb1c66c59349699b">rebalanceStepHitValueDisplay</a>();</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>    <span class="comment">// This reference is provided as a quick way for your editor to access the processor object that created it.</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>    juce::AudioVisualiserComponent visualiser = juce::AudioVisualiserComponent(0); <span class="comment">// 波形显示组件</span></div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>    <span class="comment">//==============================自定义控件==============================</span></div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>    <span class="comment">//output gain</span></div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>    juce::Label outputGainLabel;</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>    juce::Slider outputGainSlider;</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; outputGainAttachment;</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>    <span class="comment">//bpm</span></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>    juce::Slider bpmSlider;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; bpmAttachment;</div>
 <div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="comment">//train</span></div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    juce::Slider trainLenSlider;</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    juce::Label trainLenLabel;</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>    juce::Slider trainDutyCycleLenSlider;</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    juce::Label trainDutyCycleLenLabel;</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    juce::Slider trainSilenceLenSlider;</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>    juce::Label trainSilenceLenLabel;</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; trainLenAttachment;</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; trainDutyCycleAttachment;</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; trainSilenceAttachment;</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span> </div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>    <span class="comment">//pulsar</span></div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    juce::Slider pulsarWaveformSlider;</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    juce::Label pulsarWaveformLabel;</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>    juce::Slider pulsarDutyCycleClusterLenSlider;</div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    juce::Label pulsarDutyCycleClusterLenLabel;</div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span> </div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    juce::Slider pulsarDutyCycleRatioSlider;</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>    juce::Label pulsarDutyCycleRatioLabel;</div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; pulsarWaveformAttachment;</div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; pulsarDutyCycleClusterLenAttachment;</div>
-<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; pulsarDutyCycleRatioAttachment;</div>
-<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span> </div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>    <span class="comment">//lfo modulation</span></div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    juce::Slider ampLfoSlider;</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    juce::Label ampLfoLabel;</div>
-<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span> </div>
-<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>    juce::Slider formantFreqLfoSlider;</div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    juce::Label formantFreqLfoLabel;</div>
-<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; ampLfoAttachment;</div>
-<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; formantFreqLfoAttachment;</div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span> </div>
-<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    <span class="comment">//envelope</span></div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>    juce::Slider attackSlider;</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>    juce::Label attackLabel;</div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span> </div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>    juce::Slider decaySlider;</div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    juce::Label decayLabel;</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span> </div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    juce::Slider sustainSlider;</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>    juce::Label sustainLabel;</div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    juce::Slider releaseSlider;</div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>    juce::Label releaseLabel;</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; attackAttachment;</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; decayAttachment;</div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; sustainAttachment;</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; releaseAttachment;</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>    <span class="comment">//play mode</span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>    juce::Label playModeLabel;</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    juce::ComboBox playModeCombobox;</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::ComboBoxAttachment&gt; playModeComboboxAttachment;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>    <span class="comment">//train</span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>    juce::Slider trainLenSlider;</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>    juce::Label trainLenLabel;</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span> </div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>    juce::Slider trainDutyCycleLenSlider;</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>    juce::Label trainDutyCycleLenLabel;</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span> </div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>    juce::Slider trainSilenceLenSlider;</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>    juce::Label trainSilenceLenLabel;</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; trainLenAttachment;</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; trainDutyCycleAttachment;</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; trainSilenceAttachment;</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span> </div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>    <span class="comment">//pulsar</span></div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>    juce::Slider pulsarWaveformSlider;</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>    juce::Label pulsarWaveformLabel;</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span> </div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>    juce::Slider pulsarDutyCycleClusterLenSlider;</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>    juce::Label pulsarDutyCycleClusterLenLabel;</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span> </div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>    juce::Slider pulsarDutyCycleRatioSlider;</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>    juce::Label pulsarDutyCycleRatioLabel;</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span> </div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; pulsarWaveformAttachment;</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; pulsarDutyCycleClusterLenAttachment;</div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; pulsarDutyCycleRatioAttachment;</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span> </div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>    <span class="comment">//lfo modulation</span></div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span>    juce::Slider ampLfoSlider;</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>    juce::Label ampLfoLabel;</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>    juce::Slider formantFreqLfoSlider;</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span>    juce::Label formantFreqLfoLabel;</div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span> </div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; ampLfoAttachment;</div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; formantFreqLfoAttachment;</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>    <span class="comment">//envelope</span></div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    juce::Slider attackSlider;</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    juce::Label attackLabel;</div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>    juce::Slider decaySlider;</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>    juce::Label decayLabel;</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>    juce::Slider sustainSlider;</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>    juce::Label sustainLabel;</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    juce::Slider releaseSlider;</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    juce::Label releaseLabel;</div>
 <div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    <span class="comment">//masking</span></div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    juce::Label maskComboBoxLabel;</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    juce::ComboBox maskOptionComboBox;</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>    juce::Label burstMaskLabel;</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    juce::TextEditor burstMaskTextEditor;</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    juce::Label euclidStepLabel;</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>    juce::Slider euclidStepSlider;</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    juce::Label euclidHitLabel;</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span>    juce::Slider euclidHitSlider;</div>
-<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span> </div>
-<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    juce::Label stochasticMaskLabel;</div>
-<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>    juce::TextEditor stochasticMaskTextEditor;</div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span> </div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::ComboBoxAttachment&gt; maskOptionComboBoxAttachment;</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; euclidStepDialAttachment;</div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; euclidHitDialAttachment;</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span> </div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>    <span class="comment">//convolution impulse</span></div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    juce::Label impulseSwitchLabel;</div>
-<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    juce::ComboBox impulseSwitchComboBox; <span class="comment">//0 disable 1 enable</span></div>
-<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span> </div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>    juce::Label impulseTemplateLabel;</div>
-<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    juce::ComboBox impulseTemplateFileComboBox;</div>
-<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span> </div>
-<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    juce::TextEditor sampleImpulsePathTextEditor; <span class="comment">//impulse file path</span></div>
-<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span>    juce::TextButton selectSampleImpulseFileButton;</div>
-<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span> </div>
-<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::ComboBoxAttachment&gt; impulseSwitchComboBoxAttachment;</div>
-<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::ComboBoxAttachment&gt; impulseTemplateFileComboBoxAttachment;</div>
-<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span> </div>
-<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    <span class="comment">//open file chooser window and select file</span></div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>    std::unique_ptr&lt;juce::FileChooser&gt; fileChooser;</div>
-<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
-<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    <a class="code hl_class" href="class_audio_plugin_audio_processor.html">AudioPluginAudioProcessor</a>&amp; processorRef;</div>
-<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)</div>
-<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>};</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; attackAttachment;</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; decayAttachment;</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; sustainAttachment;</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; releaseAttachment;</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>    <span class="comment">//masking</span></div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    juce::Label maskComboBoxLabel;</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>    juce::ComboBox maskOptionComboBox;</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
+<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>    juce::Label burstMaskLabel;</div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>    juce::TextEditor burstMaskTextEditor;</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>    juce::Label euclidStepLabel;</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span>    juce::Slider euclidStepSlider;</div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span> </div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>    juce::Label euclidHitLabel;</div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    juce::Slider euclidHitSlider;</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    juce::Label stochasticMaskLabel;</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>    juce::TextEditor stochasticMaskTextEditor;</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::ComboBoxAttachment&gt; maskOptionComboBoxAttachment;</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; euclidStepDialAttachment;</div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::SliderAttachment&gt; euclidHitDialAttachment;</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>    <span class="comment">//convolution impulse</span></div>
+<div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>    juce::Label impulseSwitchLabel;</div>
+<div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>    juce::ComboBox impulseSwitchComboBox; <span class="comment">//0 disable 1 enable</span></div>
+<div class="line"><a id="l00199" name="l00199"></a><span class="lineno">  199</span> </div>
+<div class="line"><a id="l00200" name="l00200"></a><span class="lineno">  200</span>    juce::Label impulseTemplateLabel;</div>
+<div class="line"><a id="l00201" name="l00201"></a><span class="lineno">  201</span>    juce::ComboBox impulseTemplateFileComboBox;</div>
+<div class="line"><a id="l00202" name="l00202"></a><span class="lineno">  202</span> </div>
+<div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>    juce::TextEditor sampleImpulsePathTextEditor; <span class="comment">//impulse file path</span></div>
+<div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>    juce::TextButton selectSampleImpulseFileButton;</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span> </div>
+<div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::ComboBoxAttachment&gt; impulseSwitchComboBoxAttachment;</div>
+<div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>    std::unique_ptr&lt;juce::AudioProcessorValueTreeState::ComboBoxAttachment&gt; impulseTemplateFileComboBoxAttachment;</div>
+<div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span> </div>
+<div class="line"><a id="l00209" name="l00209"></a><span class="lineno">  209</span>    <span class="comment">//open file chooser window and select file</span></div>
+<div class="line"><a id="l00210" name="l00210"></a><span class="lineno">  210</span>    std::unique_ptr&lt;juce::FileChooser&gt; fileChooser;</div>
+<div class="line"><a id="l00211" name="l00211"></a><span class="lineno">  211</span> </div>
+<div class="line"><a id="l00212" name="l00212"></a><span class="lineno">  212</span>    <a class="code hl_class" href="class_audio_plugin_audio_processor.html">AudioPluginAudioProcessor</a>&amp; processorRef;</div>
+<div class="line"><a id="l00213" name="l00213"></a><span class="lineno">  213</span>    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)</div>
+<div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span>};</div>
 </div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a148a630e8343bec94ff7ca9919bb69ab"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a148a630e8343bec94ff7ca9919bb69ab">AudioPluginAudioProcessorEditor::changeListenerCallback</a></div><div class="ttdeci">void changeListenerCallback(juce::ChangeBroadcaster *source) override</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:153</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a1aeaff110c79d6dd18aedba1ea9f6f91"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a1aeaff110c79d6dd18aedba1ea9f6f91">AudioPluginAudioProcessorEditor::initUITriggerEvent</a></div><div class="ttdeci">void initUITriggerEvent()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:749</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a1cb5d4de3a4164770a18225f88351a0f"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a1cb5d4de3a4164770a18225f88351a0f">AudioPluginAudioProcessorEditor::setWindowSize</a></div><div class="ttdeci">void setWindowSize()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:875</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a24cd6ed8afaa70576aba4ff6cd5ec407"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a24cd6ed8afaa70576aba4ff6cd5ec407">AudioPluginAudioProcessorEditor::resized</a></div><div class="ttdeci">void resized() override</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:64</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a40338baa8971fd86f0f2e455746b252b"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a40338baa8971fd86f0f2e455746b252b">AudioPluginAudioProcessorEditor::bottomFlexBox</a></div><div class="ttdeci">void bottomFlexBox(juce::FlexBox &amp;bottomFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; pulsarWaveformFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; pulsarDutyCycleClusterLenFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; pulsarDutyCycleRatioFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; ampLfoFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; formantFreqLfoFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; attackFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; decayFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; sustainFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; releaseFlexBox)</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:268</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a40b2f58d36b516cedb1c66c59349699b"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a40b2f58d36b516cedb1c66c59349699b">AudioPluginAudioProcessorEditor::rebalanceStepHitValueDisplay</a></div><div class="ttdeci">void rebalanceStepHitValueDisplay()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:849</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a432f1145958d1ae65d0b5f18a5ff518a"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a432f1145958d1ae65d0b5f18a5ff518a">AudioPluginAudioProcessorEditor::midFlexBox</a></div><div class="ttdeci">void midFlexBox(juce::FlexBox &amp;midFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; maskOptionFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; burstMaskFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; euclidStepFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; euclidHitFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; stochasticMaskFlexBox)</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:379</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a517305b024f3f28f79dbaa7bed0ca9a1"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a517305b024f3f28f79dbaa7bed0ca9a1">AudioPluginAudioProcessorEditor::loadSampleImpulseWhenSelected</a></div><div class="ttdeci">void loadSampleImpulseWhenSelected()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:929</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a82532aa37171ec85c03bd7cdb0aaff99"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a82532aa37171ec85c03bd7cdb0aaff99">AudioPluginAudioProcessorEditor::makeVisible</a></div><div class="ttdeci">void makeVisible()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:431</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a88e66ad2b91fb3c0d733e030cec3ceb8"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a88e66ad2b91fb3c0d733e030cec3ceb8">AudioPluginAudioProcessorEditor::topFlexBox</a></div><div class="ttdeci">void topFlexBox(juce::FlexBox &amp;flexBoxTop, std::shared_ptr&lt; FlexBox &gt; trainLenFlexBox, std::shared_ptr&lt; FlexBox &gt; trainDutyCycleFlexBox, std::shared_ptr&lt; FlexBox &gt; trainSilenceLenFlexBox, std::shared_ptr&lt; FlexBox &gt; bpmFlexBox, std::shared_ptr&lt; FlexBox &gt; playModeAndImpulseFlexBox)</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:190</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a8936b2a243c0562db667ac75fe073804"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a8936b2a243c0562db667ac75fe073804">AudioPluginAudioProcessorEditor::saveTemplateImpulseThenLoadAfterSelect</a></div><div class="ttdeci">void saveTemplateImpulseThenLoadAfterSelect(juce::String selectedId)</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:955</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a91be33ad930bc9f8146267ac2a956cae"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a91be33ad930bc9f8146267ac2a956cae">AudioPluginAudioProcessorEditor::loadTemplateImpulseWhenSelected</a></div><div class="ttdeci">void loadTemplateImpulseWhenSelected()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:941</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a966f5763f328fa44607f8d78f3cd4027"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a966f5763f328fa44607f8d78f3cd4027">AudioPluginAudioProcessorEditor::connectUIAndAudioParameter</a></div><div class="ttdeci">void connectUIAndAudioParameter()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:690</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_adddd3dec604ec19427a428d90a8407d7"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#adddd3dec604ec19427a428d90a8407d7">AudioPluginAudioProcessorEditor::refreshUIFromPreset</a></div><div class="ttdeci">void refreshUIFromPreset()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:116</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_adee16cd7e66e7526d011a295e88f2384"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#adee16cd7e66e7526d011a295e88f2384">AudioPluginAudioProcessorEditor::openFileChooser</a></div><div class="ttdeci">void openFileChooser()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:888</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_ae00e380ff57e290a2e16b8fbd03a38fc"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#ae00e380ff57e290a2e16b8fbd03a38fc">AudioPluginAudioProcessorEditor::initTemplateImpulseComboboxNames</a></div><div class="ttdeci">void initTemplateImpulseComboboxNames()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:973</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_ae9707a7919d59d4791a4f9865086b78a"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#ae9707a7919d59d4791a4f9865086b78a">AudioPluginAudioProcessorEditor::setUIStyle</a></div><div class="ttdeci">void setUIStyle()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:504</div></div>
-<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_aff60041477e101d2927c09dc63685e4a"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#aff60041477e101d2927c09dc63685e4a">AudioPluginAudioProcessorEditor::saveFileIntoSynth</a></div><div class="ttdeci">void saveFileIntoSynth(const juce::File &amp;file)</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:921</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a148a630e8343bec94ff7ca9919bb69ab"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a148a630e8343bec94ff7ca9919bb69ab">AudioPluginAudioProcessorEditor::changeListenerCallback</a></div><div class="ttdeci">void changeListenerCallback(juce::ChangeBroadcaster *source) override</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:176</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a1aeaff110c79d6dd18aedba1ea9f6f91"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a1aeaff110c79d6dd18aedba1ea9f6f91">AudioPluginAudioProcessorEditor::initUITriggerEvent</a></div><div class="ttdeci">void initUITriggerEvent()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:772</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a1cb5d4de3a4164770a18225f88351a0f"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a1cb5d4de3a4164770a18225f88351a0f">AudioPluginAudioProcessorEditor::setWindowSize</a></div><div class="ttdeci">void setWindowSize()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:898</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a24cd6ed8afaa70576aba4ff6cd5ec407"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a24cd6ed8afaa70576aba4ff6cd5ec407">AudioPluginAudioProcessorEditor::resized</a></div><div class="ttdeci">void resized() override</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:87</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a265b626213f74fcb8068835710493199"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a265b626213f74fcb8068835710493199">AudioPluginAudioProcessorEditor::saveTemplateImpulseThenLoadAfterSelect</a></div><div class="ttdeci">void saveTemplateImpulseThenLoadAfterSelect(int selectedId)</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:978</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a40338baa8971fd86f0f2e455746b252b"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a40338baa8971fd86f0f2e455746b252b">AudioPluginAudioProcessorEditor::bottomFlexBox</a></div><div class="ttdeci">void bottomFlexBox(juce::FlexBox &amp;bottomFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; pulsarWaveformFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; pulsarDutyCycleClusterLenFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; pulsarDutyCycleRatioFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; ampLfoFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; formantFreqLfoFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; attackFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; decayFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; sustainFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; releaseFlexBox)</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:291</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a40b2f58d36b516cedb1c66c59349699b"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a40b2f58d36b516cedb1c66c59349699b">AudioPluginAudioProcessorEditor::rebalanceStepHitValueDisplay</a></div><div class="ttdeci">void rebalanceStepHitValueDisplay()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:872</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a432f1145958d1ae65d0b5f18a5ff518a"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a432f1145958d1ae65d0b5f18a5ff518a">AudioPluginAudioProcessorEditor::midFlexBox</a></div><div class="ttdeci">void midFlexBox(juce::FlexBox &amp;midFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; maskOptionFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; burstMaskFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; euclidStepFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; euclidHitFlexBox, std::shared_ptr&lt; juce::FlexBox &gt; stochasticMaskFlexBox)</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:402</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a517305b024f3f28f79dbaa7bed0ca9a1"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a517305b024f3f28f79dbaa7bed0ca9a1">AudioPluginAudioProcessorEditor::loadSampleImpulseWhenSelected</a></div><div class="ttdeci">void loadSampleImpulseWhenSelected()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:952</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a6610dded47fe8c5a29884ec34527889a"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a6610dded47fe8c5a29884ec34527889a">AudioPluginAudioProcessorEditor::setLastValueAfterCloseWindow</a></div><div class="ttdeci">void setLastValueAfterCloseWindow()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:61</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a82532aa37171ec85c03bd7cdb0aaff99"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a82532aa37171ec85c03bd7cdb0aaff99">AudioPluginAudioProcessorEditor::makeVisible</a></div><div class="ttdeci">void makeVisible()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:454</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a88e66ad2b91fb3c0d733e030cec3ceb8"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a88e66ad2b91fb3c0d733e030cec3ceb8">AudioPluginAudioProcessorEditor::topFlexBox</a></div><div class="ttdeci">void topFlexBox(juce::FlexBox &amp;flexBoxTop, std::shared_ptr&lt; FlexBox &gt; trainLenFlexBox, std::shared_ptr&lt; FlexBox &gt; trainDutyCycleFlexBox, std::shared_ptr&lt; FlexBox &gt; trainSilenceLenFlexBox, std::shared_ptr&lt; FlexBox &gt; bpmFlexBox, std::shared_ptr&lt; FlexBox &gt; playModeAndImpulseFlexBox)</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:213</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a91be33ad930bc9f8146267ac2a956cae"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a91be33ad930bc9f8146267ac2a956cae">AudioPluginAudioProcessorEditor::loadTemplateImpulseWhenSelected</a></div><div class="ttdeci">void loadTemplateImpulseWhenSelected()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:964</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_a966f5763f328fa44607f8d78f3cd4027"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#a966f5763f328fa44607f8d78f3cd4027">AudioPluginAudioProcessorEditor::connectUIAndAudioParameter</a></div><div class="ttdeci">void connectUIAndAudioParameter()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:713</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_adddd3dec604ec19427a428d90a8407d7"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#adddd3dec604ec19427a428d90a8407d7">AudioPluginAudioProcessorEditor::refreshUIFromPreset</a></div><div class="ttdeci">void refreshUIFromPreset()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:139</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_adee16cd7e66e7526d011a295e88f2384"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#adee16cd7e66e7526d011a295e88f2384">AudioPluginAudioProcessorEditor::openFileChooser</a></div><div class="ttdeci">void openFileChooser()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:911</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_ae00e380ff57e290a2e16b8fbd03a38fc"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#ae00e380ff57e290a2e16b8fbd03a38fc">AudioPluginAudioProcessorEditor::initTemplateImpulseComboboxNames</a></div><div class="ttdeci">void initTemplateImpulseComboboxNames()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:995</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_ae9707a7919d59d4791a4f9865086b78a"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#ae9707a7919d59d4791a4f9865086b78a">AudioPluginAudioProcessorEditor::setUIStyle</a></div><div class="ttdeci">void setUIStyle()</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:527</div></div>
+<div class="ttc" id="aclass_audio_plugin_audio_processor_editor_html_aff60041477e101d2927c09dc63685e4a"><div class="ttname"><a href="class_audio_plugin_audio_processor_editor.html#aff60041477e101d2927c09dc63685e4a">AudioPluginAudioProcessorEditor::saveFileIntoSynth</a></div><div class="ttdeci">void saveFileIntoSynth(const juce::File &amp;file)</div><div class="ttdef"><b>Definition</b> PluginEditor.cpp:944</div></div>
 <div class="ttc" id="aclass_audio_plugin_audio_processor_html"><div class="ttname"><a href="class_audio_plugin_audio_processor.html">AudioPluginAudioProcessor</a></div><div class="ttdef"><b>Definition</b> PluginProcessor.h:12</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

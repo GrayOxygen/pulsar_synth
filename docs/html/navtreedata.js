@@ -50,7 +50,7 @@ var NAVTREE =
 
 var NAVTREEINDEX =
 [
-"_common_voice_sate_8h_source.html"
+"_binary_resource_singleton_8h_source.html"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronization';

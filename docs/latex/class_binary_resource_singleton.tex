@@ -2,7 +2,7 @@
 \hypertarget{class_binary_resource_singleton}{}\label{class_binary_resource_singleton}\index{BinaryResourceSingleton@{BinaryResourceSingleton}}
 
 
-{\ttfamily \#include $<$Resource\+Singleton.\+h$>$}
+{\ttfamily \#include $<$Binary\+Resource\+Singleton.\+h$>$}
 
 \doxysubsubsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
@@ -13,9 +13,9 @@
 \Hypertarget{class_binary_resource_singleton_a962207d261e7fd930341d138324d7e54}\label{class_binary_resource_singleton_a962207d261e7fd930341d138324d7e54} 
 \mbox{\hyperlink{class_binary_resource_singleton}{Binary\+Resource\+Singleton}} \& {\bfseries operator=} (const \mbox{\hyperlink{class_binary_resource_singleton}{Binary\+Resource\+Singleton}} \&)=delete
 \item 
-std\+::map$<$ juce\+::\+String, juce\+::\+String $>$ \mbox{\hyperlink{class_binary_resource_singleton_a4175d97ccd5cd85064ffa7c0c7599097}{get\+Binary\+Id\+File\+Name\+Map}} ()
-\item 
 const juce\+::\+String\+Array \mbox{\hyperlink{class_binary_resource_singleton_a1a7a0aac5b49c43f1ab991c6a7395fcc}{get\+File\+Name\+Array}} ()
+\item 
+bool \mbox{\hyperlink{class_binary_resource_singleton_af3c5c027b0271abd31b809b6047d6401}{read\+File\+From\+Resources}} (const char \texorpdfstring{$\ast$}{*}resource\+Name, double \&sample\+Rate, std\+::unique\+\_\+ptr$<$ juce\+::\+Audio\+Buffer$<$ float $>$ $>$ \&bf)
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Static Public Member Functions}
 \begin{DoxyCompactItemize}
@@ -26,18 +26,9 @@ static \mbox{\hyperlink{class_binary_resource_singleton}{Binary\+Resource\+Singl
 
 
 \doxysubsection{Detailed Description}
-Resources Resource Management\+: Singleton Pattern 
+Binary Resources Management\+: Singleton Pattern 
 
 \doxysubsection{Member Function Documentation}
-\Hypertarget{class_binary_resource_singleton_a4175d97ccd5cd85064ffa7c0c7599097}\index{BinaryResourceSingleton@{BinaryResourceSingleton}!getBinaryIdFileNameMap@{getBinaryIdFileNameMap}}
-\index{getBinaryIdFileNameMap@{getBinaryIdFileNameMap}!BinaryResourceSingleton@{BinaryResourceSingleton}}
-\doxysubsubsection{\texorpdfstring{getBinaryIdFileNameMap()}{getBinaryIdFileNameMap()}}
-{\footnotesize\ttfamily \label{class_binary_resource_singleton_a4175d97ccd5cd85064ffa7c0c7599097} 
-std\+::map$<$ juce\+::\+String, juce\+::\+String $>$ Binary\+Resource\+Singleton\+::get\+Binary\+Id\+File\+Name\+Map (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
-
-The binary resource map exposed for external use \begin{DoxyReturn}{Returns}
-binary resource map 
-\end{DoxyReturn}
 \Hypertarget{class_binary_resource_singleton_a1a7a0aac5b49c43f1ab991c6a7395fcc}\index{BinaryResourceSingleton@{BinaryResourceSingleton}!getFileNameArray@{getFileNameArray}}
 \index{getFileNameArray@{getFileNameArray}!BinaryResourceSingleton@{BinaryResourceSingleton}}
 \doxysubsubsection{\texorpdfstring{getFileNameArray()}{getFileNameArray()}}
@@ -47,8 +38,26 @@ const juce\+::\+String\+Array Binary\+Resource\+Singleton\+::get\+File\+Name\+Ar
 The file names exposed for external use \begin{DoxyReturn}{Returns}
 file names 
 \end{DoxyReturn}
+\Hypertarget{class_binary_resource_singleton_af3c5c027b0271abd31b809b6047d6401}\index{BinaryResourceSingleton@{BinaryResourceSingleton}!readFileFromResources@{readFileFromResources}}
+\index{readFileFromResources@{readFileFromResources}!BinaryResourceSingleton@{BinaryResourceSingleton}}
+\doxysubsubsection{\texorpdfstring{readFileFromResources()}{readFileFromResources()}}
+{\footnotesize\ttfamily \label{class_binary_resource_singleton_af3c5c027b0271abd31b809b6047d6401} 
+bool Binary\+Resource\+Singleton\+::read\+File\+From\+Resources (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{resource\+Name}{, }\item[{double \&}]{sample\+Rate}{, }\item[{std\+::unique\+\_\+ptr$<$ juce\+::\+Audio\+Buffer$<$ float $>$ $>$ \&}]{bf}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+read binary source file 
+\begin{DoxyParams}{Parameters}
+{\em resource\+Name} & resource full name \\
+\hline
+{\em sample\+Rate} & sample rate of the file as result \\
+\hline
+{\em bf} & buffer \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true is success false failed 
+\end{DoxyReturn}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
-Source/include/Resource\+Singleton.\+h\end{DoxyCompactItemize}
+Source/include/Binary\+Resource\+Singleton.\+h\end{DoxyCompactItemize}

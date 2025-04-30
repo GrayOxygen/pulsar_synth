@@ -143,6 +143,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>paint</b> (juce::Grap
 <tr class="separator:a24cd6ed8afaa70576aba4ff6cd5ec407"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a148a630e8343bec94ff7ca9919bb69ab" id="r_a148a630e8343bec94ff7ca9919bb69ab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a148a630e8343bec94ff7ca9919bb69ab">changeListenerCallback</a> (juce::ChangeBroadcaster *source) override</td></tr>
 <tr class="separator:a148a630e8343bec94ff7ca9919bb69ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6610dded47fe8c5a29884ec34527889a" id="r_a6610dded47fe8c5a29884ec34527889a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6610dded47fe8c5a29884ec34527889a">setLastValueAfterCloseWindow</a> ()</td></tr>
+<tr class="separator:a6610dded47fe8c5a29884ec34527889a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adddd3dec604ec19427a428d90a8407d7" id="r_adddd3dec604ec19427a428d90a8407d7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adddd3dec604ec19427a428d90a8407d7">refreshUIFromPreset</a> ()</td></tr>
 <tr class="separator:adddd3dec604ec19427a428d90a8407d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adee16cd7e66e7526d011a295e88f2384" id="r_adee16cd7e66e7526d011a295e88f2384"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adee16cd7e66e7526d011a295e88f2384">openFileChooser</a> ()</td></tr>
@@ -155,8 +157,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>paint</b> (juce::Grap
 <tr class="separator:ae00e380ff57e290a2e16b8fbd03a38fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91be33ad930bc9f8146267ac2a956cae" id="r_a91be33ad930bc9f8146267ac2a956cae"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a91be33ad930bc9f8146267ac2a956cae">loadTemplateImpulseWhenSelected</a> ()</td></tr>
 <tr class="separator:a91be33ad930bc9f8146267ac2a956cae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8936b2a243c0562db667ac75fe073804" id="r_a8936b2a243c0562db667ac75fe073804"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8936b2a243c0562db667ac75fe073804">saveTemplateImpulseThenLoadAfterSelect</a> (juce::String selectedId)</td></tr>
-<tr class="separator:a8936b2a243c0562db667ac75fe073804"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a265b626213f74fcb8068835710493199" id="r_a265b626213f74fcb8068835710493199"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a265b626213f74fcb8068835710493199">saveTemplateImpulseThenLoadAfterSelect</a> (int selectedId)</td></tr>
+<tr class="separator:a265b626213f74fcb8068835710493199"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40b2f58d36b516cedb1c66c59349699b" id="r_a40b2f58d36b516cedb1c66c59349699b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a40b2f58d36b516cedb1c66c59349699b">rebalanceStepHitValueDisplay</a> ()</td></tr>
 <tr class="separator:a40b2f58d36b516cedb1c66c59349699b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
@@ -549,8 +551,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>paint</b> (juce::Grap
 
 </div>
 </div>
-<a id="a8936b2a243c0562db667ac75fe073804" name="a8936b2a243c0562db667ac75fe073804"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8936b2a243c0562db667ac75fe073804">&#9670;&#160;</a></span>saveTemplateImpulseThenLoadAfterSelect()</h2>
+<a id="a265b626213f74fcb8068835710493199" name="a265b626213f74fcb8068835710493199"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a265b626213f74fcb8068835710493199">&#9670;&#160;</a></span>saveTemplateImpulseThenLoadAfterSelect()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -558,7 +560,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>paint</b> (juce::Grap
         <tr>
           <td class="memname">void AudioPluginAudioProcessorEditor::saveTemplateImpulseThenLoadAfterSelect </td>
           <td>(</td>
-          <td class="paramtype">juce::String</td>          <td class="paramname"><span class="paramname"><em>selectedId</em></span></td><td>)</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>selectedId</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -571,6 +573,24 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>paint</b> (juce::Grap
   </dd>
 </dl>
 <p>Save the binary file under Resources to synth. If impulse selects the template file, it will be loaded as impulse response </p>
+
+</div>
+</div>
+<a id="a6610dded47fe8c5a29884ec34527889a" name="a6610dded47fe8c5a29884ec34527889a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6610dded47fe8c5a29884ec34527889a">&#9670;&#160;</a></span>setLastValueAfterCloseWindow()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AudioPluginAudioProcessorEditor::setLastValueAfterCloseWindow </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>set lasted value after close window </p>
 
 </div>
 </div>

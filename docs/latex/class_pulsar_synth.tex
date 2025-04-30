@@ -22,7 +22,7 @@ Inheritance diagram for Pulsar\+Synth\+:\begin{figure}[H]
 \Hypertarget{class_pulsar_synth_a0bba26e614d4e409f6343f48563bea97}\label{class_pulsar_synth_a0bba26e614d4e409f6343f48563bea97} 
 void {\bfseries set\+My\+Play\+Mode\+Enum} (\mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why\+::\+Play\+Mode\+Enum}} my\+Play\+Mode\+Enum)
 \item 
-void \mbox{\hyperlink{class_pulsar_synth_a2083820d19e52a85a8b28a442c62898b}{trigger\+Sound\+Off\+When\+Switch\+Play\+Mode}} ()
+void \mbox{\hyperlink{class_pulsar_synth_a5b9f85611083c078417bc93608d5ce95}{trigger\+Sound\+Off\+When\+Switch\+Play\+Mode}} (bool close\+Flag)
 \item 
 void \mbox{\hyperlink{class_pulsar_synth_aeac493773880d38d4c1a6b14f3933525}{force\+Refresh\+Bpm\+And\+Rebuild\+Train}} (float bpm)
 \item 
@@ -153,11 +153,11 @@ In auto mode, the render\+Next\+Block does not follow the render\+Next\+Block of
 {\em current\+Play\+Mode\+Enum} & current play mode \\
 \hline
 \end{DoxyParams}
-\Hypertarget{class_pulsar_synth_a2083820d19e52a85a8b28a442c62898b}\index{PulsarSynth@{PulsarSynth}!triggerSoundOffWhenSwitchPlayMode@{triggerSoundOffWhenSwitchPlayMode}}
+\Hypertarget{class_pulsar_synth_a5b9f85611083c078417bc93608d5ce95}\index{PulsarSynth@{PulsarSynth}!triggerSoundOffWhenSwitchPlayMode@{triggerSoundOffWhenSwitchPlayMode}}
 \index{triggerSoundOffWhenSwitchPlayMode@{triggerSoundOffWhenSwitchPlayMode}!PulsarSynth@{PulsarSynth}}
 \doxysubsubsection{\texorpdfstring{triggerSoundOffWhenSwitchPlayMode()}{triggerSoundOffWhenSwitchPlayMode()}}
-{\footnotesize\ttfamily \label{class_pulsar_synth_a2083820d19e52a85a8b28a442c62898b} 
-void Pulsar\+Synth\+::trigger\+Sound\+Off\+When\+Switch\+Play\+Mode (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_a5b9f85611083c078417bc93608d5ce95} 
+void Pulsar\+Synth\+::trigger\+Sound\+Off\+When\+Switch\+Play\+Mode (\begin{DoxyParamCaption}\item[{bool}]{close\+Flag}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 When switching the play mode, turn off all sounds. The auto mode will be played in the playback of the next daw, and the midi mode will be played in the next note 
 

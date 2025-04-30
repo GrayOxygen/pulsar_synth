@@ -1,0 +1,95 @@
+\doxysection{Binary\+Resource\+Singleton.\+h}
+\hypertarget{_binary_resource_singleton_8h_source}{}\label{_binary_resource_singleton_8h_source}\index{Source/include/BinaryResourceSingleton.h@{Source/include/BinaryResourceSingleton.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{comment}{//}}
+\DoxyCodeLine{00002\ \textcolor{comment}{//\ Created\ by\ Mr.\ Wang\ on\ 2025/4/20.}}
+\DoxyCodeLine{00003\ \textcolor{comment}{//}}
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{preprocessor}{\#include\ "{}Commons.h"{}}}
+\DoxyCodeLine{00007\ }
+\DoxyCodeLine{00011\ \textcolor{keyword}{class\ }BinaryResourceSingleton}
+\DoxyCodeLine{00012\ \{}
+\DoxyCodeLine{00013\ \textcolor{keyword}{public}:}
+\DoxyCodeLine{00014\ \ \ \ \ \textcolor{comment}{//Obtain\ the\ unique\ instance}}
+\DoxyCodeLine{00015\ \ \ \ \ \textcolor{keyword}{static}\ BinaryResourceSingleton\&\ getInstance()}
+\DoxyCodeLine{00016\ \ \ \ \ \{}
+\DoxyCodeLine{00017\ \ \ \ \ \ \ \ \ \textcolor{keyword}{static}\ BinaryResourceSingleton\ instance;}
+\DoxyCodeLine{00018\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ instance;}
+\DoxyCodeLine{00019\ \ \ \ \ \}}
+\DoxyCodeLine{00020\ }
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{comment}{//\ Remove\ the\ copy\ constructor\ and\ assignment\ operator\ to\ ensure\ that\ only\ a\ unique\ instance\ can\ be\ obtained}}
+\DoxyCodeLine{00022\ \ \ \ \ BinaryResourceSingleton(\textcolor{keyword}{const}\ BinaryResourceSingleton\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00023\ \ \ \ \ BinaryResourceSingleton\&\ operator=(\textcolor{keyword}{const}\ BinaryResourceSingleton\&)\ =\ \textcolor{keyword}{delete};}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keyword}{const}\ juce::StringArray\ \mbox{\hyperlink{class_binary_resource_singleton_a1a7a0aac5b49c43f1ab991c6a7395fcc}{getFileNameArray}}()}
+\DoxyCodeLine{00030\ \ \ \ \ \{}
+\DoxyCodeLine{00031\ \ \ \ \ \ \ \ \ juce::StringArray\ fileNames;}
+\DoxyCodeLine{00032\ }
+\DoxyCodeLine{00033\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keyword}{const}\ std::pair<int,\ juce::String>\&\ entry\ :\ why::resourceIdToName)}
+\DoxyCodeLine{00034\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00035\ \ \ \ \ \ \ \ \ \ \ \ \ fileNames.add(entry.second);}
+\DoxyCodeLine{00036\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00037\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ fileNames;}
+\DoxyCodeLine{00038\ \ \ \ \ \};}
+\DoxyCodeLine{00039\ }
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{class_binary_resource_singleton_af3c5c027b0271abd31b809b6047d6401}{readFileFromResources}}(\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ resourceName,\ \textcolor{keywordtype}{double}\&\ sampleRate,}
+\DoxyCodeLine{00048\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ std::unique\_ptr<juce::AudioBuffer<float>>\&\ bf)}
+\DoxyCodeLine{00049\ \ \ \ \ \{}
+\DoxyCodeLine{00050\ \ \ \ \ \ \ \ \ \textcolor{comment}{//读取template文件}}
+\DoxyCodeLine{00051\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ int\ dataSize\ =\ binaryFileNameSizeMap[resourceName];}}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ const\ void*\ data\ =\ BinaryData::getNamedResource(resourceName,\ dataSize);}}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (!binaryFileNameSizeMap.contains(resourceName))}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{false};}
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ std::pair<int,\ const\ void*>\ binaryFilePair\ =\ binaryFileNameSizeMap[resourceName];}
+\DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ data\ 是二进制数据的起始地址，dataSize\ 是它的大小}}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ if\ (data\ !=\ nullptr)}}
+\DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ \{}}
+\DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ std::unique\_ptr<juce::MemoryInputStream>\ stream;}
+\DoxyCodeLine{00062\ \ \ \ \ \ \ \ \ stream.reset(\textcolor{keyword}{new}\ juce::MemoryInputStream(binaryFilePair.second,\ binaryFilePair.first,\ \textcolor{keyword}{false}));}
+\DoxyCodeLine{00063\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 例如加载成\ AudioBuffer}}
+\DoxyCodeLine{00064\ \ \ \ \ \ \ \ \ juce::AudioFormatManager\ formatManager;}
+\DoxyCodeLine{00065\ \ \ \ \ \ \ \ \ formatManager.registerBasicFormats();\ \textcolor{comment}{//\ 支持\ WAV,\ AIFF\ 等常见格式}}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \ \ \ \ \ \ \ \ std::unique\_ptr<juce::AudioFormatReader>\ reader(formatManager.createReaderFor(std::move(stream)));}
+\DoxyCodeLine{00068\ }
+\DoxyCodeLine{00069\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (reader\ !=\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00070\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00071\ \ \ \ \ \ \ \ \ \ \ \ \ juce::AudioBuffer<float>\ buffer(reader-\/>numChannels,\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(reader-\/>lengthInSamples));}
+\DoxyCodeLine{00072\ \ \ \ \ \ \ \ \ \ \ \ \ reader-\/>read(\&buffer,\ 0,\ \textcolor{keyword}{static\_cast<}\textcolor{keywordtype}{int}\textcolor{keyword}{>}(reader-\/>lengthInSamples),\ 0,\ \textcolor{keyword}{true},\ \textcolor{keyword}{true});}
+\DoxyCodeLine{00073\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ 现在\ buffer\ 就是你加载好的\ impulse\ data}}
+\DoxyCodeLine{00074\ }
+\DoxyCodeLine{00075\ \ \ \ \ \ \ \ \ \ \ \ \ bf\ =\ std::make\_unique<juce::AudioBuffer<float>>(buffer);}
+\DoxyCodeLine{00076\ \ \ \ \ \ \ \ \ \ \ \ \ sampleRate\ =\ reader-\/>sampleRate;}
+\DoxyCodeLine{00077\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00078\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{return}\ \textcolor{keyword}{true};}
+\DoxyCodeLine{00079\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ \}}}
+\DoxyCodeLine{00080\ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ return\ false;}}
+\DoxyCodeLine{00081\ \ \ \ \ \}}
+\DoxyCodeLine{00082\ }
+\DoxyCodeLine{00083\ \textcolor{keyword}{private}:}
+\DoxyCodeLine{00084\ \ \ \ \ \textcolor{comment}{//id:value\ -\/>\ file\ name1:pair(1024,fileData)；By\ default,\ a\ map\ is\ sorted\ in\ alphabetical\ order}}
+\DoxyCodeLine{00085\ \ \ \ \ std::map<juce::String,\ std::pair<int,\ const\ void*>>\ binaryFileNameSizeMap;}
+\DoxyCodeLine{00086\ }
+\DoxyCodeLine{00087\ \ \ \ \ \mbox{\hyperlink{class_binary_resource_singleton}{BinaryResourceSingleton}}()}
+\DoxyCodeLine{00088\ \ \ \ \ \{}
+\DoxyCodeLine{00089\ \ \ \ \ \ \ \ \ \textcolor{comment}{//塞入BinaryData中所有资源文件名}}
+\DoxyCodeLine{00090\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{for}\ (\textcolor{keywordtype}{int}\ i\ =\ 0;\ i\ <\ BinaryData::namedResourceListSize;\ ++i)}
+\DoxyCodeLine{00091\ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00092\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ filename\ =\ BinaryData::originalFilenames[i];}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00094\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{int}\ dataSize\ =\ 0;}
+\DoxyCodeLine{00095\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{void}*\ data\ =\ BinaryData::getNamedResource(BinaryData::namedResourceList[i],\ dataSize);}
+\DoxyCodeLine{00096\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//data\ ==\ nullptr\ means\ file\ is\ not\ found}}
+\DoxyCodeLine{00097\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (data\ !=\ \textcolor{keyword}{nullptr})}
+\DoxyCodeLine{00098\ \ \ \ \ \ \ \ \ \ \ \ \ \{}
+\DoxyCodeLine{00099\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ binaryFileNameSizeMap[filename]\ =\ std::make\_pair(dataSize,\ data);}
+\DoxyCodeLine{00100\ \ \ \ \ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00101\ \ \ \ \ \ \ \ \ \}}
+\DoxyCodeLine{00102\ \ \ \ \ \}}
+\DoxyCodeLine{00103\ \};}
+
+\end{DoxyCode}

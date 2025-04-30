@@ -14,7 +14,8 @@ var class_audio_plugin_audio_processor_editor =
     [ "refreshUIFromPreset", "class_audio_plugin_audio_processor_editor.html#adddd3dec604ec19427a428d90a8407d7", null ],
     [ "resized", "class_audio_plugin_audio_processor_editor.html#a24cd6ed8afaa70576aba4ff6cd5ec407", null ],
     [ "saveFileIntoSynth", "class_audio_plugin_audio_processor_editor.html#aff60041477e101d2927c09dc63685e4a", null ],
-    [ "saveTemplateImpulseThenLoadAfterSelect", "class_audio_plugin_audio_processor_editor.html#a8936b2a243c0562db667ac75fe073804", null ],
+    [ "saveTemplateImpulseThenLoadAfterSelect", "class_audio_plugin_audio_processor_editor.html#a265b626213f74fcb8068835710493199", null ],
+    [ "setLastValueAfterCloseWindow", "class_audio_plugin_audio_processor_editor.html#a6610dded47fe8c5a29884ec34527889a", null ],
     [ "setUIStyle", "class_audio_plugin_audio_processor_editor.html#ae9707a7919d59d4791a4f9865086b78a", null ],
     [ "setWindowSize", "class_audio_plugin_audio_processor_editor.html#a1cb5d4de3a4164770a18225f88351a0f", null ],
     [ "topFlexBox", "class_audio_plugin_audio_processor_editor.html#a88e66ad2b91fb3c0d733e030cec3ceb8", null ]

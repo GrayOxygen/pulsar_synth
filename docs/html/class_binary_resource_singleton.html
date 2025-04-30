@@ -110,7 +110,7 @@ $(function(){initNavTree('class_binary_resource_singleton.html',''); initResizab
 </div><!--header-->
 <div class="contents">
 
-<p><code>#include &lt;<a class="el" href="_resource_singleton_8h_source.html">ResourceSingleton.h</a>&gt;</code></p>
+<p><code>#include &lt;<a class="el" href="_binary_resource_singleton_8h_source.html">BinaryResourceSingleton.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -120,10 +120,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a962207d261e7fd930341d138324d7e54" id="r_a962207d261e7fd930341d138324d7e54"><td class="memItemLeft" align="right" valign="top"><a id="a962207d261e7fd930341d138324d7e54" name="a962207d261e7fd930341d138324d7e54"></a>
 <a class="el" href="class_binary_resource_singleton.html">BinaryResourceSingleton</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>operator=</b> (const <a class="el" href="class_binary_resource_singleton.html">BinaryResourceSingleton</a> &amp;)=delete</td></tr>
 <tr class="separator:a962207d261e7fd930341d138324d7e54"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4175d97ccd5cd85064ffa7c0c7599097" id="r_a4175d97ccd5cd85064ffa7c0c7599097"><td class="memItemLeft" align="right" valign="top">std::map&lt; juce::String, juce::String &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4175d97ccd5cd85064ffa7c0c7599097">getBinaryIdFileNameMap</a> ()</td></tr>
-<tr class="separator:a4175d97ccd5cd85064ffa7c0c7599097"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1a7a0aac5b49c43f1ab991c6a7395fcc" id="r_a1a7a0aac5b49c43f1ab991c6a7395fcc"><td class="memItemLeft" align="right" valign="top">const juce::StringArray&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1a7a0aac5b49c43f1ab991c6a7395fcc">getFileNameArray</a> ()</td></tr>
 <tr class="separator:a1a7a0aac5b49c43f1ab991c6a7395fcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3c5c027b0271abd31b809b6047d6401" id="r_af3c5c027b0271abd31b809b6047d6401"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af3c5c027b0271abd31b809b6047d6401">readFileFromResources</a> (const char *resourceName, double &amp;sampleRate, std::unique_ptr&lt; juce::AudioBuffer&lt; float &gt; &gt; &amp;bf)</td></tr>
+<tr class="separator:af3c5c027b0271abd31b809b6047d6401"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -132,34 +132,8 @@ static <a class="el" href="class_binary_resource_singleton.html">BinaryResourceS
 <tr class="separator:adedbb9a2fe711e5b622608e60bd536b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Resources Resource Management: Singleton Pattern </p>
+<div class="textblock"><p>Binary Resources Management: Singleton Pattern </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a4175d97ccd5cd85064ffa7c0c7599097" name="a4175d97ccd5cd85064ffa7c0c7599097"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4175d97ccd5cd85064ffa7c0c7599097">&#9670;&#160;</a></span>getBinaryIdFileNameMap()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">std::map&lt; juce::String, juce::String &gt; BinaryResourceSingleton::getBinaryIdFileNameMap </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-<p>The binary resource map exposed for external use </p><dl class="section return"><dt>Returns</dt><dd>binary resource map </dd></dl>
-
-</div>
-</div>
 <a id="a1a7a0aac5b49c43f1ab991c6a7395fcc" name="a1a7a0aac5b49c43f1ab991c6a7395fcc"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1a7a0aac5b49c43f1ab991c6a7395fcc">&#9670;&#160;</a></span>getFileNameArray()</h2>
 
@@ -186,8 +160,51 @@ static <a class="el" href="class_binary_resource_singleton.html">BinaryResourceS
 
 </div>
 </div>
+<a id="af3c5c027b0271abd31b809b6047d6401" name="af3c5c027b0271abd31b809b6047d6401"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3c5c027b0271abd31b809b6047d6401">&#9670;&#160;</a></span>readFileFromResources()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool BinaryResourceSingleton::readFileFromResources </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>resourceName</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double &amp;</td>          <td class="paramname"><span class="paramname"><em>sampleRate</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::unique_ptr&lt; juce::AudioBuffer&lt; float &gt; &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>bf</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<p>read binary source file </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">resourceName</td><td>resource full name </td></tr>
+    <tr><td class="paramname">sampleRate</td><td>sample rate of the file as result </td></tr>
+    <tr><td class="paramname">bf</td><td>buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true is success false failed </dd></dl>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>Source/include/<a class="el" href="_resource_singleton_8h_source.html">ResourceSingleton.h</a></li>
+<li>Source/include/<a class="el" href="_binary_resource_singleton_8h_source.html">BinaryResourceSingleton.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

@@ -109,7 +109,7 @@ $(function(){initNavTree('_convolution_resource_8h_source.html',''); initResizab
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="comment">// Created by Mr. Wang on 2025/4/20.</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span><span class="comment">//</span></div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#pragma once</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;ResourceSingleton.h&gt;</span></div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;BinaryResourceSingleton.h&gt;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;Commons.h&quot;</span></div>
 <div class="foldopen" id="foldopen00013" data-start="{" data-end="};">
@@ -145,16 +145,16 @@ $(function(){initNavTree('_convolution_resource_8h_source.html',''); initResizab
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    }</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span></div>
 <div class="foldopen" id="foldopen00050" data-start="{" data-end="}">
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="class_convolution_resource.html#a48a9231705bfc959fcdd8a076cf22a5d">   50</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_convolution_resource.html#a48a9231705bfc959fcdd8a076cf22a5d">saveTemplateImpulse</a>(juce::String selectedId)</div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="class_convolution_resource.html#a61dcfb39de730eb3b8809fedd8992234">   50</a></span>    <span class="keywordtype">void</span> <a class="code hl_function" href="class_convolution_resource.html#a61dcfb39de730eb3b8809fedd8992234">saveTemplateImpulse</a>(<span class="keywordtype">int</span> selectedId)</div>
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    {</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <span class="keyword">const</span> <span class="keywordtype">char</span>* resourceName = (BinaryResourceSingleton::getInstance().getBinaryIdFileNameMap()[selectedId]).</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>            toRawUTF8();</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        <span class="keywordtype">double</span> fileSampleRate;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        std::unique_ptr&lt;juce::AudioBuffer&lt;float&gt;&gt; bf;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="keywordflow">if</span> (<a class="code hl_function" href="namespacewhy.html#adac43307a480960cdd60d0c79b6fdecd">why::readFileFromResources</a>(resourceName, fileSampleRate, bf))</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <span class="keywordtype">double</span> fileSampleRate;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        std::unique_ptr&lt;juce::AudioBuffer&lt;float&gt;&gt; bf;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        juce::String resourceName = why::resourceIdToName[selectedId];</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        <span class="keywordflow">if</span> (resourceName.isNotEmpty() &amp;&amp; BinaryResourceSingleton::getInstance().readFileFromResources(</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>            resourceName.toRawUTF8(), fileSampleRate, bf))</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        {</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>            saveLastTemplateImpulseData(*bf, fileSampleRate, std::string(resourceName));</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>            saveLastTemplateImpulseData(*bf, fileSampleRate, resourceName.toRawUTF8());</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>            <a class="code hl_function" href="class_convolution_resource.html#a4c15e3d9a108db04e9cf332e5f7ec625">loadTemplateImpulseFile</a>();</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        }</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    }</div>
@@ -311,11 +311,10 @@ $(function(){initNavTree('_convolution_resource_8h_source.html',''); initResizab
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>};</div>
 </div>
 <div class="ttc" id="aclass_convolution_resource_html_a2c44c0f7acd9f472fa90aee32cd85520"><div class="ttname"><a href="class_convolution_resource.html#a2c44c0f7acd9f472fa90aee32cd85520">ConvolutionResource::saveLastSampleFileAsBlock</a></div><div class="ttdeci">void saveLastSampleFileAsBlock(const juce::File &amp;file)</div><div class="ttdef"><b>Definition</b> ConvolutionResource.h:68</div></div>
-<div class="ttc" id="aclass_convolution_resource_html_a48a9231705bfc959fcdd8a076cf22a5d"><div class="ttname"><a href="class_convolution_resource.html#a48a9231705bfc959fcdd8a076cf22a5d">ConvolutionResource::saveTemplateImpulse</a></div><div class="ttdeci">void saveTemplateImpulse(juce::String selectedId)</div><div class="ttdef"><b>Definition</b> ConvolutionResource.h:50</div></div>
 <div class="ttc" id="aclass_convolution_resource_html_a4c15e3d9a108db04e9cf332e5f7ec625"><div class="ttname"><a href="class_convolution_resource.html#a4c15e3d9a108db04e9cf332e5f7ec625">ConvolutionResource::loadTemplateImpulseFile</a></div><div class="ttdeci">void loadTemplateImpulseFile()</div><div class="ttdef"><b>Definition</b> ConvolutionResource.h:108</div></div>
 <div class="ttc" id="aclass_convolution_resource_html_a4ddb0aeeaac9665508b7f040830b097e"><div class="ttname"><a href="class_convolution_resource.html#a4ddb0aeeaac9665508b7f040830b097e">ConvolutionResource::loadSampleImpulseFile</a></div><div class="ttdeci">void loadSampleImpulseFile()</div><div class="ttdef"><b>Definition</b> ConvolutionResource.h:84</div></div>
+<div class="ttc" id="aclass_convolution_resource_html_a61dcfb39de730eb3b8809fedd8992234"><div class="ttname"><a href="class_convolution_resource.html#a61dcfb39de730eb3b8809fedd8992234">ConvolutionResource::saveTemplateImpulse</a></div><div class="ttdeci">void saveTemplateImpulse(int selectedId)</div><div class="ttdef"><b>Definition</b> ConvolutionResource.h:50</div></div>
 <div class="ttc" id="aclass_convolution_resource_html_ab1024795ea8d7671a6d20f32e508271e"><div class="ttname"><a href="class_convolution_resource.html#ab1024795ea8d7671a6d20f32e508271e">ConvolutionResource::processSample</a></div><div class="ttdeci">bool processSample(juce::AudioBuffer&lt; float &gt; &amp;pulseBuffer)</div><div class="ttdef"><b>Definition</b> ConvolutionResource.h:135</div></div>
-<div class="ttc" id="anamespacewhy_html_adac43307a480960cdd60d0c79b6fdecd"><div class="ttname"><a href="namespacewhy.html#adac43307a480960cdd60d0c79b6fdecd">why::readFileFromResources</a></div><div class="ttdeci">bool readFileFromResources(const char *resourceName, double &amp;sampleRate, std::unique_ptr&lt; juce::AudioBuffer&lt; float &gt; &gt; &amp;bf)</div><div class="ttdef"><b>Definition</b> Commons.cpp:144</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

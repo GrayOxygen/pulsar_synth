@@ -7,5 +7,5 @@ var class_pulsar_synth =
     [ "refreshBurstMask", "class_pulsar_synth.html#a6aafb5c2e29b65a2fefa86c9a2a490d3", null ],
     [ "reloadPreset", "class_pulsar_synth.html#a694896422d7b0af33b69b4ab01232f30", null ],
     [ "renderNextBlockDirectly", "class_pulsar_synth.html#ad87daa677ba90e60882bec6027d3d091", null ],
-    [ "triggerSoundOffWhenSwitchPlayMode", "class_pulsar_synth.html#a2083820d19e52a85a8b28a442c62898b", null ]
+    [ "triggerSoundOffWhenSwitchPlayMode", "class_pulsar_synth.html#a5b9f85611083c078417bc93608d5ce95", null ]
 ];

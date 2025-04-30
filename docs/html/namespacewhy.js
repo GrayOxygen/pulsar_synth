@@ -29,6 +29,5 @@ var namespacewhy =
     [ "getMaskOptionArray", "namespacewhy.html#abe0a5bbe578d4646fcc0b6484eabea4e", null ],
     [ "getPlayModeArray", "namespacewhy.html#af348059b8f580f3d9f039d70a5ec3104", null ],
     [ "getThreadIdStr", "namespacewhy.html#a747f3982b9f1c6e877712344b4822019", null ],
-    [ "readFileFromResources", "namespacewhy.html#adac43307a480960cdd60d0c79b6fdecd", null ],
     [ "setRandomIndexToOne", "namespacewhy.html#a86e220f527e194307a5a7530f61ad514", null ]
 ];

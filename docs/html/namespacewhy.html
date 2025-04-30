@@ -158,8 +158,6 @@ Functions</h2></td></tr>
 <tr class="separator:af348059b8f580f3d9f039d70a5ec3104"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a747f3982b9f1c6e877712344b4822019" id="r_a747f3982b9f1c6e877712344b4822019"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a747f3982b9f1c6e877712344b4822019">getThreadIdStr</a> ()</td></tr>
 <tr class="separator:a747f3982b9f1c6e877712344b4822019"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adac43307a480960cdd60d0c79b6fdecd" id="r_adac43307a480960cdd60d0c79b6fdecd"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adac43307a480960cdd60d0c79b6fdecd">readFileFromResources</a> (const char *resourceName, double &amp;sampleRate, std::unique_ptr&lt; juce::AudioBuffer&lt; float &gt; &gt; &amp;bf)</td></tr>
-<tr class="separator:adac43307a480960cdd60d0c79b6fdecd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a83cc3fa5859f798bb118a002d7879caa" id="r_a83cc3fa5859f798bb118a002d7879caa"><td class="memItemLeft" align="right" valign="top"><a id="a83cc3fa5859f798bb118a002d7879caa" name="a83cc3fa5859f798bb118a002d7879caa"></a>
 std::atomic&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>bpm</b> (120)</td></tr>
 <tr class="separator:a83cc3fa5859f798bb118a002d7879caa"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -169,6 +167,12 @@ Variables</h2></td></tr>
 <tr class="memitem:aac17f1e2528c254c67035172b5493e0b" id="r_aac17f1e2528c254c67035172b5493e0b"><td class="memItemLeft" align="right" valign="top"><a id="aac17f1e2528c254c67035172b5493e0b" name="aac17f1e2528c254c67035172b5493e0b"></a>
 std::atomic&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>bpm</b></td></tr>
 <tr class="separator:aac17f1e2528c254c67035172b5493e0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a155d27b55c1e67dfbd8e883ba139d259" id="r_a155d27b55c1e67dfbd8e883ba139d259"><td class="memItemLeft" align="right" valign="top"><a id="a155d27b55c1e67dfbd8e883ba139d259" name="a155d27b55c1e67dfbd8e883ba139d259"></a>
+std::atomic&lt; double &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sampleRate</b></td></tr>
+<tr class="separator:a155d27b55c1e67dfbd8e883ba139d259"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0031b2c3593d38e64e522ddb661df33" id="r_ab0031b2c3593d38e64e522ddb661df33"><td class="memItemLeft" align="right" valign="top"><a id="ab0031b2c3593d38e64e522ddb661df33" name="ab0031b2c3593d38e64e522ddb661df33"></a>
+std::map&lt; int, juce::String &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>resourceIdToName</b></td></tr>
+<tr class="separator:ab0031b2c3593d38e64e522ddb661df33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Commons maintains some common states and simple methods </p>
@@ -394,41 +398,6 @@ std::atomic&lt; float &gt;&#160;</td><td class="memItemRight" valign="bottom"><b
       </table>
 </div><div class="memdoc">
 <p>get current thread id </p><dl class="section return"><dt>Returns</dt><dd>current thread id </dd></dl>
-
-</div>
-</div>
-<a id="adac43307a480960cdd60d0c79b6fdecd" name="adac43307a480960cdd60d0c79b6fdecd"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adac43307a480960cdd60d0c79b6fdecd">&#9670;&#160;</a></span>readFileFromResources()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool why::readFileFromResources </td>
-          <td>(</td>
-          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>resourceName</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">double &amp;</td>          <td class="paramname"><span class="paramname"><em>sampleRate</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::unique_ptr&lt; juce::AudioBuffer&lt; float &gt; &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>bf</em></span>&#160;)</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<p>read binary source file </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">resourceName</td><td>resource full name </td></tr>
-    <tr><td class="paramname">sampleRate</td><td>sample rate of the file </td></tr>
-    <tr><td class="paramname">bf</td><td>buffer </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section return"><dt>Returns</dt><dd>true is success false failed </dd></dl>
 
 </div>
 </div>

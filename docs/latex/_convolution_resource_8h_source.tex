@@ -6,7 +6,7 @@
 \DoxyCodeLine{00002\ \textcolor{comment}{//\ Created\ by\ Mr.\ Wang\ on\ 2025/4/20.}}
 \DoxyCodeLine{00003\ \textcolor{comment}{//}}
 \DoxyCodeLine{00004\ \textcolor{preprocessor}{\#pragma\ once}}
-\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <ResourceSingleton.h>}}
+\DoxyCodeLine{00005\ \textcolor{preprocessor}{\#include\ <BinaryResourceSingleton.h>}}
 \DoxyCodeLine{00006\ }
 \DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}Commons.h"{}}}
 \DoxyCodeLine{00013\ \textcolor{keyword}{class\ }ConvolutionResource}
@@ -40,16 +40,16 @@
 \DoxyCodeLine{00041\ \ \ \ \ \ \ \ \ this-\/>sampleImpulseFilePath\ =\ fileName;}
 \DoxyCodeLine{00042\ \ \ \ \ \}}
 \DoxyCodeLine{00043\ }
-\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_convolution_resource_a48a9231705bfc959fcdd8a076cf22a5d}{saveTemplateImpulse}}(juce::String\ selectedId)}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{class_convolution_resource_a61dcfb39de730eb3b8809fedd8992234}{saveTemplateImpulse}}(\textcolor{keywordtype}{int}\ selectedId)}
 \DoxyCodeLine{00051\ \ \ \ \ \{}
-\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}*\ resourceName\ =\ (BinaryResourceSingleton::getInstance().getBinaryIdFileNameMap()[selectedId]).}
-\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ \ \ \ \ toRawUTF8();}
-\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ fileSampleRate;}
-\DoxyCodeLine{00055\ \ \ \ \ \ \ \ \ std::unique\_ptr<juce::AudioBuffer<float>>\ bf;}
-\DoxyCodeLine{00056\ }
-\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (\mbox{\hyperlink{namespacewhy_adac43307a480960cdd60d0c79b6fdecd}{why::readFileFromResources}}(resourceName,\ fileSampleRate,\ bf))}
+\DoxyCodeLine{00052\ \ \ \ \ \ \ \ \ \textcolor{keywordtype}{double}\ fileSampleRate;}
+\DoxyCodeLine{00053\ \ \ \ \ \ \ \ \ std::unique\_ptr<juce::AudioBuffer<float>>\ bf;}
+\DoxyCodeLine{00054\ \ \ \ \ \ \ \ \ juce::String\ resourceName\ =\ why::resourceIdToName[selectedId];}
+\DoxyCodeLine{00055\ }
+\DoxyCodeLine{00056\ \ \ \ \ \ \ \ \ \textcolor{keywordflow}{if}\ (resourceName.isNotEmpty()\ \&\&\ BinaryResourceSingleton::getInstance().readFileFromResources(}
+\DoxyCodeLine{00057\ \ \ \ \ \ \ \ \ \ \ \ \ resourceName.toRawUTF8(),\ fileSampleRate,\ bf))}
 \DoxyCodeLine{00058\ \ \ \ \ \ \ \ \ \{}
-\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ saveLastTemplateImpulseData(*bf,\ fileSampleRate,\ std::string(resourceName));}
+\DoxyCodeLine{00059\ \ \ \ \ \ \ \ \ \ \ \ \ saveLastTemplateImpulseData(*bf,\ fileSampleRate,\ resourceName.toRawUTF8());}
 \DoxyCodeLine{00060\ \ \ \ \ \ \ \ \ \ \ \ \ \mbox{\hyperlink{class_convolution_resource_a4c15e3d9a108db04e9cf332e5f7ec625}{loadTemplateImpulseFile}}();}
 \DoxyCodeLine{00061\ \ \ \ \ \ \ \ \ \}}
 \DoxyCodeLine{00062\ \ \ \ \ \}}

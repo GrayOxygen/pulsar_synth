@@ -35,6 +35,8 @@ void \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a24cd6ed8afaa705
 \item 
 void \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a148a630e8343bec94ff7ca9919bb69ab}{change\+Listener\+Callback}} (juce\+::\+Change\+Broadcaster \texorpdfstring{$\ast$}{*}source) override
 \item 
+void \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a6610dded47fe8c5a29884ec34527889a}{set\+Last\+Value\+After\+Close\+Window}} ()
+\item 
 void \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_adddd3dec604ec19427a428d90a8407d7}{refresh\+UIFrom\+Preset}} ()
 \item 
 void \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_adee16cd7e66e7526d011a295e88f2384}{open\+File\+Chooser}} ()
@@ -47,7 +49,7 @@ void \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_ae00e380ff57e290
 \item 
 void \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a91be33ad930bc9f8146267ac2a956cae}{load\+Template\+Impulse\+When\+Selected}} ()
 \item 
-void \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a8936b2a243c0562db667ac75fe073804}{save\+Template\+Impulse\+Then\+Load\+After\+Select}} (juce\+::\+String selected\+Id)
+void \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a265b626213f74fcb8068835710493199}{save\+Template\+Impulse\+Then\+Load\+After\+Select}} (int selected\+Id)
 \item 
 void \mbox{\hyperlink{class_audio_plugin_audio_processor_editor_a40b2f58d36b516cedb1c66c59349699b}{rebalance\+Step\+Hit\+Value\+Display}} ()
 \end{DoxyCompactItemize}
@@ -208,11 +210,11 @@ Save the impulse file to the convolution resource memory of synth
 {\em file} & \\
 \hline
 \end{DoxyParams}
-\Hypertarget{class_audio_plugin_audio_processor_editor_a8936b2a243c0562db667ac75fe073804}\index{AudioPluginAudioProcessorEditor@{AudioPluginAudioProcessorEditor}!saveTemplateImpulseThenLoadAfterSelect@{saveTemplateImpulseThenLoadAfterSelect}}
+\Hypertarget{class_audio_plugin_audio_processor_editor_a265b626213f74fcb8068835710493199}\index{AudioPluginAudioProcessorEditor@{AudioPluginAudioProcessorEditor}!saveTemplateImpulseThenLoadAfterSelect@{saveTemplateImpulseThenLoadAfterSelect}}
 \index{saveTemplateImpulseThenLoadAfterSelect@{saveTemplateImpulseThenLoadAfterSelect}!AudioPluginAudioProcessorEditor@{AudioPluginAudioProcessorEditor}}
 \doxysubsubsection{\texorpdfstring{saveTemplateImpulseThenLoadAfterSelect()}{saveTemplateImpulseThenLoadAfterSelect()}}
-{\footnotesize\ttfamily \label{class_audio_plugin_audio_processor_editor_a8936b2a243c0562db667ac75fe073804} 
-void Audio\+Plugin\+Audio\+Processor\+Editor\+::save\+Template\+Impulse\+Then\+Load\+After\+Select (\begin{DoxyParamCaption}\item[{juce\+::\+String}]{selected\+Id}{}\end{DoxyParamCaption})}
+{\footnotesize\ttfamily \label{class_audio_plugin_audio_processor_editor_a265b626213f74fcb8068835710493199} 
+void Audio\+Plugin\+Audio\+Processor\+Editor\+::save\+Template\+Impulse\+Then\+Load\+After\+Select (\begin{DoxyParamCaption}\item[{int}]{selected\+Id}{}\end{DoxyParamCaption})}
 
 Save template impulse to synth. If template impulse is selected, it will be directly loaded as impulse response
 
@@ -221,7 +223,13 @@ Save template impulse to synth. If template impulse is selected, it will be dire
 {\em selected\+Id} & \\
 \hline
 \end{DoxyParams}
-Save the binary file under Resources to synth. If impulse selects the template file, it will be loaded as impulse response \Hypertarget{class_audio_plugin_audio_processor_editor_ae9707a7919d59d4791a4f9865086b78a}\index{AudioPluginAudioProcessorEditor@{AudioPluginAudioProcessorEditor}!setUIStyle@{setUIStyle}}
+Save the binary file under Resources to synth. If impulse selects the template file, it will be loaded as impulse response \Hypertarget{class_audio_plugin_audio_processor_editor_a6610dded47fe8c5a29884ec34527889a}\index{AudioPluginAudioProcessorEditor@{AudioPluginAudioProcessorEditor}!setLastValueAfterCloseWindow@{setLastValueAfterCloseWindow}}
+\index{setLastValueAfterCloseWindow@{setLastValueAfterCloseWindow}!AudioPluginAudioProcessorEditor@{AudioPluginAudioProcessorEditor}}
+\doxysubsubsection{\texorpdfstring{setLastValueAfterCloseWindow()}{setLastValueAfterCloseWindow()}}
+{\footnotesize\ttfamily \label{class_audio_plugin_audio_processor_editor_a6610dded47fe8c5a29884ec34527889a} 
+void Audio\+Plugin\+Audio\+Processor\+Editor\+::set\+Last\+Value\+After\+Close\+Window (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+set lasted value after close window \Hypertarget{class_audio_plugin_audio_processor_editor_ae9707a7919d59d4791a4f9865086b78a}\index{AudioPluginAudioProcessorEditor@{AudioPluginAudioProcessorEditor}!setUIStyle@{setUIStyle}}
 \index{setUIStyle@{setUIStyle}!AudioPluginAudioProcessorEditor@{AudioPluginAudioProcessorEditor}}
 \doxysubsubsection{\texorpdfstring{setUIStyle()}{setUIStyle()}}
 {\footnotesize\ttfamily \label{class_audio_plugin_audio_processor_editor_ae9707a7919d59d4791a4f9865086b78a} 
