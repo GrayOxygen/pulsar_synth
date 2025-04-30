@@ -128,7 +128,7 @@ public:
     //==============================重写方法==============================
     void startNote(int midiNoteNumber,
                    float velocity,
-                   SynthesiserSound* sound,
+                   juce::SynthesiserSound* sound,
                    int currentPitchWheelPosition
     ) override;
 

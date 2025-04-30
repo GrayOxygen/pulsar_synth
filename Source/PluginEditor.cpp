@@ -1,6 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-#include "BinaryResourceSingleton.h"
+#include "include/BinaryResourceSingleton.h"
 
 //===================================核心逻辑 START===========================================
 
@@ -143,9 +143,9 @@ void AudioPluginAudioProcessorEditor::refreshUIFromPreset()
         return;
     }
     //Refresh the texteditor display
-    String burstMask = processorRef.apvts.state.getProperty(why::PropertyID::burstMask).toString();
-    String stochasticMask = processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).toString();
-    String sampleImpulsePath = processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
+    juce::String burstMask = processorRef.apvts.state.getProperty(why::PropertyID::burstMask).toString();
+    juce::String stochasticMask = processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).toString();
+    juce::String sampleImpulsePath = processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
     //保证展示不为空
     if (burstMaskTextEditor.getTextValue() != burstMask)
     {
@@ -210,11 +210,11 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
  * @param bpmFlexBox bpm flexbox in a row
  * @param playModeAndImpulseFlexBox  a flexbox includes play mode and impulse file ui elements in a row
  */
-void AudioPluginAudioProcessorEditor::topFlexBox(juce::FlexBox& flexBoxTop, std::shared_ptr<FlexBox> trainLenFlexBox,
-                                                 std::shared_ptr<FlexBox> trainDutyCycleFlexBox,
-                                                 std::shared_ptr<FlexBox> trainSilenceLenFlexBox,
-                                                 std::shared_ptr<FlexBox> bpmFlexBox,
-                                                 std::shared_ptr<FlexBox> playModeAndImpulseFlexBox
+void AudioPluginAudioProcessorEditor::topFlexBox(juce::FlexBox& flexBoxTop, std::shared_ptr<juce::FlexBox> trainLenFlexBox,
+                                                 std::shared_ptr<juce::FlexBox> trainDutyCycleFlexBox,
+                                                 std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox,
+                                                 std::shared_ptr<juce::FlexBox> bpmFlexBox,
+                                                 std::shared_ptr<juce::FlexBox> playModeAndImpulseFlexBox
 )
 {
     flexBoxTop.flexDirection = juce::FlexBox::Direction::column;

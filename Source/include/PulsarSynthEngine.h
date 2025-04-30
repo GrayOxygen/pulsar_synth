@@ -111,7 +111,7 @@ public:
 
         //Display the latest sample impulse option and (must) directly load the file into the convolution resource
         //(because switch the impulse menu option to no longer save the file)
-        String sampleImpulsePath = apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
+        juce::String sampleImpulsePath = apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
         if (sampleImpulsePath.isNotEmpty())
         {
             juce::File file(sampleImpulsePath);

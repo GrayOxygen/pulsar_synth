@@ -23,10 +23,10 @@ public:
 
     //==============================================================================
     void paint(juce::Graphics&) override;
-    void topFlexBox(juce::FlexBox& flexBoxTop, std::shared_ptr<FlexBox> trainLenFlexBox,
-                    std::shared_ptr<FlexBox> trainDutyCycleFlexBox,
-                    std::shared_ptr<FlexBox> trainSilenceLenFlexBox, std::shared_ptr<FlexBox> bpmFlexBox,
-                    std::shared_ptr<FlexBox> playModeAndImpulseFlexBox);
+    void topFlexBox(juce::FlexBox& flexBoxTop, std::shared_ptr<juce::FlexBox> trainLenFlexBox,
+                    std::shared_ptr<juce::FlexBox> trainDutyCycleFlexBox,
+                    std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox, std::shared_ptr<juce::FlexBox> bpmFlexBox,
+                    std::shared_ptr<juce::FlexBox> playModeAndImpulseFlexBox);
     void bottomFlexBox(juce::FlexBox& bottomFlexBox, std::shared_ptr<juce::FlexBox> pulsarWaveformFlexBox,
                        std::shared_ptr<juce::FlexBox> pulsarDutyCycleClusterLenFlexBox,
                        std::shared_ptr<juce::FlexBox> pulsarDutyCycleRatioFlexBox,

@@ -10,18 +10,17 @@
 #include <juce_core/juce_core.h>
 #include <juce_data_structures/juce_data_structures.h>
 #include <juce_dsp/juce_dsp.h>
-#include "PulsarSynthVoice.h"
-#include "PulsaretWaveformSingleton.h"
-#include <LfoWaveformSingleton.h>
-#include <CommonVoiceSate.h>
 #include <__ranges/common_view.h>
-
-#include "PulsarSynthSound.h"
+#include "../include/PulsarSynthVoice.h"
+#include "../include/PulsaretWaveformSingleton.h"
+#include "../include/LfoWaveformSingleton.h"
+#include "../include/CommonVoiceSate.h"
+#include "../include/PulsarSynthSound.h"
 
 //================================================重写方法================================================
 void PulsarSynthVoice::startNote(int midiNoteNumber,
                                  float velocity,
-                                 SynthesiserSound* sound,
+                                 juce::SynthesiserSound* sound,
                                  int currentPitchWheelPosition)
 {
     float ratio = midiNoteNumber - 60;

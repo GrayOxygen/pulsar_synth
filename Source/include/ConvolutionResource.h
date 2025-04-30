@@ -2,7 +2,7 @@
 // Created by Mr. Wang on 2025/4/20.
 //
 #pragma once
-#include <BinaryResourceSingleton.h>
+#include "BinaryResourceSingleton.h"
 
 #include "Commons.h"
 /**

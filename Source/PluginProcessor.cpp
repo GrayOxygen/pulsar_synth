@@ -1,9 +1,8 @@
 #include "PluginProcessor.h"
 
-#include <BinaryResourceSingleton.h>
-
+#include "include/BinaryResourceSingleton.h"
 #include "PluginEditor.h"
-#include "PulsarSynth.h"
+#include "include/PulsarSynth.h"
 //==============================================================================
 AudioPluginAudioProcessor::AudioPluginAudioProcessor()
     : AudioProcessor(BusesProperties()
@@ -220,7 +219,7 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
     //将apvts状态存入内存中，daw退出时会回调该方法进行存储，之后打开才能恢复
     //用ableton测试时，如果用VST3 redebug启动，不会走入这个方法，除非退出前自己保存工程，再次打开才能恢复状态
     juce::ignoreUnused(destData);
-    std::unique_ptr<XmlElement> xml(apvts.state.createXml());
+    std::unique_ptr<juce::XmlElement> xml(apvts.state.createXml());
     copyXmlToBinary(*xml, destData);
 }
 
@@ -228,13 +227,13 @@ void AudioPluginAudioProcessor::setStateInformation(const void* data, int sizeIn
 {
     //读取内存中的apvts信息，恢复preset
     juce::ignoreUnused(data, sizeInBytes);
-    std::unique_ptr<XmlElement> theParams(getXmlFromBinary(data, sizeInBytes));
+    std::unique_ptr<juce::XmlElement> theParams(getXmlFromBinary(data, sizeInBytes));
     if (theParams == nullptr || !theParams->hasTagName(apvts.state.getType()))
     {
         return;
     };
 
-    apvts.state = ValueTree::fromXml(*theParams);
+    apvts.state = juce::ValueTree::fromXml(*theParams);
     //editor处理完修改状态false
     loadingPresetFlag = true;
     //更新参数到apvts中
