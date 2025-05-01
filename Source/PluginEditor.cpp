@@ -63,8 +63,7 @@ void AudioPluginAudioProcessorEditor::setLastValueAfterCloseWindow()
     juce::String currentStochasticMaskStr = juce::String(processorRef.getPulsarSynthEngine().
                                                                       getCurrentPulsarSynth()->
                                                                       getStochasticMaskStr());
-    if (!processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).isVoid() &&
-        stochasticMaskTextEditor.getText() != currentStochasticMaskStr)
+    if (stochasticMaskTextEditor.getText() != currentStochasticMaskStr)
     {
         if (processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask) != currentStochasticMaskStr)
         {
