@@ -12,7 +12,7 @@ std\+::shared\+\_\+ptr$<$ \mbox{\hyperlink{class_pulsar_synth}{Pulsar\+Synth}} $
 \Hypertarget{class_pulsar_synth_engine_a7fc29bf5b9c5ac88f83314d9c5294745}\label{class_pulsar_synth_engine_a7fc29bf5b9c5ac88f83314d9c5294745} 
 \mbox{\hyperlink{namespacewhy_a9d41a756b0927fb89e5473fecbb813c1}{why\+::\+Play\+Mode\+Enum}} \& {\bfseries get\+Current\+Play\+Mode\+Enum} ()
 \item 
-void \mbox{\hyperlink{class_pulsar_synth_engine_ae90b6f96a091a8a680e575bc75aaf562}{set\+Current\+Play\+Mode\+Enum}} (int index)
+void \mbox{\hyperlink{class_pulsar_synth_engine_ae2e52fff2d864e37ef32d44febe1b9a7}{set\+Current\+Play\+Mode\+Enum}} (juce\+::\+Audio\+Processor\+Value\+Tree\+State \&apvts, int index)
 \item 
 void \mbox{\hyperlink{class_pulsar_synth_engine_a953cb1ad85d45460930d6ba0ee7d4d13}{stop\+The\+World}} ()
 \item 
@@ -150,16 +150,16 @@ the entry of processing sample
 {\footnotesize\ttfamily \label{class_pulsar_synth_engine_ac19d8e92b830aab2b14f4e2f7fd34996} 
 void Pulsar\+Synth\+Engine\+::reload\+Synth\+Preset (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Processor\+Value\+Tree\+State \&}]{apvts}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
-refresh the synth according to the preset, load files, etc 
+refresh the synth according to the preset, load files, etc sample file一开始就一定会加载好，而template impulse file 等待使用时再加载 
 \begin{DoxyParams}{Parameters}
 {\em apvts} & tree state \\
 \hline
 \end{DoxyParams}
-\Hypertarget{class_pulsar_synth_engine_ae90b6f96a091a8a680e575bc75aaf562}\index{PulsarSynthEngine@{PulsarSynthEngine}!setCurrentPlayModeEnum@{setCurrentPlayModeEnum}}
+\Hypertarget{class_pulsar_synth_engine_ae2e52fff2d864e37ef32d44febe1b9a7}\index{PulsarSynthEngine@{PulsarSynthEngine}!setCurrentPlayModeEnum@{setCurrentPlayModeEnum}}
 \index{setCurrentPlayModeEnum@{setCurrentPlayModeEnum}!PulsarSynthEngine@{PulsarSynthEngine}}
 \doxysubsubsection{\texorpdfstring{setCurrentPlayModeEnum()}{setCurrentPlayModeEnum()}}
-{\footnotesize\ttfamily \label{class_pulsar_synth_engine_ae90b6f96a091a8a680e575bc75aaf562} 
-void Pulsar\+Synth\+Engine\+::set\+Current\+Play\+Mode\+Enum (\begin{DoxyParamCaption}\item[{int}]{index}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily \label{class_pulsar_synth_engine_ae2e52fff2d864e37ef32d44febe1b9a7} 
+void Pulsar\+Synth\+Engine\+::set\+Current\+Play\+Mode\+Enum (\begin{DoxyParamCaption}\item[{juce\+::\+Audio\+Processor\+Value\+Tree\+State \&}]{apvts}{, }\item[{int}]{index}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 Set the current playback mode and pause all sounds each time you set it
 

@@ -143,40 +143,26 @@ void PulsarSynthVoice::processSampleWithConvolution(juce::AudioSampleBuffer& out
         rightWritePtr[i] = currentSample;
     }
 
+    // float targetRms = commonVoiceSate->pulseBuffer.getRMSLevel(0, 0, commonVoiceSate->pulseBuffer.getNumSamples());
+    // float targetDB = juce::Decibels::gainToDecibels(targetRms + 1.0e-5f);
+
+    //TODO adjust gain: keep the similar value between with or without convolution processing
+    // bool processedConFlag = false;
     //process convolution
     if (static_cast<int>(commonVoiceSate->impulseSwitchParam->load()) != static_cast<int>(why::ImpulseSwitchEnum::Off))
     {
         commonVoiceSate->convolutionResource->processSample(commonVoiceSate->pulseBuffer);
     }
 
-    //adjust gain
-    // float peak = commonVoiceSate->pulseBuffer.getMagnitude(0, commonVoiceSate->pulseBuffer.getNumSamples());
-    // //扩大音量
-    // float targetPeak = 0.5f;
-    // float gain = targetPeak / (peak + 1e-5f);
-    // commonVoiceSate->pulseBuffer.applyGain(gain);
-    // 限制音量
-    float peak = commonVoiceSate->pulseBuffer.getMagnitude(0, commonVoiceSate->pulseBuffer.getNumSamples());
-
-    float ceiling = 1.0f;
-    if (peak > ceiling)
-    {
-        float gain = ceiling / (peak + 1e-5f);
-        commonVoiceSate->pulseBuffer.applyGain(gain);
-    }
-
-    // 如果低于目标 -6dBFS，进行补偿
-    float gainNeeded = juce::Decibels::decibelsToGain(-6);
-    commonVoiceSate->pulseBuffer.applyGain(gainNeeded); // 应用平滑后的增益
-
     for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++)
     {
         int i = sampleIndex - startSample;
         for (int chan = 0; chan < outputBuffer.getNumChannels(); chan++)
         {
+            //use tanh to limit
+            float s = commonVoiceSate->pulseBuffer.getSample(0, i);
             // The output sample is scaled by 0.2 so that it is not too loud by default
-            outputBuffer.addSample(chan, sampleIndex,
-                                   commonVoiceSate->pulseBuffer.getSample(0, i) * getOutputGain());
+            outputBuffer.addSample(chan, sampleIndex, std::tanh(s * 1.5f) * getOutputGain());
         }
     }
 }
@@ -372,10 +358,13 @@ void PulsarSynthVoice::mappingParams(const juce::AudioProcessorValueTreeState& a
     commonVoiceSate->impulseSwitchParam = apvts.getRawParameterValue(why::ParameterID::impulseSwitch);
 }
 
+std::mutex parameterMutex;
 
 void PulsarSynthVoice::mappingOneParam(const juce::AudioProcessorValueTreeState& apvts, juce::String parameterID,
                                        float newValue)
 {
+    std::lock_guard<std::mutex> lock(parameterMutex);
+
     //output
     if (parameterID == why::ParameterID::outputGain)
     {
@@ -513,6 +502,15 @@ void PulsarSynthVoice::parameterChanged(juce::AudioProcessorValueTreeState& apvt
             //根据train长度生成对应随机mask
             commonVoiceSate->generateStochasticMask();
             isGeneratedStochasticMask = true;
+            if (isGeneratedStochasticMask)
+            {
+                if (apvts.state.getProperty(why::PropertyID::stochasticMask) != commonVoiceSate->stochasticMaskStr.
+                    data())
+                {
+                    apvts.state.setProperty(why::PropertyID::stochasticMask, commonVoiceSate->stochasticMaskStr.data(),
+                                            nullptr);
+                }
+            }
         }
     }
 

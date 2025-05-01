@@ -63,21 +63,32 @@ void AudioPluginAudioProcessorEditor::setLastValueAfterCloseWindow()
     juce::String currentStochasticMaskStr = juce::String(processorRef.getPulsarSynthEngine().
                                                                       getCurrentPulsarSynth()->
                                                                       getStochasticMaskStr());
-    if (stochasticMaskTextEditor.getText() != currentStochasticMaskStr)
+    if (!processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).isVoid() &&
+        stochasticMaskTextEditor.getText() != currentStochasticMaskStr)
     {
-        //property将会被存为state information，用来恢复参数
-        processorRef.apvts.state.setProperty(why::PropertyID::stochasticMask, currentStochasticMaskStr, nullptr);
+        if (processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask) != currentStochasticMaskStr)
+        {
+            //property将会被存为state information，用来恢复参数
+            processorRef.apvts.state.setProperty(why::PropertyID::stochasticMask, currentStochasticMaskStr, nullptr);
+        }
         //展示最新stochastic mask
-        stochasticMaskTextEditor.setText(currentStochasticMaskStr);
+        stochasticMaskTextEditor.setText(currentStochasticMaskStr, juce::dontSendNotification);
     }
     if (!processorRef.apvts.state.getProperty(why::PropertyID::burstMask).isVoid())
     {
-        burstMaskTextEditor.setText(processorRef.apvts.state.getProperty(why::PropertyID::burstMask).toString());
+        juce::String newText = processorRef.apvts.state.getProperty(why::PropertyID::burstMask).toString();
+        if (newText != burstMaskTextEditor.getText())
+        {
+            burstMaskTextEditor.setText(newText, juce::dontSendNotification);
+        }
     }
     if (!processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).isVoid())
     {
-        sampleImpulsePathTextEditor.setText(
-            processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString());
+        juce::String newText = processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
+        if (newText != sampleImpulsePathTextEditor.getText())
+        {
+            sampleImpulsePathTextEditor.setText(newText, juce::dontSendNotification);
+        }
     }
 }
 
@@ -143,28 +154,38 @@ void AudioPluginAudioProcessorEditor::refreshUIFromPreset()
         return;
     }
     //Refresh the texteditor display
-    juce::String burstMask = processorRef.apvts.state.getProperty(why::PropertyID::burstMask).toString();
-    juce::String stochasticMask = processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).toString();
-    juce::String sampleImpulsePath = processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
     //保证展示不为空
-    if (burstMaskTextEditor.getTextValue() != burstMask)
+    if (!processorRef.apvts.state.getProperty(why::PropertyID::burstMask).isVoid())
     {
-        burstMaskTextEditor.setText(burstMask, juce::dontSendNotification);
+        juce::String burstMask = processorRef.apvts.state.getProperty(why::PropertyID::burstMask).toString();
+        if (burstMaskTextEditor.getText() != burstMask)
+        {
+            burstMaskTextEditor.setText(burstMask, juce::dontSendNotification);
+        }
     }
-    if (stochasticMaskTextEditor.getTextValue() != stochasticMask)
+    if (!processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).isVoid())
     {
-        stochasticMaskTextEditor.setText(stochasticMask, juce::dontSendNotification);
+        juce::String stochasticMaskText = processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).
+                                                       toString();
+        if (stochasticMaskTextEditor.getText() != stochasticMaskText)
+        {
+            stochasticMaskTextEditor.setText(stochasticMaskText, juce::dontSendNotification);
+        }
     }
 
     //display the lastest sample impulse file path
-    if (sampleImpulsePath.isNotEmpty())
+    if (!processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).isVoid())
     {
-        sampleImpulsePathTextEditor.setText(sampleImpulsePath, juce::dontSendNotification);
-        juce::File file(sampleImpulsePath);
-        if (!file.existsAsFile())
+        juce::String newText = processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).
+                                            toString();
+        if (newText != sampleImpulsePathTextEditor.getText())
         {
-            sampleImpulsePathTextEditor.setText("File does not exist: " + sampleImpulsePath,
-                                                juce::dontSendNotification);
+            sampleImpulsePathTextEditor.setText(newText, juce::dontSendNotification);
+            juce::File file(newText);
+            if (!file.existsAsFile())
+            {
+                sampleImpulsePathTextEditor.setText("File does not exist: " + newText, juce::dontSendNotification);
+            }
         }
     }
 }
@@ -192,10 +213,14 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
                                                                           getStochasticMaskStr());
         if (stochasticMaskTextEditor.getText() != currentStochasticMaskStr)
         {
-            //property将会被存为state information，用来恢复参数
-            processorRef.apvts.state.setProperty(why::PropertyID::stochasticMask, currentStochasticMaskStr, nullptr);
-            //展示最新stochastic mask
-            stochasticMaskTextEditor.setText(currentStochasticMaskStr);
+            if (processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask) != currentStochasticMaskStr)
+            {
+                //property将会被存为state information，用来恢复参数
+                processorRef.apvts.state.
+                             setProperty(why::PropertyID::stochasticMask, currentStochasticMaskStr, nullptr);
+            }
+            //展示最新stochastic mask，最好加上dontSendNotification，将不会触发TextEditor::Listener；
+            stochasticMaskTextEditor.setText(currentStochasticMaskStr, juce::dontSendNotification);
         }
     }
 }
@@ -210,7 +235,8 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
  * @param bpmFlexBox bpm flexbox in a row
  * @param playModeAndImpulseFlexBox  a flexbox includes play mode and impulse file ui elements in a row
  */
-void AudioPluginAudioProcessorEditor::topFlexBox(juce::FlexBox& flexBoxTop, std::shared_ptr<juce::FlexBox> trainLenFlexBox,
+void AudioPluginAudioProcessorEditor::topFlexBox(juce::FlexBox& flexBoxTop,
+                                                 std::shared_ptr<juce::FlexBox> trainLenFlexBox,
                                                  std::shared_ptr<juce::FlexBox> trainDutyCycleFlexBox,
                                                  std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox,
                                                  std::shared_ptr<juce::FlexBox> bpmFlexBox,
@@ -789,7 +815,10 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
         });
 
         //保存到property，在load preset时，可从parameterChanged监听中获得property值，从而恢复状态
-        processorRef.apvts.state.setProperty(why::PropertyID::burstMask, currentBurstMaskText, nullptr);
+        if (processorRef.apvts.state.getProperty(why::PropertyID::burstMask) != currentBurstMaskText)
+        {
+            processorRef.apvts.state.setProperty(why::PropertyID::burstMask, currentBurstMaskText, nullptr);
+        }
 
         //color effect
         juce::Colour originalColour = burstMaskTextEditor.findColour(juce::TextEditor::backgroundColourId);
@@ -840,7 +869,8 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
 
     playModeCombobox.onChange = [&]
     {
-        processorRef.getPulsarSynthEngine().setCurrentPlayModeEnum(playModeCombobox.getSelectedItemIndex());
+        processorRef.getPulsarSynthEngine().setCurrentPlayModeEnum(processorRef.apvts,
+                                                                   playModeCombobox.getSelectedItemIndex());
     };
 
     //强制更新synth依赖的bpm
@@ -860,8 +890,12 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent()
             //stochastic mask默认采用第一个voice的
             std::string maskStrStd = processorRef.getPulsarSynthEngine().getCurrentPulsarSynth()->
                                                   getStochasticMaskStr();
-            juce::String stochasticMaskStr = juce::String(maskStrStd);
-            stochasticMaskTextEditor.setText(stochasticMaskStr, juce::dontSendNotification);
+            juce::String newText = juce::String(maskStrStd);
+
+            if (stochasticMaskTextEditor.getText() != newText)
+            {
+                stochasticMaskTextEditor.setText(newText, juce::dontSendNotification);
+            }
         }
     };
 }
@@ -925,7 +959,8 @@ void AudioPluginAudioProcessorEditor::openFileChooser()
                                      // juce::Logger::writeToLog("File selected: " + selectedFile.getFullPathName());
                                      saveFileIntoSynth(selectedFile);
                                      //展示路径
-                                     sampleImpulsePathTextEditor.setText(selectedFile.getFullPathName());
+                                     sampleImpulsePathTextEditor.setText(
+                                         selectedFile.getFullPathName(), juce::dontSendNotification);
 
                                      //保存到property，在load preset时，可从parameterChanged监听中获得property值，进行手动监听
                                      processorRef.apvts.state.setProperty(why::PropertyID::sampleImpulsePath,

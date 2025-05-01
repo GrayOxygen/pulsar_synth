@@ -105,7 +105,7 @@ namespace why
         static constexpr const char* burstMask = "burstMask";
         static constexpr const char* stochasticMask = "stochasticMask";
         static constexpr const char* sampleImpulsePath = "sampleImpulsePath";
-        // static constexpr const char* currentPlayModeEnum = "currentPlayModeEnum";
+        static constexpr const char* currentPlayModeEnum = "currentPlayModeEnum";
     };
 
     /**

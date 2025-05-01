@@ -173,9 +173,6 @@ const juce::String&#160;</td><td class="memItemRight" valign="bottom"><b>getProg
 <tr class="memitem:a3378d7986d71f6bf163e79d40a25f50b" id="r_a3378d7986d71f6bf163e79d40a25f50b"><td class="memItemLeft" align="right" valign="top"><a id="a3378d7986d71f6bf163e79d40a25f50b" name="a3378d7986d71f6bf163e79d40a25f50b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>changeProgramName</b> (int index, const juce::String &amp;newName) override</td></tr>
 <tr class="separator:a3378d7986d71f6bf163e79d40a25f50b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acfc85cbe0e159f6e9d35bcea6784565c" id="r_acfc85cbe0e159f6e9d35bcea6784565c"><td class="memItemLeft" align="right" valign="top"><a id="acfc85cbe0e159f6e9d35bcea6784565c" name="acfc85cbe0e159f6e9d35bcea6784565c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>initOldAndNewParamMap</b> ()</td></tr>
-<tr class="separator:acfc85cbe0e159f6e9d35bcea6784565c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8186c010d2f61a0307a942c14979c1af" id="r_a8186c010d2f61a0307a942c14979c1af"><td class="memItemLeft" align="right" valign="top"><a id="a8186c010d2f61a0307a942c14979c1af" name="a8186c010d2f61a0307a942c14979c1af"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>getStateInformation</b> (juce::MemoryBlock &amp;destData) override</td></tr>
 <tr class="separator:a8186c010d2f61a0307a942c14979c1af"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -192,9 +189,6 @@ bool &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>isLoadingPreset
 <tr class="memitem:ae837d2a653780449a2ac335e941ada51" id="r_ae837d2a653780449a2ac335e941ada51"><td class="memItemLeft" align="right" valign="top"><a id="ae837d2a653780449a2ac335e941ada51" name="ae837d2a653780449a2ac335e941ada51"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>setLoadingPresetFlag</b> (bool loadingPresetFlag)</td></tr>
 <tr class="separator:ae837d2a653780449a2ac335e941ada51"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94595eab00d686995bf9d9de0650dee6" id="r_a94595eab00d686995bf9d9de0650dee6"><td class="memItemLeft" align="right" valign="top"><a id="a94595eab00d686995bf9d9de0650dee6" name="a94595eab00d686995bf9d9de0650dee6"></a>
-std::map&lt; juce::String, std::atomic&lt; float &gt; * &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getParamMap</b> ()</td></tr>
-<tr class="separator:a94595eab00d686995bf9d9de0650dee6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac189bcfb301a09a68b6239f02206da3d" id="r_ac189bcfb301a09a68b6239f02206da3d"><td class="memItemLeft" align="right" valign="top"><a id="ac189bcfb301a09a68b6239f02206da3d" name="ac189bcfb301a09a68b6239f02206da3d"></a>
 <a class="el" href="class_pulsar_synth_engine.html">PulsarSynthEngine</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>getPulsarSynthEngine</b> ()</td></tr>
 <tr class="separator:ac189bcfb301a09a68b6239f02206da3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -235,7 +229,7 @@ juce::AudioProcessorValueTreeState&#160;</td><td class="memItemRight" valign="bo
   </tr>
 </table>
 </div><div class="memdoc">
-<p>Listen for changes in control parameters，注意： 1，automation will not trigger here and will directly modify the parameter values in apvts 2，getRawParameterValue() or getParameter() methods is not guaranteed to return the up-to-date value but newValue is</p>
+<p>Listen for changes in control parameters，注意： getRawParameterValue() or getParameter() methods is not guaranteed to return the up-to-date value but newValue is</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">parameterID</td><td>parameter id </td></tr>
@@ -243,7 +237,7 @@ juce::AudioProcessorValueTreeState&#160;</td><td class="memItemRight" valign="bo
   </table>
   </dd>
 </dl>
-<p>监听控件参数变化，注意： 1，automation不会触发这里，会直接修改apvts中的参数值 2，getRawParameterValue() or getParameter() methods is not guaranteed to return the up-to-date value but newValue is</p>
+<p>监听控件参数变化，注意： 1，getRawParameterValue() or getParameter() methods is not guaranteed to return the up-to-date value but newValue is</p>
 <p>不放在plugineditor，因为窗口没打开过，仍还可以操作parameter，要将主线程和UI线程解耦 </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">parameterID</td><td>parameter id </td></tr>

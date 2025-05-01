@@ -9,6 +9,6 @@ var class_pulsar_synth_engine =
     [ "initConvolution", "class_pulsar_synth_engine.html#a7a73129753b456f4b3e79da45ea4d71e", null ],
     [ "processSample", "class_pulsar_synth_engine.html#a28576ee0fc4fccbce7a567d38908ab26", null ],
     [ "reloadSynthPreset", "class_pulsar_synth_engine.html#ac19d8e92b830aab2b14f4e2f7fd34996", null ],
-    [ "setCurrentPlayModeEnum", "class_pulsar_synth_engine.html#ae90b6f96a091a8a680e575bc75aaf562", null ],
+    [ "setCurrentPlayModeEnum", "class_pulsar_synth_engine.html#ae2e52fff2d864e37ef32d44febe1b9a7", null ],
     [ "stopTheWorld", "class_pulsar_synth_engine.html#a953cb1ad85d45460930d6ba0ee7d4d13", null ]
 ];

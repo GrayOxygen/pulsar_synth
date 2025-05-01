@@ -36,7 +36,7 @@ AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
 {
     for (int i = 0; i < apvts.state.getNumChildren(); ++i)
     {
-        auto child = apvts.state.getChild(i);
+        juce::ValueTree child = apvts.state.getChild(i);
         if (child.hasType("PARAM") && child.hasProperty("id"))
         {
             juce::String paramID = child["id"];
@@ -111,27 +111,6 @@ void AudioPluginAudioProcessor::changeProgramName(int index, const juce::String&
     juce::ignoreUnused(index, newName);
 }
 
-void AudioPluginAudioProcessor::initOldAndNewParamMap()
-{
-    for (auto& param : getParameters())
-    {
-        if (auto* ap = dynamic_cast<juce::AudioParameterFloat*>(param))
-        {
-            paramMap[ap->paramID] = apvts.getRawParameterValue(ap->paramID);
-            oldParamMap[ap->paramID] = paramMap[ap->paramID]->load();
-        }
-        if (auto* ap = dynamic_cast<juce::AudioParameterInt*>(param))
-        {
-            paramMap[ap->paramID] = apvts.getRawParameterValue(ap->paramID);
-            oldParamMap[ap->paramID] = paramMap[ap->paramID]->load();
-        }
-        if (auto* ap = dynamic_cast<juce::AudioParameterChoice*>(param))
-        {
-            paramMap[ap->paramID] = apvts.getRawParameterValue(ap->paramID);
-            oldParamMap[ap->paramID] = paramMap[ap->paramID]->load();
-        }
-    }
-}
 
 //==============================================================================
 void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
@@ -141,8 +120,6 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 
     //初始化train
     pulsarSynthEngine.buildTrain(sampleRate, samplesPerBlock, getNumOutputChannels(), getPlayHead());
-
-    initOldAndNewParamMap();
 }
 
 void AudioPluginAudioProcessor::releaseResources()
@@ -188,10 +165,6 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
     {
         buffer.clear(i, 0, buffer.getNumSamples());
     }
-
-    //Manually trigger the parameterChanged listening:
-    //Ensure that automation can trigger the necessary updates even when the plugin window is not opened
-    parameterChangedManually();
 
     pulsarSynthEngine.processSample(buffer, midiMessages, getPlayHead());
 }
@@ -377,8 +350,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
 
 /**
  * 监听控件参数变化，注意：
- * 1，automation不会触发这里，会直接修改apvts中的参数值
- * 2，getRawParameterValue() or getParameter() methods is not guaranteed to return the up-to-date value but newValue is
+ * 1，getRawParameterValue() or getParameter() methods is not guaranteed to return the up-to-date value but newValue is
  *
  * 不放在plugineditor，因为窗口没打开过，仍还可以操作parameter，要将主线程和UI线程解耦
  * @param parameterID parameter id
@@ -386,36 +358,29 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
  */
 void AudioPluginAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
 {
-    //触发synth更新为最新状态：mapping所有parameter，property的值到synth中
-    pulsarSynthEngine.executeCurSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
+    auto currentTime = juce::Time::getCurrentTime().toMilliseconds();
+
+    // 限制每隔30ms处理一次参数变化 limit every parameterchanged invoke within 30ms only once
+    if (currentTime - lastChangeTime > 30)
     {
-        bool isGeneratedStochasticMaskFlag = false;
-        synth->parameterChanged(apvts, parameterID, newValue, isGeneratedStochasticMaskFlag);
+        lastChangeTime = currentTime;
 
-        // UI变更，通过广播实现，不要用setproperty，会触发propertyvalue监听，但editor不存在则调用报错，但广播则不会
-        sendChangeMessage();
-    });
-}
-
-/**
-* Manually monitor the changes of the parameter and trigger the parameterChanged monitoring function
-*/
-void AudioPluginAudioProcessor::parameterChangedManually()
-{
-    for (auto& param : getParamMap())
-    {
-        juce::String paramID = param.first;
-        std::atomic<float>* currentValuePtr = param.second;
-
-        float newValue = *currentValuePtr;
-        float oldValue = oldParamMap[paramID];
-        float diff = std::abs(newValue - oldValue);
-        // 发生变化则触发监听，监听方更新所有变化值和后续逻辑
-        if (diff > 0.0001f)
+        //触发synth更新为最新状态：mapping所有parameter，property的值到synth中
+        pulsarSynthEngine.executeCurSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
         {
-            oldParamMap[paramID] = newValue;
-            parameterChanged(paramID, newValue);
-            break;
-        }
+            bool isGeneratedStochasticMaskFlag = false;
+            synth->parameterChanged(apvts, parameterID, newValue, isGeneratedStochasticMaskFlag);
+
+            // UI变更，通过广播实现，不要用setproperty，会触发propertyvalue监听，但editor不存在则调用报错，但广播则不会
+            sendChangeMessage();
+        });
+    }else
+    {
+
     }
+
+    // Notice!!!: Only the currently set impulse file will be used as impulse response.
+    // This option can be modified in the plugin window, but the automation cannot be changed to avoid
+    // possible frequent operations, which may lead to a large number of IO operations and
+    // consume performance. Therefore, a trade-off has been made here.
 }

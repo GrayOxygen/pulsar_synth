@@ -63,9 +63,6 @@ const juce\+::\+String {\bfseries get\+Program\+Name} (int index) override
 \Hypertarget{class_audio_plugin_audio_processor_a3378d7986d71f6bf163e79d40a25f50b}\label{class_audio_plugin_audio_processor_a3378d7986d71f6bf163e79d40a25f50b} 
 void {\bfseries change\+Program\+Name} (int index, const juce\+::\+String \&new\+Name) override
 \item 
-\Hypertarget{class_audio_plugin_audio_processor_acfc85cbe0e159f6e9d35bcea6784565c}\label{class_audio_plugin_audio_processor_acfc85cbe0e159f6e9d35bcea6784565c} 
-void {\bfseries init\+Old\+And\+New\+Param\+Map} ()
-\item 
 \Hypertarget{class_audio_plugin_audio_processor_a8186c010d2f61a0307a942c14979c1af}\label{class_audio_plugin_audio_processor_a8186c010d2f61a0307a942c14979c1af} 
 void {\bfseries get\+State\+Information} (juce\+::\+Memory\+Block \&dest\+Data) override
 \item 
@@ -81,9 +78,6 @@ bool \& {\bfseries is\+Loading\+Preset\+Flag} ()
 \item 
 \Hypertarget{class_audio_plugin_audio_processor_ae837d2a653780449a2ac335e941ada51}\label{class_audio_plugin_audio_processor_ae837d2a653780449a2ac335e941ada51} 
 void {\bfseries set\+Loading\+Preset\+Flag} (bool loading\+Preset\+Flag)
-\item 
-\Hypertarget{class_audio_plugin_audio_processor_a94595eab00d686995bf9d9de0650dee6}\label{class_audio_plugin_audio_processor_a94595eab00d686995bf9d9de0650dee6} 
-std\+::map$<$ juce\+::\+String, std\+::atomic$<$ float $>$ \texorpdfstring{$\ast$}{*} $>$ \& {\bfseries get\+Param\+Map} ()
 \item 
 \Hypertarget{class_audio_plugin_audio_processor_ac189bcfb301a09a68b6239f02206da3d}\label{class_audio_plugin_audio_processor_ac189bcfb301a09a68b6239f02206da3d} 
 \mbox{\hyperlink{class_pulsar_synth_engine}{Pulsar\+Synth\+Engine}} \& {\bfseries get\+Pulsar\+Synth\+Engine} ()
@@ -106,7 +100,7 @@ juce\+::\+Audio\+Processor\+Value\+Tree\+State {\bfseries apvts}
 {\footnotesize\ttfamily \label{class_audio_plugin_audio_processor_a9bc08bfd66a0d48d7866bdd92707ee1f} 
 void Audio\+Plugin\+Audio\+Processor\+::parameter\+Changed (\begin{DoxyParamCaption}\item[{const juce\+::\+String \&}]{parameter\+ID}{, }\item[{float}]{new\+Value}{}\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [override]}}
 
-Listen for changes in control parameters，注意： 1，automation will not trigger here and will directly modify the parameter values in apvts 2，get\+Raw\+Parameter\+Value() or get\+Parameter() methods is not guaranteed to return the up-\/to-\/date value but new\+Value is
+Listen for changes in control parameters，注意： get\+Raw\+Parameter\+Value() or get\+Parameter() methods is not guaranteed to return the up-\/to-\/date value but new\+Value is
 
 
 \begin{DoxyParams}{Parameters}
@@ -115,7 +109,7 @@ Listen for changes in control parameters，注意： 1，automation will not tri
 {\em new\+Value} & up-\/to-\/date value\\
 \hline
 \end{DoxyParams}
-监听控件参数变化，注意： 1，automation不会触发这里，会直接修改apvts中的参数值 2，get\+Raw\+Parameter\+Value() or get\+Parameter() methods is not guaranteed to return the up-\/to-\/date value but new\+Value is
+监听控件参数变化，注意： 1，get\+Raw\+Parameter\+Value() or get\+Parameter() methods is not guaranteed to return the up-\/to-\/date value but new\+Value is
 
 不放在plugineditor，因为窗口没打开过，仍还可以操作parameter，要将主线程和\+UI线程解耦 
 \begin{DoxyParams}{Parameters}

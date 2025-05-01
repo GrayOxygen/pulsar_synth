@@ -46,7 +46,7 @@ public:
      * @param apvts value tree
      * @param index play mode enum value
      */
-    void setCurrentPlayModeEnum(int index)
+    void setCurrentPlayModeEnum(juce::AudioProcessorValueTreeState& apvts, int index)
     {
         stopTheWorld();
         if (index == static_cast<int>(why::PlayModeEnum::Auto))
@@ -60,6 +60,12 @@ public:
         if (index == static_cast<int>(why::PlayModeEnum::NotSelected))
         {
             this->currentPlayModeEnum = why::PlayModeEnum::NotSelected;
+        }
+        if (apvts.state.getProperty(why::PropertyID::currentPlayModeEnum) != juce::String(
+            static_cast<int>(this->currentPlayModeEnum)))
+        {
+            apvts.state.setProperty(why::PropertyID::currentPlayModeEnum, static_cast<int>(this->currentPlayModeEnum),
+                                    nullptr);
         }
     }
 
@@ -93,7 +99,8 @@ public:
     }
 
     /**
-     * refresh the synth according to the preset, load files, etc
+     * refresh the synth according to the preset, load files, etc sample file一开始就一定会加载好，而template impulse file
+     * 等待使用时再加载
      * @param apvts tree state
      */
     void reloadSynthPreset(juce::AudioProcessorValueTreeState& apvts)
@@ -111,25 +118,28 @@ public:
 
         //Display the latest sample impulse option and (must) directly load the file into the convolution resource
         //(because switch the impulse menu option to no longer save the file)
-        juce::String sampleImpulsePath = apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
-        if (sampleImpulsePath.isNotEmpty())
+        if (!apvts.state.getProperty(why::PropertyID::sampleImpulsePath).isVoid())
         {
-            juce::File file(sampleImpulsePath);
-            if (file.existsAsFile())
+            juce::String sampleImpulsePath = apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
+            if (sampleImpulsePath.isNotEmpty())
             {
-                // 文件存在，则保存资源文件到convolution resource中（全局的）
-                getConvolutionResource()->saveLastSampleFileAsBlock(file);
-                if (impulseSwitchIndex == static_cast<int>(why::ImpulseSwitchEnum::Sample))
+                juce::File file(sampleImpulsePath);
+                if (file.existsAsFile())
                 {
-                    //加载impulse response
-                    getConvolutionResource()->loadSampleImpulseFile();
+                    // 文件存在，则保存资源文件到convolution resource中（全局的）
+                    getConvolutionResource()->saveLastSampleFileAsBlock(file);
+                    if (impulseSwitchIndex == static_cast<int>(why::ImpulseSwitchEnum::Sample))
+                    {
+                        //加载impulse response
+                        getConvolutionResource()->loadSampleImpulseFile();
+                    }
                 }
             }
         }
 
         //update current play mode
         int currentPlayModeIndex = static_cast<int>(*apvts.getRawParameterValue(why::ParameterID::playMode));
-        setCurrentPlayModeEnum(currentPlayModeIndex);
+        setCurrentPlayModeEnum(apvts, currentPlayModeIndex);
 
         //update to the latest state of synth: like mapping the values of all parameters and properties to synth, etc
         executeCurSynthCallback([&](std::shared_ptr<PulsarSynth>& synth)
