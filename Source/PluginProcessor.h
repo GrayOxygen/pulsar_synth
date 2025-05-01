@@ -108,7 +108,7 @@ private:
     PulsarSynthEngine pulsarSynthEngine;
 
     //throttling: avoid invoke too much parameterchanged
-    int64 lastChangeTime=0;
+    juce::int64 lastChangeTime=0;
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 };
