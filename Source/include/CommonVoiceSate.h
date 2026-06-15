@@ -18,6 +18,12 @@ public:
   CommonVoiceSate() {
     // 初始化包络数据为默认值 (1.0 = 无调制)
     ampEnvelopeData.fill(1.0f);
+    // 初始化 FM 包络数据为默认值 (0.0 = 无调制，表示 semitones 偏移为 0)
+    fmEnvelopeData.fill(0.0f);
+    // 初始化 Cluster 包络数据为默认值 (1.0 = 基础值)
+    clusterEnvelopeData.fill(1.0f);
+    // 初始化 Duty Ratio 包络数据为默认值 (0.5 = 基础值)
+    dutyRatioEnvelopeData.fill(0.5f);
   }
 
   // whether loop playback train or not
@@ -73,6 +79,24 @@ public:
   std::atomic<float> ampEnvelopeYMin{0.1f};
   std::atomic<float> ampEnvelopeYMax{10.0f};
   std::atomic<bool> useAmpEnvelope{false}; // 是否使用包络代替 LFO
+
+  // FM 包络数据（替代波形选择）- 2048 个 samples
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> fmEnvelopeData;
+  std::atomic<float> fmEnvelopeYMin{-12.0f};  // 默认 -12 semitones
+  std::atomic<float> fmEnvelopeYMax{12.0f};   // 默认 +12 semitones
+  std::atomic<bool> useFmEnvelope{false};    // 是否使用包络代替 LFO
+
+  // Cluster 包络数据 - 2048 个 samples
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> clusterEnvelopeData;
+  std::atomic<float> clusterEnvelopeYMin{1.0f};   // 默认 1
+  std::atomic<float> clusterEnvelopeYMax{16.0f};   // 默认 16
+  std::atomic<bool> useClusterEnvelope{false};    // 是否使用包络
+
+  // Duty Ratio 包络数据 - 2048 个 samples
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> dutyRatioEnvelopeData;
+  std::atomic<float> dutyRatioEnvelopeYMin{0.01f}; // 默认 0.01
+  std::atomic<float> dutyRatioEnvelopeYMax{1.0f};  // 默认 1.0
+  std::atomic<bool> useDutyRatioEnvelope{false};   // 是否使用包络
 
   // Adsr: applied to the single final pulse(notice!silence can be converted to
   // pulse) (if cluster>0, then it still is applied to the whole pulse not

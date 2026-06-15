@@ -314,14 +314,15 @@ public:
 
   /**
    * Smoothly transition different waveforms in the waveform table to apply FM
-   * modulation with different waveform characteristics
-   *
+   * modulation with different waveform characteristics, or use envelope data
+   * 
+   * @param phase pulsaret phase (0.0 - 1.0) for envelope lookup
    * @param pulsarModFreq new pulsar modulation frequency
    * @param amount decide how much modulation, 0.0f - 1.0f
-   * @return
+   * @return modulated frequency offset in semitones
    */
-  float calcFormantLfoInterpolation(float pulsarModFreq, float amount);
-
+  float calcFormantLfoInterpolation(float phase, float pulsarModFreq, float amount);
+  
   /**
    * Smoothly transition different waveforms in the waveform table to apply AM
    * modulation with different waveform characteristics, or use envelope data
@@ -338,6 +339,27 @@ public:
    * @return envelope value
    */
   float getAmpEnvelopeValueAtPhase(float phase) const;
+
+  /**
+   * Get FM envelope value at given phase using linear interpolation
+   * @param phase pulsaret phase (0.0 - 1.0)
+   * @return envelope value (semitones offset)
+   */
+  float getFmEnvelopeValueAtPhase(float phase) const;
+
+  /**
+   * Get Cluster envelope value at given phase using linear interpolation
+   * @param phase pulsaret phase (0.0 - 1.0)
+   * @return envelope value (cluster multiplier)
+   */
+  float getClusterEnvelopeValueAtPhase(float phase) const;
+
+  /**
+   * Get Duty Ratio envelope value at given phase using linear interpolation
+   * @param phase pulsaret phase (0.0 - 1.0)
+   * @return envelope value (duty ratio 0.0 - 1.0)
+   */
+  float getDutyRatioEnvelopeValueAtPhase(float phase) const;
 
   /**
    * get output gain by converting db value

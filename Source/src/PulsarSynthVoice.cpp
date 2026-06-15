@@ -679,10 +679,6 @@ void PulsarSynthVoice::calcNewPulsarFreq(float pulsarDutyCycleRatio, float &puls
     pulsarModFreq = 1.0 / ((1 - pulsarDutyCycleRatio) * snapShot.pulsarPeriodTime);
   }
 
-  // 新的调制的频率
-  float modFreq = calcFormantLfoInterpolation(pulsarModFreq, 1);
-  pulsarModFreq = pulsarModFreq + pulsarModFreq * modFreq;
-
   // The frequency of the pulse is finally multiplied by duty cycle
   pulsarModFreq = commonVoiceSate->pulsarDutyCycleClusterLenParam->load() * pulsarModFreq;
 }
@@ -796,6 +792,10 @@ float PulsarSynthVoice::processSample() {
 }
 
 float PulsarSynthVoice::calcActualPulse(float pulsarModFreq) {
+  // 应用 FM 调制（基于 phase 从包络或 LFO 采样）
+  float fmModulation = calcFormantLfoInterpolation(pulsaretPhase, pulsarModFreq, 1.0f);
+  float modulatedFreq = pulsarModFreq * (1.0f + fmModulation);
+
   float s = PulsaretWaveformSingleton::getInstance()                                                 //
                 .calcSample(commonVoiceSate->pulsarWaveformParam->load(), pulsaretPhase)             // single sample
             * calcAmpLfoInterpolation(pulsaretPhase, 1.0f)                                           // AM - 使用 phase 从包络采样
@@ -803,7 +803,7 @@ float PulsarSynthVoice::calcActualPulse(float pulsarModFreq) {
             * 1.0f / std::pow(commonVoiceSate->pulsarDutyCycleClusterLenParam->load(), 0.3f)         // 越大越小 1 - 0.3
             * pulsarAdsr.getNextSample();                                                            // adsr
   // It must be placed after calculating the sample, not before; otherwise, the phase at the starting point will shift
-  pulsaretPhase += pulsarModFreq / getSampleRate();
+  pulsaretPhase += modulatedFreq / getSampleRate();
   // pulsaretPhase = std::fmod(pulsaretPhase, 1.0f); // subtract is faster fmod
   if (pulsaretPhase > 1.0) {
     pulsaretPhase = pulsaretPhase - 1.0;
@@ -811,11 +811,27 @@ float PulsarSynthVoice::calcActualPulse(float pulsarModFreq) {
   return s;
 }
 
-float PulsarSynthVoice::calcFormantLfoInterpolation(float pulsarModFreq, float amount) {
+float PulsarSynthVoice::calcFormantLfoInterpolation(float phase, float pulsarModFreq, float amount) {
   float depth = commonVoiceSate->formantFreqLfoDepthParam->load();
   if (depth <= 0.0f) {
     return 0.0f;
   }
+  
+  // 如果启用了 FM 包络，从包络数据采样
+  if (commonVoiceSate->useFmEnvelope.load()) {
+    float envelopeValue = getFmEnvelopeValueAtPhase(phase);
+    float yMin = commonVoiceSate->fmEnvelopeYMin.load();
+    float yMax = commonVoiceSate->fmEnvelopeYMax.load();
+    // envelopeValue 范围是 yMin - yMax (semitones)，转换为频率比例
+    float semitones = juce::jlimit(yMin, yMax, envelopeValue);
+    // 每八度12个semitone，频率比 = 2^(semitones/12)
+    float freqRatio = std::pow(2.0f, semitones / 12.0f);
+    // 将频率比转换为调制深度 (-1 到 1 范围，0 表示无调制)
+    float modValue = (freqRatio - 1.0f) * depth;
+    return modValue * amount;
+  }
+  
+  // 否则使用 LFO 波形调制
   lfoModulator.setFrequency(pulsarModFreq);
   return lfoModulator.calcSampleAfterFM(depth) * amount;
 }
@@ -846,6 +862,24 @@ float PulsarSynthVoice::calcAmpLfoInterpolation(float phase, float amount) {
 
 float PulsarSynthVoice::getAmpEnvelopeValueAtPhase(float phase) const {
   const auto& envelopeData = commonVoiceSate->ampEnvelopeData;
+  constexpr int size = EnvelopeCanvas::ENVELOPE_SIZE;
+
+  // phase 归一化到 0-1
+  phase = std::fmod(std::abs(phase), 1.0f);
+
+  // 线性插值查找
+  float indexF = phase * (size - 1);
+  int index = static_cast<int>(indexF);
+  float frac = indexF - index;
+
+  float val1 = envelopeData[std::min(index, size - 1)];
+  float val2 = envelopeData[std::min(index + 1, size - 1)];
+
+  return val1 + frac * (val2 - val1);
+}
+
+float PulsarSynthVoice::getFmEnvelopeValueAtPhase(float phase) const {
+  const auto& envelopeData = commonVoiceSate->fmEnvelopeData;
   constexpr int size = EnvelopeCanvas::ENVELOPE_SIZE;
 
   // phase 归一化到 0-1

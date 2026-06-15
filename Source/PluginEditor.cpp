@@ -1,13 +1,11 @@
 #include "PluginEditor.h"
 #include "PluginProcessor.h"
 #include "include/BinaryResourceSingleton.h"
+#include "include/EnvelopeCanvas.h"
 
-//===================================核心逻辑
-// START===========================================
+//===================================核心逻辑 START===========================================
 
-AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(
-    AudioPluginAudioProcessor &p)
-    : AudioProcessorEditor(&p), processorRef(p) {
+AudioPluginAudioProcessorEditor::AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &p) : AudioProcessorEditor(&p), processorRef(p) {
   juce::ignoreUnused(processorRef);
 
   // register the editor as a listener
@@ -51,8 +49,7 @@ AudioPluginAudioProcessorEditor::~AudioPluginAudioProcessorEditor() {
 void AudioPluginAudioProcessorEditor::paint(juce::Graphics &g) {
   // (Our component is opaque, so we must completely fill the background with a
   // solid colour)
-  g.fillAll(
-      getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
+  g.fillAll(getLookAndFeel().findColour(juce::ResizableWindow::backgroundColourId));
 
   // g.setColour(juce::Colours::white);
   // g.setFont(15.0f);
@@ -61,35 +58,23 @@ void AudioPluginAudioProcessorEditor::paint(juce::Graphics &g) {
 }
 
 void AudioPluginAudioProcessorEditor::setLastValueAfterCloseWindow() {
-  juce::String currentStochasticMaskStr =
-      juce::String(processorRef.getPulsarSynthEngine()
-                       .getCurrentPulsarSynth()
-                       ->getStochasticMaskStr());
+  juce::String currentStochasticMaskStr = juce::String(processorRef.getPulsarSynthEngine().getCurrentPulsarSynth()->getStochasticMaskStr());
   if (stochasticMaskTextEditor.getText() != currentStochasticMaskStr) {
-    if (processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask) !=
-        currentStochasticMaskStr) {
+    if (processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask) != currentStochasticMaskStr) {
       // property将会被存为state information，用来恢复参数
-      processorRef.apvts.state.setProperty(why::PropertyID::stochasticMask,
-                                           currentStochasticMaskStr, nullptr);
+      processorRef.apvts.state.setProperty(why::PropertyID::stochasticMask, currentStochasticMaskStr, nullptr);
     }
     // 展示最新stochastic mask
-    stochasticMaskTextEditor.setText(currentStochasticMaskStr,
-                                     juce::dontSendNotification);
+    stochasticMaskTextEditor.setText(currentStochasticMaskStr, juce::dontSendNotification);
   }
-  if (!processorRef.apvts.state.getProperty(why::PropertyID::burstMask)
-           .isVoid()) {
-    juce::String newText =
-        processorRef.apvts.state.getProperty(why::PropertyID::burstMask)
-            .toString();
+  if (!processorRef.apvts.state.getProperty(why::PropertyID::burstMask).isVoid()) {
+    juce::String newText = processorRef.apvts.state.getProperty(why::PropertyID::burstMask).toString();
     if (newText != burstMaskTextEditor.getText()) {
       burstMaskTextEditor.setText(newText, juce::dontSendNotification);
     }
   }
-  if (!processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath)
-           .isVoid()) {
-    juce::String newText =
-        processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath)
-            .toString();
+  if (!processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).isVoid()) {
+    juce::String newText = processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
     if (newText != sampleImpulsePathTextEditor.getText()) {
       sampleImpulsePathTextEditor.setText(newText, juce::dontSendNotification);
     }
@@ -139,19 +124,39 @@ void AudioPluginAudioProcessorEditor::resized() {
   std::shared_ptr<juce::FlexBox> column9 = std::make_shared<juce::FlexBox>();
   std::shared_ptr<juce::FlexBox> column10 = std::make_shared<juce::FlexBox>();
   std::shared_ptr<juce::FlexBox> column11 = std::make_shared<juce::FlexBox>();
+  std::shared_ptr<juce::FlexBox> column12 = std::make_shared<juce::FlexBox>(); // FM 包络
 
-  this->bottomFlexBox(bottomFlexBox, column1, column2, column3, column4,
-                      column5, column6, column7, column8, column9, column10,
-                      column11);
+  this->bottomFlexBox(bottomFlexBox, column1, column2, column3, column4, column5, column6, column7, column8, column9, column10, column11, column12);
 
   // Overall combination, withMargin: up, right, down, left
-  mainFlexBox.items.add(
-      juce::FlexItem(topFlexBox).withFlex(1.0).withMargin({20, 20, 0, 20}));
-  mainFlexBox.items.add(
-      juce::FlexItem(midFlexBox).withFlex(0.8).withMargin({20, 20, 0, 20}));
-  mainFlexBox.items.add(
-      juce::FlexItem(bottomFlexBox).withFlex(1.0).withMargin({20, 20, 20, 20}));
+  mainFlexBox.items.add(juce::FlexItem(topFlexBox).withFlex(1.0).withMargin({20, 20, 0, 20}));
+  mainFlexBox.items.add(juce::FlexItem(midFlexBox).withFlex(0.8).withMargin({20, 20, 0, 20}));
+  mainFlexBox.items.add(juce::FlexItem(bottomFlexBox).withFlex(1.0).withMargin({20, 20, 20, 20}));
   mainFlexBox.performLayout(area);
+
+  // 为 AM 包络容器内的控件设置布局
+  auto controlBounds = ampEnvControlRow.getLocalBounds();
+  ampEnvelopeToggle.setBounds(controlBounds.removeFromLeft(controlBounds.getWidth() * 0.7f));
+  ampEnvelopeClearButton.setBounds(controlBounds);
+
+  auto rangeBounds = ampEnvRangeRow.getLocalBounds();
+  int labelWidth = 40;
+  int sliderWidth = (rangeBounds.getWidth() - labelWidth * 2) / 2;
+  ampEnvelopeYMinLabel.setBounds(rangeBounds.removeFromLeft(labelWidth));
+  ampEnvelopeYMinSlider.setBounds(rangeBounds.removeFromLeft(sliderWidth));
+  ampEnvelopeYMaxLabel.setBounds(rangeBounds.removeFromLeft(labelWidth));
+  ampEnvelopeYMaxSlider.setBounds(rangeBounds);
+
+  // 为 FM 包络容器内的控件设置布局
+  auto fmControlBounds = fmEnvControlRow.getLocalBounds();
+  fmEnvelopeToggle.setBounds(fmControlBounds.removeFromLeft(fmControlBounds.getWidth() * 0.7f));
+  fmEnvelopeClearButton.setBounds(fmControlBounds);
+
+  auto fmRangeBounds = fmEnvRangeRow.getLocalBounds();
+  fmEnvelopeYMinLabel.setBounds(fmRangeBounds.removeFromLeft(labelWidth));
+  fmEnvelopeYMinSlider.setBounds(fmRangeBounds.removeFromLeft(sliderWidth));
+  fmEnvelopeYMaxLabel.setBounds(fmRangeBounds.removeFromLeft(labelWidth));
+  fmEnvelopeYMaxSlider.setBounds(fmRangeBounds);
 }
 
 /**
@@ -164,38 +169,27 @@ void AudioPluginAudioProcessorEditor::refreshUIFromPreset() {
   }
   // Refresh the texteditor display
   // 保证展示不为空
-  if (!processorRef.apvts.state.getProperty(why::PropertyID::burstMask)
-           .isVoid()) {
-    juce::String burstMask =
-        processorRef.apvts.state.getProperty(why::PropertyID::burstMask)
-            .toString();
+  if (!processorRef.apvts.state.getProperty(why::PropertyID::burstMask).isVoid()) {
+    juce::String burstMask = processorRef.apvts.state.getProperty(why::PropertyID::burstMask).toString();
     if (burstMaskTextEditor.getText() != burstMask) {
       burstMaskTextEditor.setText(burstMask, juce::dontSendNotification);
     }
   }
-  if (!processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask)
-           .isVoid()) {
-    juce::String stochasticMaskText =
-        processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask)
-            .toString();
+  if (!processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).isVoid()) {
+    juce::String stochasticMaskText = processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask).toString();
     if (stochasticMaskTextEditor.getText() != stochasticMaskText) {
-      stochasticMaskTextEditor.setText(stochasticMaskText,
-                                       juce::dontSendNotification);
+      stochasticMaskTextEditor.setText(stochasticMaskText, juce::dontSendNotification);
     }
   }
 
   // display the lastest sample impulse file path
-  if (!processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath)
-           .isVoid()) {
-    juce::String newText =
-        processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath)
-            .toString();
+  if (!processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).isVoid()) {
+    juce::String newText = processorRef.apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
     if (newText != sampleImpulsePathTextEditor.getText()) {
       sampleImpulsePathTextEditor.setText(newText, juce::dontSendNotification);
       juce::File file(newText);
       if (!file.existsAsFile()) {
-        sampleImpulsePathTextEditor.setText("File does not exist: " + newText,
-                                            juce::dontSendNotification);
+        sampleImpulsePathTextEditor.setText("File does not exist: " + newText, juce::dontSendNotification);
       }
     }
   }
@@ -205,8 +199,7 @@ void AudioPluginAudioProcessorEditor::refreshUIFromPreset() {
  * invoke listener callback
  * @param source listener
  */
-void AudioPluginAudioProcessorEditor::changeListenerCallback(
-    juce::ChangeBroadcaster *source) {
+void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadcaster *source) {
   // reload preset：It will execute up to here only after the plugin window is
   // opened
   if (source == &processorRef && processorRef.isLoadingPresetFlag()) {
@@ -218,31 +211,28 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(
   // It is not triggered by reload preset but others like by parameterChanged
   if (source == &processorRef) {
     // 当train参数改变后，随机mask展示要刷新
-    juce::String currentStochasticMaskStr =
-        juce::String(processorRef.getPulsarSynthEngine()
-                         .getCurrentPulsarSynth()
-                         ->getStochasticMaskStr());
+    juce::String currentStochasticMaskStr = juce::String(processorRef.getPulsarSynthEngine().getCurrentPulsarSynth()->getStochasticMaskStr());
     if (stochasticMaskTextEditor.getText() != currentStochasticMaskStr) {
-      if (processorRef.apvts.state.getProperty(
-              why::PropertyID::stochasticMask) != currentStochasticMaskStr) {
+      if (processorRef.apvts.state.getProperty(why::PropertyID::stochasticMask) != currentStochasticMaskStr) {
         // property将会被存为state information，用来恢复参数
-        processorRef.apvts.state.setProperty(why::PropertyID::stochasticMask,
-                                             currentStochasticMaskStr, nullptr);
+        processorRef.apvts.state.setProperty(why::PropertyID::stochasticMask, currentStochasticMaskStr, nullptr);
       }
       // 展示最新stochastic
       // mask，最好加上dontSendNotification，将不会触发TextEditor::Listener；
-      stochasticMaskTextEditor.setText(currentStochasticMaskStr,
-                                       juce::dontSendNotification);
+      stochasticMaskTextEditor.setText(currentStochasticMaskStr, juce::dontSendNotification);
     }
   }
 
   // 包络画布数据变化时同步到 synth
   if (source == &ampEnvelopeCanvas) {
     auto envelopeData = ampEnvelopeCanvas.getEnvelopeData();
-    processorRef.getPulsarSynthEngine().executeCurSynthCallback(
-        [&](std::shared_ptr<PulsarSynth> &synth) {
-          synth->setAmpEnvelopeData(envelopeData);
-        });
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setAmpEnvelopeData(envelopeData); });
+  }
+
+  // FM 包络画布数据变化时同步到 synth
+  if (source == &fmEnvelopeCanvas) {
+    auto envelopeData = fmEnvelopeCanvas.getEnvelopeData();
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setFmEnvelopeData(envelopeData); });
   }
 }
 
@@ -258,99 +248,58 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(
  * @param playModeAndImpulseFlexBox  a flexbox includes play mode and impulse
  * file ui elements in a row
  */
-void AudioPluginAudioProcessorEditor::topFlexBox(
-    juce::FlexBox &flexBoxTop, std::shared_ptr<juce::FlexBox> trainLenFlexBox,
-    std::shared_ptr<juce::FlexBox> trainDutyCycleFlexBox,
-    std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox,
-    std::shared_ptr<juce::FlexBox> bpmFlexBox,
-    std::shared_ptr<juce::FlexBox> playModeAndImpulseFlexBox) {
+void AudioPluginAudioProcessorEditor::topFlexBox(juce::FlexBox &flexBoxTop, std::shared_ptr<juce::FlexBox> trainLenFlexBox, std::shared_ptr<juce::FlexBox> trainDutyCycleFlexBox,
+                                                 std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox, std::shared_ptr<juce::FlexBox> bpmFlexBox,
+                                                 std::shared_ptr<juce::FlexBox> playModeAndImpulseFlexBox) {
   flexBoxTop.flexDirection = juce::FlexBox::Direction::column;
   flexBoxTop.flexWrap = juce::FlexBox::Wrap::wrap; // 是否换行
   // flexBoxTop.justifyContent = juce::FlexBox::JustifyContent::spaceAround; //
   // 控件均匀分布
-  flexBoxTop.alignContent = juce::FlexBox::AlignContent::
-      stretch; // 在wrap换行时才有用，决定换行元素的排列
+  flexBoxTop.alignContent = juce::FlexBox::AlignContent::stretch; // 在wrap换行时才有用，决定换行元素的排列
   flexBoxTop.justifyContent = juce::FlexBox::JustifyContent::spaceBetween;
 
   // 每一行：Label + Slider
   trainLenFlexBox->flexDirection = juce::FlexBox::Direction::row;
   trainLenFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
-  trainLenFlexBox->items.add(
-      juce::FlexItem(trainLenLabel).withFlex(1).withMaxWidth(100));
+  trainLenFlexBox->items.add(juce::FlexItem(trainLenLabel).withFlex(1).withMaxWidth(100));
   // margin：上右下左
   trainLenFlexBox->items.add(juce::FlexItem(trainLenSlider).withFlex(2.5));
   flexBoxTop.items.add(juce::FlexItem(*trainLenFlexBox).withFlex(1.0f));
 
   trainDutyCycleFlexBox->flexDirection = juce::FlexBox::Direction::row;
-  trainDutyCycleFlexBox->justifyContent =
-      juce::FlexBox::JustifyContent::flexStart;
-  trainDutyCycleFlexBox->items.add(
-      juce::FlexItem(trainDutyCycleLenLabel).withFlex(1).withMaxWidth(100));
-  trainDutyCycleFlexBox->items.add(
-      juce::FlexItem(trainDutyCycleLenSlider).withFlex(2.5));
+  trainDutyCycleFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
+  trainDutyCycleFlexBox->items.add(juce::FlexItem(trainDutyCycleLenLabel).withFlex(1).withMaxWidth(100));
+  trainDutyCycleFlexBox->items.add(juce::FlexItem(trainDutyCycleLenSlider).withFlex(2.5));
   flexBoxTop.items.add(juce::FlexItem(*trainDutyCycleFlexBox).withFlex(1.0f));
 
   trainSilenceLenFlexBox->flexDirection = juce::FlexBox::Direction::row;
-  trainSilenceLenFlexBox->justifyContent =
-      juce::FlexBox::JustifyContent::flexStart;
-  trainSilenceLenFlexBox->items.add(
-      juce::FlexItem(trainSilenceLenLabel).withFlex(1).withMaxWidth(100));
-  trainSilenceLenFlexBox->items.add(
-      juce::FlexItem(trainSilenceLenSlider).withFlex(2.5));
+  trainSilenceLenFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
+  trainSilenceLenFlexBox->items.add(juce::FlexItem(trainSilenceLenLabel).withFlex(1).withMaxWidth(100));
+  trainSilenceLenFlexBox->items.add(juce::FlexItem(trainSilenceLenSlider).withFlex(2.5));
   flexBoxTop.items.add(juce::FlexItem(*trainSilenceLenFlexBox).withFlex(1.0f));
 
   bpmFlexBox->flexDirection = juce::FlexBox::Direction::row;
   bpmFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
-  bpmFlexBox->items.add(
-      juce::FlexItem(outputGainLabel).withFlex(1).withMaxWidth(100));
+  bpmFlexBox->items.add(juce::FlexItem(outputGainLabel).withFlex(1).withMaxWidth(100));
   bpmFlexBox->items.add(juce::FlexItem(outputGainSlider).withFlex(2.5));
   bpmFlexBox->items.add(juce::FlexItem().withFlex(0.1));
   bpmFlexBox->items.add(juce::FlexItem(bpmSlider).withFlex(1));
   flexBoxTop.items.add(juce::FlexItem(*bpmFlexBox).withFlex(1.0f));
 
   playModeAndImpulseFlexBox->flexDirection = juce::FlexBox::Direction::row;
-  playModeAndImpulseFlexBox->justifyContent =
-      juce::FlexBox::JustifyContent::spaceAround;
+  playModeAndImpulseFlexBox->justifyContent = juce::FlexBox::JustifyContent::spaceAround;
 
-  playModeAndImpulseFlexBox->items.add(juce::FlexItem(playModeLabel)
-                                           .withFlex(0.5)
-                                           .withMaxWidth(50)
-                                           .withMaxHeight(40));
-  playModeAndImpulseFlexBox->items.add(juce::FlexItem(playModeCombobox)
-                                           .withFlex(0.5)
-                                           .withMaxWidth(70)
-                                           .withMaxHeight(40));
+  playModeAndImpulseFlexBox->items.add(juce::FlexItem(playModeLabel).withFlex(0.5).withMaxWidth(50).withMaxHeight(40));
+  playModeAndImpulseFlexBox->items.add(juce::FlexItem(playModeCombobox).withFlex(0.5).withMaxWidth(70).withMaxHeight(40));
 
-  playModeAndImpulseFlexBox->items.add(juce::FlexItem(impulseSwitchLabel)
-                                           .withFlex(0.5)
-                                           .withMaxWidth(70)
-                                           .withMaxHeight(40));
-  playModeAndImpulseFlexBox->items.add(juce::FlexItem(impulseSwitchComboBox)
-                                           .withFlex(1)
-                                           .withMaxWidth(90)
-                                           .withMaxHeight(40));
-  playModeAndImpulseFlexBox->items.add(juce::FlexItem(impulseTemplateLabel)
-                                           .withFlex(0.5)
-                                           .withMaxWidth(60)
-                                           .withMaxHeight(40));
-  playModeAndImpulseFlexBox->items.add(
-      juce::FlexItem(impulseTemplateFileComboBox)
-          .withFlex(1.0)
-          .withMaxWidth(150)
-          .withMaxHeight(40));
+  playModeAndImpulseFlexBox->items.add(juce::FlexItem(impulseSwitchLabel).withFlex(0.5).withMaxWidth(70).withMaxHeight(40));
+  playModeAndImpulseFlexBox->items.add(juce::FlexItem(impulseSwitchComboBox).withFlex(1).withMaxWidth(90).withMaxHeight(40));
+  playModeAndImpulseFlexBox->items.add(juce::FlexItem(impulseTemplateLabel).withFlex(0.5).withMaxWidth(60).withMaxHeight(40));
+  playModeAndImpulseFlexBox->items.add(juce::FlexItem(impulseTemplateFileComboBox).withFlex(1.0).withMaxWidth(150).withMaxHeight(40));
   // row5->items.add(juce::FlexItem().withFlex(0.2));
-  playModeAndImpulseFlexBox->items.add(
-      juce::FlexItem(selectSampleImpulseFileButton)
-          .withFlex(0.5)
-          .withMaxWidth(100)
-          .withMaxHeight(40));
-  playModeAndImpulseFlexBox->items.add(
-      juce::FlexItem(sampleImpulsePathTextEditor)
-          .withFlex(1)
-          .withMaxWidth(500)
-          .withMaxHeight(50));
-  flexBoxTop.items.add(
-      juce::FlexItem(*playModeAndImpulseFlexBox).withFlex(1.5f));
+  playModeAndImpulseFlexBox->items.add(juce::FlexItem(selectSampleImpulseFileButton).withFlex(0.5).withMaxWidth(100).withMaxHeight(40));
+  playModeAndImpulseFlexBox->items.add(juce::FlexItem(sampleImpulsePathTextEditor).withFlex(1).withMaxWidth(500).withMaxHeight(50));
+  flexBoxTop.items.add(juce::FlexItem(*playModeAndImpulseFlexBox).withFlex(1.5f));
 }
 
 /**
@@ -369,165 +318,107 @@ void AudioPluginAudioProcessorEditor::topFlexBox(
  * @param sustainFlexBox sustain in a row
  * @param releaseFlexBox release in a row
  */
-void AudioPluginAudioProcessorEditor::bottomFlexBox(
-    juce::FlexBox &bottomFlexBox,
-    std::shared_ptr<juce::FlexBox> pulsarWaveformFlexBox,
-    std::shared_ptr<juce::FlexBox> pulsarDutyCycleClusterLenFlexBox,
-    std::shared_ptr<juce::FlexBox> pulsarDutyCycleRatioFlexBox,
-    std::shared_ptr<juce::FlexBox> ampEnvelopeFlexBox,
-    std::shared_ptr<juce::FlexBox> ampLfoDepthFlexBox,
-    std::shared_ptr<juce::FlexBox> formantFreqLfoWaveformFlexBox,
-    std::shared_ptr<juce::FlexBox> formantFreqLfoDepthFlexBox,
-    std::shared_ptr<juce::FlexBox> attackFlexBox,
-    std::shared_ptr<juce::FlexBox> decayFlexBox,
-    std::shared_ptr<juce::FlexBox> sustainFlexBox,
-    std::shared_ptr<juce::FlexBox> releaseFlexBox) {
+void AudioPluginAudioProcessorEditor::bottomFlexBox(juce::FlexBox &bottomFlexBox, std::shared_ptr<juce::FlexBox> pulsarWaveformFlexBox, std::shared_ptr<juce::FlexBox> pulsarDutyCycleClusterLenFlexBox,
+                                                    std::shared_ptr<juce::FlexBox> pulsarDutyCycleRatioFlexBox, std::shared_ptr<juce::FlexBox> ampEnvelopeFlexBox,
+                                                    std::shared_ptr<juce::FlexBox> ampLfoDepthFlexBox, std::shared_ptr<juce::FlexBox> formantFreqLfoWaveformFlexBox,
+                                                    std::shared_ptr<juce::FlexBox> formantFreqLfoDepthFlexBox, std::shared_ptr<juce::FlexBox> fmEnvelopeFlexBox,
+                                                    std::shared_ptr<juce::FlexBox> attackFlexBox, std::shared_ptr<juce::FlexBox> decayFlexBox, std::shared_ptr<juce::FlexBox> sustainFlexBox,
+                                                    std::shared_ptr<juce::FlexBox> releaseFlexBox) {
   bottomFlexBox.flexDirection = juce::FlexBox::Direction::row;
   // flexBoxLeftBottom.flexWrap = juce::FlexBox::Wrap::noWrap; // 是否换行
-  bottomFlexBox.justifyContent =
-      juce::FlexBox::JustifyContent::spaceAround; // 控件均匀分布
-  bottomFlexBox.alignContent = juce::FlexBox::AlignContent::flexStart; //
+  bottomFlexBox.justifyContent = juce::FlexBox::JustifyContent::spaceAround; // 控件均匀分布
+  bottomFlexBox.alignContent = juce::FlexBox::AlignContent::flexStart;       //
 
   pulsarWaveformFlexBox->flexDirection = juce::FlexBox::Direction::column;
   pulsarWaveformFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   // margin：上右下左
-  pulsarWaveformFlexBox->items.add(juce::FlexItem(pulsarWaveformLabel)
-                                       .withFlex(1.0)
-                                       .withMaxWidth(200)
-                                       .withMaxHeight(20));
-  pulsarWaveformFlexBox->items.add(juce::FlexItem(pulsarWaveformNameLabel)
-                                       .withFlex(0.5)
-                                       .withMaxHeight(16));
-  pulsarWaveformFlexBox->items.add(
-      juce::FlexItem(pulsarWaveformSlider).withFlex(2.0));
-  bottomFlexBox.items.add(
-      juce::FlexItem(*pulsarWaveformFlexBox).withFlex(1.0f));
+  pulsarWaveformFlexBox->items.add(juce::FlexItem(pulsarWaveformLabel).withFlex(1.0).withMaxWidth(200).withMaxHeight(20));
+  pulsarWaveformFlexBox->items.add(juce::FlexItem(pulsarWaveformNameLabel).withFlex(0.5).withMaxHeight(16));
+  pulsarWaveformFlexBox->items.add(juce::FlexItem(pulsarWaveformSlider).withFlex(2.0));
+  bottomFlexBox.items.add(juce::FlexItem(*pulsarWaveformFlexBox).withFlex(1.0f));
 
-  pulsarDutyCycleClusterLenFlexBox->alignContent =
-      juce::FlexBox::AlignContent::flexStart;
-  pulsarDutyCycleClusterLenFlexBox->flexDirection =
-      juce::FlexBox::Direction::column;
+  pulsarDutyCycleClusterLenFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
+  pulsarDutyCycleClusterLenFlexBox->flexDirection = juce::FlexBox::Direction::column;
   // margin：上右下左
-  pulsarDutyCycleClusterLenFlexBox->items.add(
-      juce::FlexItem(pulsarDutyCycleClusterLenLabel)
-          .withFlex(1)
-          .withMaxWidth(200)
-          .withMaxHeight(20));
-  pulsarDutyCycleClusterLenFlexBox->items.add(
-      juce::FlexItem(pulsarDutyCycleClusterLenSlider).withFlex(2.0));
-  bottomFlexBox.items.add(
-      juce::FlexItem(*pulsarDutyCycleClusterLenFlexBox).withFlex(1.0f));
+  pulsarDutyCycleClusterLenFlexBox->items.add(juce::FlexItem(pulsarDutyCycleClusterLenLabel).withFlex(1).withMaxWidth(200).withMaxHeight(20));
+  pulsarDutyCycleClusterLenFlexBox->items.add(juce::FlexItem(pulsarDutyCycleClusterLenSlider).withFlex(2.0));
+  bottomFlexBox.items.add(juce::FlexItem(*pulsarDutyCycleClusterLenFlexBox).withFlex(1.0f));
 
   pulsarDutyCycleRatioFlexBox->flexDirection = juce::FlexBox::Direction::column;
-  pulsarDutyCycleRatioFlexBox->alignContent =
-      juce::FlexBox::AlignContent::flexStart;
+  pulsarDutyCycleRatioFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   // margin：上右下左
-  pulsarDutyCycleRatioFlexBox->items.add(
-      juce::FlexItem(pulsarDutyCycleRatioLabel)
-          .withFlex(1)
-          .withMaxWidth(200)
-          .withMaxHeight(20));
-  pulsarDutyCycleRatioFlexBox->items.add(
-      juce::FlexItem(pulsarDutyCycleRatioSlider).withFlex(2.0));
-  bottomFlexBox.items.add(
-      juce::FlexItem(*pulsarDutyCycleRatioFlexBox).withFlex(1.0f));
+  pulsarDutyCycleRatioFlexBox->items.add(juce::FlexItem(pulsarDutyCycleRatioLabel).withFlex(1).withMaxWidth(200).withMaxHeight(20));
+  pulsarDutyCycleRatioFlexBox->items.add(juce::FlexItem(pulsarDutyCycleRatioSlider).withFlex(2.0));
+  bottomFlexBox.items.add(juce::FlexItem(*pulsarDutyCycleRatioFlexBox).withFlex(1.0f));
 
   // AM 包络绘制区域 + Y轴范围控制
   ampEnvelopeFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   ampEnvelopeFlexBox->flexDirection = juce::FlexBox::Direction::column;
-  ampEnvelopeFlexBox->items.add(
-      juce::FlexItem(ampEnvelopeLabel).withFlex(0.5).withMaxHeight(18));
-  // 启用开关和清空按钮行
-  juce::FlexBox ampEnvControlRow;
-  ampEnvControlRow.flexDirection = juce::FlexBox::Direction::row;
-  ampEnvControlRow.items.add(juce::FlexItem(ampEnvelopeToggle).withFlex(1.0f));
-  ampEnvControlRow.items.add(juce::FlexItem(ampEnvelopeClearButton).withFlex(0.5f).withMaxWidth(50));
-  ampEnvelopeFlexBox->items.add(
-      juce::FlexItem(ampEnvControlRow).withFlex(0.5).withMaxHeight(24));
-  // Y轴范围滑块
-  juce::FlexBox ampEnvRangeRow;
-  ampEnvRangeRow.flexDirection = juce::FlexBox::Direction::row;
-  ampEnvRangeRow.items.add(juce::FlexItem(ampEnvelopeYMinSlider).withFlex(1.0f));
-  ampEnvRangeRow.items.add(juce::FlexItem(ampEnvelopeYMaxSlider).withFlex(1.0f));
-  ampEnvelopeFlexBox->items.add(
-      juce::FlexItem(ampEnvRangeRow).withFlex(0.5).withMaxHeight(24));
+  ampEnvelopeFlexBox->items.add(juce::FlexItem(ampEnvelopeLabel).withFlex(0.5).withMaxHeight(18));
+  // 启用开关和清空按钮行 (使用 Component 容器)
+  ampEnvelopeFlexBox->items.add(juce::FlexItem(ampEnvControlRow).withFlex(0.5).withMaxHeight(24));
+  // Y轴范围滑块 (使用 Component 容器)
+  ampEnvelopeFlexBox->items.add(juce::FlexItem(ampEnvRangeRow).withFlex(0.5).withMaxHeight(24));
   // 包络画布
-  ampEnvelopeFlexBox->items.add(
-      juce::FlexItem(ampEnvelopeCanvas).withFlex(2.0).withMinHeight(80));
-  bottomFlexBox.items.add(
-      juce::FlexItem(*ampEnvelopeFlexBox).withFlex(1.5f));
+  ampEnvelopeFlexBox->items.add(juce::FlexItem(ampEnvelopeCanvas).withFlex(2.0).withMinHeight(80));
+  bottomFlexBox.items.add(juce::FlexItem(*ampEnvelopeFlexBox).withFlex(1.5f));
 
   ampLfoDepthFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   ampLfoDepthFlexBox->flexDirection = juce::FlexBox::Direction::column;
-  ampLfoDepthFlexBox->items.add(
-      juce::FlexItem(ampLfoDepthLabel).withFlex(1).withMaxHeight(20));
-  ampLfoDepthFlexBox->items.add(
-      juce::FlexItem(ampLfoDepthSlider).withFlex(2.0));
+  ampLfoDepthFlexBox->items.add(juce::FlexItem(ampLfoDepthLabel).withFlex(1).withMaxHeight(20));
+  ampLfoDepthFlexBox->items.add(juce::FlexItem(ampLfoDepthSlider).withFlex(2.0));
   bottomFlexBox.items.add(juce::FlexItem(*ampLfoDepthFlexBox).withFlex(1.0f));
 
-  formantFreqLfoWaveformFlexBox->alignContent =
-      juce::FlexBox::AlignContent::flexStart;
-  formantFreqLfoWaveformFlexBox->flexDirection =
-      juce::FlexBox::Direction::column;
-  formantFreqLfoWaveformFlexBox->items.add(
-      juce::FlexItem(formantFreqLfoWaveformLabel)
-          .withFlex(1)
-          .withMaxHeight(20));
-  formantFreqLfoWaveformFlexBox->items.add(
-      juce::FlexItem(formantFreqLfoWaveformCombo)
-          .withFlex(1)
-          .withMaxHeight(28));
-  bottomFlexBox.items.add(
-      juce::FlexItem(*formantFreqLfoWaveformFlexBox).withFlex(0.8f));
+  formantFreqLfoWaveformFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
+  formantFreqLfoWaveformFlexBox->flexDirection = juce::FlexBox::Direction::column;
+  formantFreqLfoWaveformFlexBox->items.add(juce::FlexItem(formantFreqLfoWaveformLabel).withFlex(1).withMaxHeight(20));
+  formantFreqLfoWaveformFlexBox->items.add(juce::FlexItem(formantFreqLfoWaveformCombo).withFlex(1).withMaxHeight(28));
+  bottomFlexBox.items.add(juce::FlexItem(*formantFreqLfoWaveformFlexBox).withFlex(0.8f));
 
-  formantFreqLfoDepthFlexBox->alignContent =
-      juce::FlexBox::AlignContent::flexStart;
+  formantFreqLfoDepthFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   formantFreqLfoDepthFlexBox->flexDirection = juce::FlexBox::Direction::column;
-  formantFreqLfoDepthFlexBox->items.add(
-      juce::FlexItem(formantFreqLfoDepthLabel).withFlex(1).withMaxHeight(20));
-  formantFreqLfoDepthFlexBox->items.add(
-      juce::FlexItem(formantFreqLfoDepthSlider).withFlex(2.0));
-  bottomFlexBox.items.add(
-      juce::FlexItem(*formantFreqLfoDepthFlexBox).withFlex(1.0f));
+  formantFreqLfoDepthFlexBox->items.add(juce::FlexItem(formantFreqLfoDepthLabel).withFlex(1).withMaxHeight(20));
+  formantFreqLfoDepthFlexBox->items.add(juce::FlexItem(formantFreqLfoDepthSlider).withFlex(2.0));
+  bottomFlexBox.items.add(juce::FlexItem(*formantFreqLfoDepthFlexBox).withFlex(1.0f));
+
+  // FM 包络绘制区域 + Y轴范围控制 (使用传入的 fmEnvelopeFlexBox 参数)
+  fmEnvelopeFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
+  fmEnvelopeFlexBox->flexDirection = juce::FlexBox::Direction::column;
+  fmEnvelopeFlexBox->items.add(juce::FlexItem(fmEnvelopeLabel).withFlex(0.5).withMaxHeight(18));
+  // 启用开关和清空按钮行
+  fmEnvelopeFlexBox->items.add(juce::FlexItem(fmEnvControlRow).withFlex(0.5).withMaxHeight(24));
+  // Y轴范围滑块
+  fmEnvelopeFlexBox->items.add(juce::FlexItem(fmEnvRangeRow).withFlex(0.5).withMaxHeight(24));
+  // 包络画布
+  fmEnvelopeFlexBox->items.add(juce::FlexItem(fmEnvelopeCanvas).withFlex(2.0).withMinHeight(80));
+  bottomFlexBox.items.add(juce::FlexItem(*fmEnvelopeFlexBox).withFlex(1.5f));
 
   // envelope
   attackFlexBox->flexDirection = juce::FlexBox::Direction::column;
   attackFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   // margin：上右下左
-  attackFlexBox->items.add(juce::FlexItem(attackLabel)
-                               .withFlex(1)
-                               .withMaxWidth(200)
-                               .withMaxHeight(20));
+  attackFlexBox->items.add(juce::FlexItem(attackLabel).withFlex(1).withMaxWidth(200).withMaxHeight(20));
   attackFlexBox->items.add(juce::FlexItem(attackSlider).withFlex(2.0));
   bottomFlexBox.items.add(juce::FlexItem(*attackFlexBox).withFlex(1.0f));
 
   decayFlexBox->flexDirection = juce::FlexBox::Direction::column;
   decayFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   // margin：上右下左
-  decayFlexBox->items.add(juce::FlexItem(decayLabel)
-                              .withFlex(1)
-                              .withMaxWidth(200)
-                              .withMaxHeight(20));
+  decayFlexBox->items.add(juce::FlexItem(decayLabel).withFlex(1).withMaxWidth(200).withMaxHeight(20));
   decayFlexBox->items.add(juce::FlexItem(decaySlider).withFlex(2.0));
   bottomFlexBox.items.add(juce::FlexItem(*decayFlexBox).withFlex(1.0f));
 
   sustainFlexBox->flexDirection = juce::FlexBox::Direction::column;
   sustainFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   // margin：上右下左
-  sustainFlexBox->items.add(juce::FlexItem(sustainLabel)
-                                .withFlex(1)
-                                .withMaxWidth(200)
-                                .withMaxHeight(20));
+  sustainFlexBox->items.add(juce::FlexItem(sustainLabel).withFlex(1).withMaxWidth(200).withMaxHeight(20));
   sustainFlexBox->items.add(juce::FlexItem(sustainSlider).withFlex(2.0));
   bottomFlexBox.items.add(juce::FlexItem(*sustainFlexBox).withFlex(1.0f));
 
   releaseFlexBox->flexDirection = juce::FlexBox::Direction::column;
   releaseFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   // margin：上右下左
-  releaseFlexBox->items.add(juce::FlexItem(releaseLabel)
-                                .withFlex(1)
-                                .withMaxWidth(200)
-                                .withMaxHeight(20));
+  releaseFlexBox->items.add(juce::FlexItem(releaseLabel).withFlex(1).withMaxWidth(200).withMaxHeight(20));
   releaseFlexBox->items.add(juce::FlexItem(releaseSlider).withFlex(2.0));
   bottomFlexBox.items.add(juce::FlexItem(*releaseFlexBox).withFlex(1.0f));
 
@@ -545,75 +436,41 @@ void AudioPluginAudioProcessorEditor::bottomFlexBox(
  * @param euclidHitFlexBox euclid hit in a row
  * @param stochasticMaskFlexBox stochastic mask in a row
  */
-void AudioPluginAudioProcessorEditor::midFlexBox(
-    juce::FlexBox &midFlexBox, std::shared_ptr<juce::FlexBox> maskOptionFlexBox,
-    std::shared_ptr<juce::FlexBox> burstMaskFlexBox,
-    std::shared_ptr<juce::FlexBox> euclidStepFlexBox,
-    std::shared_ptr<juce::FlexBox> euclidHitFlexBox,
-    std::shared_ptr<juce::FlexBox> stochasticMaskFlexBox) {
-  midFlexBox.flexDirection =
-      juce::FlexBox::Direction::row; // 水平排列（三个Slider）
+void AudioPluginAudioProcessorEditor::midFlexBox(juce::FlexBox &midFlexBox, std::shared_ptr<juce::FlexBox> maskOptionFlexBox, std::shared_ptr<juce::FlexBox> burstMaskFlexBox,
+                                                 std::shared_ptr<juce::FlexBox> euclidStepFlexBox, std::shared_ptr<juce::FlexBox> euclidHitFlexBox,
+                                                 std::shared_ptr<juce::FlexBox> stochasticMaskFlexBox) {
+  midFlexBox.flexDirection = juce::FlexBox::Direction::row; // 水平排列（三个Slider）
 
   maskOptionFlexBox->flexDirection = juce::FlexBox::Direction::row;
   maskOptionFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
-  maskOptionFlexBox->items.add(juce::FlexItem(maskComboBoxLabel)
-                                   .withFlex(1.0)
-                                   .withMaxWidth(100)
-                                   .withMaxHeight(20));
-  maskOptionFlexBox->items.add(
-      juce::FlexItem(maskOptionComboBox).withFlex(1.0).withMaxHeight(20));
+  maskOptionFlexBox->items.add(juce::FlexItem(maskComboBoxLabel).withFlex(1.0).withMaxWidth(100).withMaxHeight(20));
+  maskOptionFlexBox->items.add(juce::FlexItem(maskOptionComboBox).withFlex(1.0).withMaxHeight(20));
   midFlexBox.items.add(juce::FlexItem(*maskOptionFlexBox).withFlex(1.0f));
 
   burstMaskFlexBox->flexDirection = juce::FlexBox::Direction::row;
   burstMaskFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
-  burstMaskFlexBox->items.add(juce::FlexItem(burstMaskLabel)
-                                  .withFlex(1.0)
-                                  .withMaxWidth(100)
-                                  .withMaxHeight(20));
-  burstMaskFlexBox->items.add(juce::FlexItem(burstMaskTextEditor)
-                                  .withFlex(1.0)
-                                  .withMinWidth(100)
-                                  .withMaxWidth(250)
-                                  .withMaxHeight(150));
+  burstMaskFlexBox->items.add(juce::FlexItem(burstMaskLabel).withFlex(1.0).withMaxWidth(100).withMaxHeight(20));
+  burstMaskFlexBox->items.add(juce::FlexItem(burstMaskTextEditor).withFlex(1.0).withMinWidth(100).withMaxWidth(250).withMaxHeight(150));
   midFlexBox.items.add(juce::FlexItem(*burstMaskFlexBox).withFlex(1.5f));
 
   euclidStepFlexBox->flexDirection = juce::FlexBox::Direction::row;
   // flexBoxTop->justifyContent = juce::FlexBox::JustifyContent::spaceAround; //
   // 控件均匀分布
   euclidStepFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
-  euclidStepFlexBox->items.add(juce::FlexItem(euclidStepLabel)
-                                   .withFlex(1.0)
-                                   .withMaxWidth(100)
-                                   .withMaxHeight(20));
-  euclidStepFlexBox->items.add(juce::FlexItem(euclidStepSlider)
-                                   .withFlex(1.0)
-                                   .withMaxWidth(50)
-                                   .withMaxHeight(150));
+  euclidStepFlexBox->items.add(juce::FlexItem(euclidStepLabel).withFlex(1.0).withMaxWidth(100).withMaxHeight(20));
+  euclidStepFlexBox->items.add(juce::FlexItem(euclidStepSlider).withFlex(1.0).withMaxWidth(50).withMaxHeight(150));
   midFlexBox.items.add(juce::FlexItem(*euclidStepFlexBox).withFlex(0.9f));
 
   euclidHitFlexBox->flexDirection = juce::FlexBox::Direction::row;
   euclidHitFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
-  euclidHitFlexBox->items.add(juce::FlexItem(euclidHitLabel)
-                                  .withFlex(1.0)
-                                  .withMaxWidth(100)
-                                  .withMaxHeight(20));
-  euclidHitFlexBox->items.add(juce::FlexItem(euclidHitSlider)
-                                  .withFlex(1.0)
-                                  .withMaxWidth(50)
-                                  .withMaxHeight(150));
+  euclidHitFlexBox->items.add(juce::FlexItem(euclidHitLabel).withFlex(1.0).withMaxWidth(100).withMaxHeight(20));
+  euclidHitFlexBox->items.add(juce::FlexItem(euclidHitSlider).withFlex(1.0).withMaxWidth(50).withMaxHeight(150));
   midFlexBox.items.add(juce::FlexItem(*euclidHitFlexBox).withFlex(0.9f));
 
   stochasticMaskFlexBox->flexDirection = juce::FlexBox::Direction::row;
-  stochasticMaskFlexBox->justifyContent =
-      juce::FlexBox::JustifyContent::flexStart;
-  stochasticMaskFlexBox->items.add(juce::FlexItem(stochasticMaskLabel)
-                                       .withFlex(1.0)
-                                       .withMaxWidth(100)
-                                       .withMaxHeight(20));
-  stochasticMaskFlexBox->items.add(juce::FlexItem(stochasticMaskTextEditor)
-                                       .withFlex(1.0)
-                                       .withMaxWidth(250)
-                                       .withMaxHeight(150));
+  stochasticMaskFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
+  stochasticMaskFlexBox->items.add(juce::FlexItem(stochasticMaskLabel).withFlex(1.0).withMaxWidth(100).withMaxHeight(20));
+  stochasticMaskFlexBox->items.add(juce::FlexItem(stochasticMaskTextEditor).withFlex(1.0).withMaxWidth(250).withMaxHeight(150));
   midFlexBox.items.add(juce::FlexItem(*stochasticMaskFlexBox).withFlex(1.5f));
 
   // flexBoxMiddle.performLayout(area.removeFromTop(150));
@@ -666,6 +523,34 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   addAndMakeVisible(ampLfoDepthSlider);
   addAndMakeVisible(ampLfoDepthLabel);
   addAndMakeVisible(ampEnvelopeClearButton);
+  addAndMakeVisible(ampEnvControlRow);
+  addAndMakeVisible(ampEnvRangeRow);
+  // 将子控件添加到容器中
+  ampEnvControlRow.addAndMakeVisible(ampEnvelopeToggle);
+  ampEnvControlRow.addAndMakeVisible(ampEnvelopeClearButton);
+  ampEnvRangeRow.addAndMakeVisible(ampEnvelopeYMinSlider);
+  ampEnvRangeRow.addAndMakeVisible(ampEnvelopeYMinLabel);
+  ampEnvRangeRow.addAndMakeVisible(ampEnvelopeYMaxSlider);
+  ampEnvRangeRow.addAndMakeVisible(ampEnvelopeYMaxLabel);
+
+  // FM 包络控件
+  addAndMakeVisible(fmEnvelopeCanvas);
+  addAndMakeVisible(fmEnvelopeLabel);
+  addAndMakeVisible(fmEnvelopeToggle);
+  addAndMakeVisible(fmEnvelopeYMinSlider);
+  addAndMakeVisible(fmEnvelopeYMinLabel);
+  addAndMakeVisible(fmEnvelopeYMaxSlider);
+  addAndMakeVisible(fmEnvelopeYMaxLabel);
+  addAndMakeVisible(fmEnvelopeClearButton);
+  addAndMakeVisible(fmEnvControlRow);
+  addAndMakeVisible(fmEnvRangeRow);
+  // 将子控件添加到 FM 容器中
+  fmEnvControlRow.addAndMakeVisible(fmEnvelopeToggle);
+  fmEnvControlRow.addAndMakeVisible(fmEnvelopeClearButton);
+  fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMinSlider);
+  fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMinLabel);
+  fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMaxSlider);
+  fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMaxLabel);
 
   addAndMakeVisible(formantFreqLfoWaveformCombo);
   addAndMakeVisible(formantFreqLfoWaveformLabel);
@@ -717,10 +602,8 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
 
   // play mode
   // item id不能为0，但是parameter获取到的值是从0开始
-  playModeCombobox.addItem(
-      "Off", static_cast<int>(why::PlayModeEnum::NotSelected) + 1);
-  playModeCombobox.addItem("Auto",
-                           static_cast<int>(why::PlayModeEnum::Auto) + 1);
+  playModeCombobox.addItem("Off", static_cast<int>(why::PlayModeEnum::NotSelected) + 1);
+  playModeCombobox.addItem("Auto", static_cast<int>(why::PlayModeEnum::Auto) + 1);
   // setSelectId也会触发event回调，所以重新打开插件窗口，会触发event事件，没必要，因为该combobox绑定了attachment，会自动更新为最新
   //  playModeCombobox.setSelectedId(1);
 
@@ -741,17 +624,14 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   // trainLenLabel.attachToComponent(&trainLenSlider, true);
 
   trainDutyCycleLenSlider.setSliderStyle(juce::Slider::LinearHorizontal);
-  trainDutyCycleLenSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80,
-                                          20);
+  trainDutyCycleLenSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
   trainDutyCycleLenSlider.setTextValueSuffix(" (count)");
 
-  trainDutyCycleLenLabel.setText("Train Duty Cycle",
-                                 juce::dontSendNotification);
+  trainDutyCycleLenLabel.setText("Train Duty Cycle", juce::dontSendNotification);
   // trainDutyCycleLenLabel.attachToComponent(&trainDutyCycleLenSlider, true);
 
   trainSilenceLenSlider.setSliderStyle(juce::Slider::LinearHorizontal);
-  trainSilenceLenSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80,
-                                        20);
+  trainSilenceLenSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
   trainSilenceLenSlider.setTextValueSuffix(" (count)");
 
   trainSilenceLenLabel.setText("Train Silence", juce::dontSendNotification);
@@ -759,8 +639,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
 
   // pulsar
   pulsarWaveformSlider.setSliderStyle(juce::Slider::LinearVertical);
-  pulsarWaveformSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50,
-                                       20);
+  pulsarWaveformSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
   pulsarWaveformSlider.setTextValueSuffix("");
   pulsarWaveformSlider.setRange(0.0, 1.0, 0.001);
 
@@ -770,40 +649,31 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   pulsarWaveformNameLabel.setJustificationType(juce::Justification::centred);
   pulsarWaveformNameLabel.setFont(juce::Font(13.0f));
   auto updateWaveformName = [this]() {
-    static const juce::StringArray names = {
-        "Sine", "Triangle", "SoftSaw", "Saw", "PWM", "Square", "SmRand",
-        "StpRand"};
+    static const juce::StringArray names = {"Sine", "Triangle", "SoftSaw", "Saw", "PWM", "Square", "SmRand", "StpRand"};
     int numWaveforms = names.size();
     float val = static_cast<float>(pulsarWaveformSlider.getValue());
-    int idx = juce::jlimit(0, numWaveforms - 1,
-                           static_cast<int>(val * (numWaveforms - 1) + 0.5f));
-    float crossfade =
-        val * (numWaveforms - 1) - static_cast<int>(val * (numWaveforms - 1));
+    int idx = juce::jlimit(0, numWaveforms - 1, static_cast<int>(val * (numWaveforms - 1) + 0.5f));
+    float crossfade = val * (numWaveforms - 1) - static_cast<int>(val * (numWaveforms - 1));
     int idxNext = juce::jlimit(0, numWaveforms - 1, idx + 1);
     if (crossfade < 0.05f || idx == idxNext)
       pulsarWaveformNameLabel.setText(names[idx], juce::dontSendNotification);
     else
-      pulsarWaveformNameLabel.setText(names[idx] + " > " + names[idxNext],
-                                      juce::dontSendNotification);
+      pulsarWaveformNameLabel.setText(names[idx] + " > " + names[idxNext], juce::dontSendNotification);
   };
   pulsarWaveformSlider.onValueChange = updateWaveformName;
   updateWaveformName();
 
   pulsarDutyCycleClusterLenSlider.setSliderStyle(juce::Slider::LinearVertical);
-  pulsarDutyCycleClusterLenSlider.setTextBoxStyle(juce::Slider::TextBoxBelow,
-                                                  false, 50, 20);
+  pulsarDutyCycleClusterLenSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
   pulsarDutyCycleClusterLenSlider.setTextValueSuffix("");
 
-  pulsarDutyCycleClusterLenLabel.setText("Pg Duty Cycle Cluster",
-                                         juce::dontSendNotification);
+  pulsarDutyCycleClusterLenLabel.setText("Pg Duty Cycle Cluster", juce::dontSendNotification);
 
   pulsarDutyCycleRatioSlider.setSliderStyle(juce::Slider::LinearVertical);
-  pulsarDutyCycleRatioSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false,
-                                             50, 20);
+  pulsarDutyCycleRatioSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
   pulsarDutyCycleRatioSlider.setTextValueSuffix("");
 
-  pulsarDutyCycleRatioLabel.setText("Pg Duty Cycle Ratio",
-                                    juce::dontSendNotification);
+  pulsarDutyCycleRatioLabel.setText("Pg Duty Cycle Ratio", juce::dontSendNotification);
 
   // AM 包络绘制控件样式
   ampEnvelopeLabel.setText("AM Envelope", juce::dontSendNotification);
@@ -823,6 +693,28 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
 
   ampEnvelopeCanvas.setYAxisRange(0.1f, 10.0f);
 
+  // FM 包络绘制控件样式
+  fmEnvelopeLabel.setText("FM Envelope", juce::dontSendNotification);
+  fmEnvelopeToggle.setToggleState(false, juce::dontSendNotification);
+
+  fmEnvelopeYMinSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+  fmEnvelopeYMinSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
+  fmEnvelopeYMinSlider.setRange(-24.0, 0.0, 0.1);
+  fmEnvelopeYMinSlider.setValue(-12.0);
+  fmEnvelopeYMinLabel.setText("Min", juce::dontSendNotification);
+
+  fmEnvelopeYMaxSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+  fmEnvelopeYMaxSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
+  fmEnvelopeYMaxSlider.setRange(0.0, 24.0, 0.1);
+  fmEnvelopeYMaxSlider.setValue(12.0);
+  fmEnvelopeYMaxLabel.setText("Max", juce::dontSendNotification);
+
+  fmEnvelopeCanvas.setYAxisRange(-12.0f, 12.0f);
+  // FM 包络默认值为 0.0（无调制）
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultFmData{};
+  defaultFmData.fill(0.0f);
+  fmEnvelopeCanvas.setEnvelopeData(defaultFmData);
+
   ampLfoDepthSlider.setSliderStyle(juce::Slider::LinearVertical);
   ampLfoDepthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
   ampLfoDepthSlider.setTextValueSuffix("");
@@ -837,8 +729,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   formantFreqLfoWaveformLabel.setText("FM Shape", juce::dontSendNotification);
 
   formantFreqLfoDepthSlider.setSliderStyle(juce::Slider::LinearVertical);
-  formantFreqLfoDepthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false,
-                                            50, 20);
+  formantFreqLfoDepthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
   formantFreqLfoDepthSlider.setTextValueSuffix("");
   formantFreqLfoDepthSlider.setRange(0.0, 1.0, 0.001);
   formantFreqLfoDepthLabel.setText("FM Depth", juce::dontSendNotification);
@@ -870,16 +761,11 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
 
   // masking
   maskComboBoxLabel.setText("Mask Mode", juce::dontSendNotification);
-  maskOptionComboBox.addItem("Off",
-                             static_cast<int>(why::MaskOptionEnum::Off) + 1);
+  maskOptionComboBox.addItem("Off", static_cast<int>(why::MaskOptionEnum::Off) + 1);
   // item id不能为0，但是parameter获取到的值是从0开始
-  maskOptionComboBox.addItem(
-      "Burst Mask", static_cast<int>(why::MaskOptionEnum::BurstMask) + 1);
-  maskOptionComboBox.addItem(
-      "Euclid Mask", static_cast<int>(why::MaskOptionEnum::EuclidMask) + 1);
-  maskOptionComboBox.addItem(
-      "Stochastic Mask",
-      static_cast<int>(why::MaskOptionEnum::StochasticMask) + 1);
+  maskOptionComboBox.addItem("Burst Mask", static_cast<int>(why::MaskOptionEnum::BurstMask) + 1);
+  maskOptionComboBox.addItem("Euclid Mask", static_cast<int>(why::MaskOptionEnum::EuclidMask) + 1);
+  maskOptionComboBox.addItem("Stochastic Mask", static_cast<int>(why::MaskOptionEnum::StochasticMask) + 1);
   // maskOptionComboBox.setSelectedId(1);
 
   impulseTemplateLabel.setText("Template", juce::dontSendNotification);
@@ -890,17 +776,13 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   burstMaskTextEditor.setMultiLine(true);
   burstMaskTextEditor.setScrollbarsShown(true);
   burstMaskTextEditor.setPopupMenuEnabled(false);
-  burstMaskTextEditor.setReturnKeyStartsNewLine(
-      false); // 按回车不换行（默认也是 false）
-  burstMaskTextEditor.setInputRestrictions(256, "01"); // 限制只输入0或1
-  burstMaskTextEditor.setInputFilter(
-      new juce::TextEditor::LengthAndCharacterRestriction(
-          256, // 最长 256 个字符（你可以改）
-          "01" // 只允许字符 '0' 和 '1'
-          ),
-      true); // true 表示替换当前 filter
-  burstMaskTextEditor.setTextToShowWhenEmpty("Only 0 or 1 can be input",
-                                             juce::Colours::grey);
+  burstMaskTextEditor.setReturnKeyStartsNewLine(false);                                       // 按回车不换行（默认也是 false）
+  burstMaskTextEditor.setInputRestrictions(256, "01");                                        // 限制只输入0或1
+  burstMaskTextEditor.setInputFilter(new juce::TextEditor::LengthAndCharacterRestriction(256, // 最长 256 个字符（你可以改）
+                                                                                         "01" // 只允许字符 '0' 和 '1'
+                                                                                         ),
+                                     true); // true 表示替换当前 filter
+  burstMaskTextEditor.setTextToShowWhenEmpty("Only 0 or 1 can be input", juce::Colours::grey);
 
   euclidStepLabel.setText("Euclid Step", juce::dontSendNotification);
 
@@ -922,23 +804,17 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   stochasticMaskTextEditor.setReadOnly(true);
   stochasticMaskTextEditor.setScrollbarsShown(true);
   stochasticMaskTextEditor.setPopupMenuEnabled(false);
-  stochasticMaskTextEditor.setReturnKeyStartsNewLine(
-      false); // 按回车不换行（默认也是 false）
-  stochasticMaskTextEditor.setInputRestrictions(0, "01"); // 限制只输入0或1
-  stochasticMaskTextEditor.setTextToShowWhenEmpty("Generated mask will be here",
-                                                  juce::Colours::grey);
+  stochasticMaskTextEditor.setReturnKeyStartsNewLine(false); // 按回车不换行（默认也是 false）
+  stochasticMaskTextEditor.setInputRestrictions(0, "01");    // 限制只输入0或1
+  stochasticMaskTextEditor.setTextToShowWhenEmpty("Generated mask will be here", juce::Colours::grey);
 
   // 卷积
   //  设置按钮文本
   selectSampleImpulseFileButton.setButtonText("Select Sample");
 
-  impulseSwitchComboBox.addItem(
-      "Off", static_cast<int>(why::ImpulseSwitchEnum::Off) + 1);
-  impulseSwitchComboBox.addItem(
-      "Template Impluse",
-      static_cast<int>(why::ImpulseSwitchEnum::Template) + 1);
-  impulseSwitchComboBox.addItem(
-      "Sample Source", static_cast<int>(why::ImpulseSwitchEnum::Sample) + 1);
+  impulseSwitchComboBox.addItem("Off", static_cast<int>(why::ImpulseSwitchEnum::Off) + 1);
+  impulseSwitchComboBox.addItem("Template Impluse", static_cast<int>(why::ImpulseSwitchEnum::Template) + 1);
+  impulseSwitchComboBox.addItem("Sample Source", static_cast<int>(why::ImpulseSwitchEnum::Sample) + 1);
   // impulseSwitchComboBox.setSelectedId(1);
 
   impulseSwitchLabel.setText("Impulse", juce::dontSendNotification);
@@ -950,11 +826,9 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   sampleImpulsePathTextEditor.setReadOnly(true);
   sampleImpulsePathTextEditor.setScrollbarsShown(true);
   sampleImpulsePathTextEditor.setPopupMenuEnabled(false);
-  sampleImpulsePathTextEditor.setReturnKeyStartsNewLine(
-      false); // 按回车不换行（默认也是 false）
-  sampleImpulsePathTextEditor.setInputRestrictions(0, "01"); // 限制只输入0或1
-  sampleImpulsePathTextEditor.setTextToShowWhenEmpty("No selected file",
-                                                     juce::Colours::grey);
+  sampleImpulsePathTextEditor.setReturnKeyStartsNewLine(false); // 按回车不换行（默认也是 false）
+  sampleImpulsePathTextEditor.setInputRestrictions(0, "01");    // 限制只输入0或1
+  sampleImpulsePathTextEditor.setTextToShowWhenEmpty("No selected file", juce::Colours::grey);
 }
 
 /**
@@ -964,89 +838,41 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
  */
 void AudioPluginAudioProcessorEditor::connectUIAndAudioParameter() {
   // 绑定UI与Parameter
-  outputGainAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::outputGain, outputGainSlider);
+  outputGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::outputGain, outputGainSlider);
 
-  playModeComboboxAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
-          processorRef.apvts, why::ParameterID::playMode, playModeCombobox);
+  playModeComboboxAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processorRef.apvts, why::ParameterID::playMode, playModeCombobox);
 
-  bpmAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::bpm, bpmSlider);
+  bpmAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::bpm, bpmSlider);
 
   // train
-  trainLenAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::trainLen, trainLenSlider);
-  trainDutyCycleAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::trainDutyCycleLen,
-          trainDutyCycleLenSlider);
-  trainSilenceAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::trainSilenceLen,
-          trainSilenceLenSlider);
+  trainLenAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::trainLen, trainLenSlider);
+  trainDutyCycleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::trainDutyCycleLen, trainDutyCycleLenSlider);
+  trainSilenceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::trainSilenceLen, trainSilenceLenSlider);
 
   // pulsar
-  pulsarWaveformAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::pulsarWaveform,
-          pulsarWaveformSlider);
+  pulsarWaveformAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::pulsarWaveform, pulsarWaveformSlider);
   pulsarDutyCycleClusterLenAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::pulsarDutyCycleClusterLen,
-          pulsarDutyCycleClusterLenSlider);
-  pulsarDutyCycleRatioAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::pulsarDutyCycleRatio,
-          pulsarDutyCycleRatioSlider);
+      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::pulsarDutyCycleClusterLen, pulsarDutyCycleClusterLenSlider);
+  pulsarDutyCycleRatioAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::pulsarDutyCycleRatio, pulsarDutyCycleRatioSlider);
 
   formantFreqLfoWaveformAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
-          processorRef.apvts, why::ParameterID::formantFreqLfoWaveform,
-          formantFreqLfoWaveformCombo);
-  ampLfoDepthAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::ampLfoDepth, ampLfoDepthSlider);
-  formantFreqLfoDepthAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::formantFreqLfoDepth,
-          formantFreqLfoDepthSlider);
+      std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processorRef.apvts, why::ParameterID::formantFreqLfoWaveform, formantFreqLfoWaveformCombo);
+  ampLfoDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::ampLfoDepth, ampLfoDepthSlider);
+  formantFreqLfoDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::formantFreqLfoDepth, formantFreqLfoDepthSlider);
 
-  attackAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::pulsarAttack, attackSlider);
-  decayAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::pulsarDecay, decaySlider);
-  sustainAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::pulsarSustain, sustainSlider);
-  releaseAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::pulsarRelease, releaseSlider);
+  attackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::pulsarAttack, attackSlider);
+  decayAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::pulsarDecay, decaySlider);
+  sustainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::pulsarSustain, sustainSlider);
+  releaseAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::pulsarRelease, releaseSlider);
 
-  maskOptionComboBoxAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
-          processorRef.apvts, why::ParameterID::maskOption, maskOptionComboBox);
-  euclidStepDialAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::euclidSteps, euclidStepSlider);
-  euclidHitDialAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-          processorRef.apvts, why::ParameterID::euclidHits, euclidHitSlider);
+  maskOptionComboBoxAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processorRef.apvts, why::ParameterID::maskOption, maskOptionComboBox);
+  euclidStepDialAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::euclidSteps, euclidStepSlider);
+  euclidHitDialAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::euclidHits, euclidHitSlider);
 
   // impulse file
-  impulseSwitchComboBoxAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
-          processorRef.apvts, why::ParameterID::impulseSwitch,
-          impulseSwitchComboBox);
+  impulseSwitchComboBoxAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processorRef.apvts, why::ParameterID::impulseSwitch, impulseSwitchComboBox);
   impulseTemplateFileComboBoxAttachment =
-      std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(
-          processorRef.apvts, why::ParameterID::impulseTemplateFile,
-          impulseTemplateFileComboBox);
+      std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processorRef.apvts, why::ParameterID::impulseTemplateFile, impulseTemplateFileComboBox);
 }
 
 /**
@@ -1062,10 +888,7 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   // 启用/禁用包络开关
   ampEnvelopeToggle.onStateChange = [this] {
     bool enabled = ampEnvelopeToggle.getToggleState();
-    processorRef.getPulsarSynthEngine().executeCurSynthCallback(
-        [&](std::shared_ptr<PulsarSynth> &synth) {
-          synth->setUseAmpEnvelope(enabled);
-        });
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setUseAmpEnvelope(enabled); });
   };
 
   // Y轴范围变化时更新包络画布
@@ -1073,57 +896,67 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
     float yMin = ampEnvelopeYMinSlider.getValue();
     float yMax = ampEnvelopeYMaxSlider.getValue();
     ampEnvelopeCanvas.setYAxisRange(yMin, yMax);
-    processorRef.getPulsarSynthEngine().executeCurSynthCallback(
-        [&](std::shared_ptr<PulsarSynth> &synth) {
-          synth->setAmpEnvelopeYRange(yMin, yMax);
-        });
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setAmpEnvelopeYRange(yMin, yMax); });
   };
 
   ampEnvelopeYMaxSlider.onValueChange = [this] {
     float yMin = ampEnvelopeYMinSlider.getValue();
     float yMax = ampEnvelopeYMaxSlider.getValue();
     ampEnvelopeCanvas.setYAxisRange(yMin, yMax);
-    processorRef.getPulsarSynthEngine().executeCurSynthCallback(
-        [&](std::shared_ptr<PulsarSynth> &synth) {
-          synth->setAmpEnvelopeYRange(yMin, yMax);
-        });
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setAmpEnvelopeYRange(yMin, yMax); });
   };
 
   // 清空包络按钮
-  ampEnvelopeClearButton.onClick = [this] {
-    ampEnvelopeCanvas.clearEnvelope();
+  ampEnvelopeClearButton.onClick = [this] { ampEnvelopeCanvas.clearEnvelope(); };
+
+  // FM 包络绘制事件：当包络被绘制时，同步到 synth
+  fmEnvelopeCanvas.addChangeListener(this);
+
+  // 启用/禁用 FM 包络开关
+  fmEnvelopeToggle.onStateChange = [this] {
+    bool enabled = fmEnvelopeToggle.getToggleState();
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setUseFmEnvelope(enabled); });
   };
+
+  // FM Y轴范围变化时更新包络画布
+  fmEnvelopeYMinSlider.onValueChange = [this] {
+    float yMin = fmEnvelopeYMinSlider.getValue();
+    float yMax = fmEnvelopeYMaxSlider.getValue();
+    fmEnvelopeCanvas.setYAxisRange(yMin, yMax);
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setFmEnvelopeYRange(yMin, yMax); });
+  };
+
+  fmEnvelopeYMaxSlider.onValueChange = [this] {
+    float yMin = fmEnvelopeYMinSlider.getValue();
+    float yMax = fmEnvelopeYMaxSlider.getValue();
+    fmEnvelopeCanvas.setYAxisRange(yMin, yMax);
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setFmEnvelopeYRange(yMin, yMax); });
+  };
+
+  // 清空 FM 包络按钮
+  fmEnvelopeClearButton.onClick = [this] { fmEnvelopeCanvas.clearEnvelope(); };
 
   // burst mask text editor回车，没有attachment，需要手动更新synth状态
   burstMaskTextEditor.onReturnKey = [&] {
-    juce::String currentBurstMaskText =
-        burstMaskTextEditor.getText(); // 获取编辑框中的文本
+    juce::String currentBurstMaskText = burstMaskTextEditor.getText(); // 获取编辑框中的文本
 
     // 刷新synth的burst mask标记
-    processorRef.getPulsarSynthEngine().executeCurSynthCallback(
-        [&](std::shared_ptr<PulsarSynth> &synth) {
-          synth->refreshBurstMask(currentBurstMaskText);
-        });
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->refreshBurstMask(currentBurstMaskText); });
 
     // 保存到property，在load
     // preset时，可从parameterChanged监听中获得property值，从而恢复状态
-    if (processorRef.apvts.state.getProperty(why::PropertyID::burstMask) !=
-        currentBurstMaskText) {
-      processorRef.apvts.state.setProperty(why::PropertyID::burstMask,
-                                           currentBurstMaskText, nullptr);
+    if (processorRef.apvts.state.getProperty(why::PropertyID::burstMask) != currentBurstMaskText) {
+      processorRef.apvts.state.setProperty(why::PropertyID::burstMask, currentBurstMaskText, nullptr);
     }
 
     // color effect
-    juce::Colour originalColour =
-        burstMaskTextEditor.findColour(juce::TextEditor::backgroundColourId);
+    juce::Colour originalColour = burstMaskTextEditor.findColour(juce::TextEditor::backgroundColourId);
     // Temporary highlighting
-    burstMaskTextEditor.setColour(juce::TextEditor::backgroundColourId,
-                                  juce::Colours::mediumaquamarine);
+    burstMaskTextEditor.setColour(juce::TextEditor::backgroundColourId, juce::Colours::mediumaquamarine);
     burstMaskTextEditor.repaint();
     // recovery
     juce::Timer::callAfterDelay(300, [&, originalColour]() {
-      burstMaskTextEditor.setColour(juce::TextEditor::backgroundColourId,
-                                    originalColour);
+      burstMaskTextEditor.setColour(juce::TextEditor::backgroundColourId, originalColour);
       burstMaskTextEditor.repaint();
     });
   };
@@ -1133,20 +966,14 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   euclidHitSlider.onValueChange = [&] { rebalanceStepHitValueDisplay(); };
 
   // template impulse file下拉框
-  impulseTemplateFileComboBox.onChange = [&] {
-    saveTemplateImpulseThenLoadAfterSelect(
-        impulseTemplateFileComboBox.getSelectedId());
-  };
+  impulseTemplateFileComboBox.onChange = [&] { saveTemplateImpulseThenLoadAfterSelect(impulseTemplateFileComboBox.getSelectedId()); };
 
   // reload preset时，如果数据变化也会体现在event
   impulseSwitchComboBox.onChange = [&] {
-    if (impulseSwitchComboBox.getSelectedId() ==
-        static_cast<int>(why::ImpulseSwitchEnum::Template) + 1) {
-      saveTemplateImpulseThenLoadAfterSelect(
-          impulseTemplateFileComboBox.getSelectedId());
+    if (impulseSwitchComboBox.getSelectedId() == static_cast<int>(why::ImpulseSwitchEnum::Template) + 1) {
+      saveTemplateImpulseThenLoadAfterSelect(impulseTemplateFileComboBox.getSelectedId());
     }
-    if (impulseSwitchComboBox.getSelectedId() ==
-        static_cast<int>(why::ImpulseSwitchEnum::Sample) + 1) {
+    if (impulseSwitchComboBox.getSelectedId() == static_cast<int>(why::ImpulseSwitchEnum::Sample) + 1) {
       // There are two places where sample resources can be loaded:
       // 1. Manually select files.
       // 2. When the load preset is used, the broadcast listener is triggered.
@@ -1157,27 +984,18 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
     }
   };
 
-  playModeCombobox.onChange = [&] {
-    processorRef.getPulsarSynthEngine().setCurrentPlayModeEnum(
-        processorRef.apvts, playModeCombobox.getSelectedItemIndex());
-  };
+  playModeCombobox.onChange = [&] { processorRef.getPulsarSynthEngine().setCurrentPlayModeEnum(processorRef.apvts, playModeCombobox.getSelectedItemIndex()); };
 
   // 强制更新synth依赖的bpm
   bpmSlider.onValueChange = [&] {
-    processorRef.getPulsarSynthEngine().executeCurSynthCallback(
-        [&](std::shared_ptr<PulsarSynth> &synth) {
-          synth->forceRefreshBpmAndRebuildTrain(bpmSlider.getValue());
-        });
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->forceRefreshBpmAndRebuildTrain(bpmSlider.getValue()); });
   };
 
   maskOptionComboBox.onChange = [&] {
     // 只在选中stochastic mask时才展示生成的随机mask
-    if (maskOptionComboBox.getSelectedItemIndex() ==
-        static_cast<int>(why::MaskOptionEnum::StochasticMask)) {
+    if (maskOptionComboBox.getSelectedItemIndex() == static_cast<int>(why::MaskOptionEnum::StochasticMask)) {
       // stochastic mask默认采用第一个voice的
-      std::string maskStrStd = processorRef.getPulsarSynthEngine()
-                                   .getCurrentPulsarSynth()
-                                   ->getStochasticMaskStr();
+      std::string maskStrStd = processorRef.getPulsarSynthEngine().getCurrentPulsarSynth()->getStochasticMaskStr();
       juce::String newText = juce::String(maskStrStd);
 
       if (stochasticMaskTextEditor.getText() != newText) {
@@ -1228,49 +1046,35 @@ void AudioPluginAudioProcessorEditor::setWindowSize() {
  */
 void AudioPluginAudioProcessorEditor::openFileChooser() {
   // 创建一个文件选择器
-  fileChooser = std::make_unique<juce::FileChooser>(
-      "Select a file to upload",
-      juce::File::getSpecialLocation(juce::File::userDesktopDirectory),
-      "*.wav;*.mp3");
+  fileChooser = std::make_unique<juce::FileChooser>("Select a file to upload", juce::File::getSpecialLocation(juce::File::userDesktopDirectory), "*.wav;*.mp3");
 
   // async read file
-  fileChooser->launchAsync(juce::FileBrowserComponent::openMode |
-                               juce::FileBrowserComponent::canSelectFiles,
-                           [this](const juce::FileChooser &chooser) {
-                             juce::File selectedFile = chooser.getResult();
-                             if (selectedFile.exists()) {
-                               // juce::Logger::writeToLog("File selected: " +
-                               // selectedFile.getFullPathName());
-                               saveFileIntoSynth(selectedFile);
-                               // 展示路径
-                               sampleImpulsePathTextEditor.setText(
-                                   selectedFile.getFullPathName(),
-                                   juce::dontSendNotification);
+  fileChooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, [this](const juce::FileChooser &chooser) {
+    juce::File selectedFile = chooser.getResult();
+    if (selectedFile.exists()) {
+      // juce::Logger::writeToLog("File selected: " +
+      // selectedFile.getFullPathName());
+      saveFileIntoSynth(selectedFile);
+      // 展示路径
+      sampleImpulsePathTextEditor.setText(selectedFile.getFullPathName(), juce::dontSendNotification);
 
-                               // 保存到property，在load
-                               // preset时，可从parameterChanged监听中获得property值，进行手动监听
-                               processorRef.apvts.state.setProperty(
-                                   why::PropertyID::sampleImpulsePath,
-                                   selectedFile.getFullPathName(), nullptr);
+      // 保存到property，在load
+      // preset时，可从parameterChanged监听中获得property值，进行手动监听
+      processorRef.apvts.state.setProperty(why::PropertyID::sampleImpulsePath, selectedFile.getFullPathName(), nullptr);
 
-                               // 当前如果是采样模式则直接加载
-                               //    loadSampleImpulseWhenSelected();
-                             }
-                           });
+      // 当前如果是采样模式则直接加载
+      //    loadSampleImpulseWhenSelected();
+    }
+  });
 }
 
 /**
  * 保存impulse file到synth的convolution resource中
  * @param file
  */
-void AudioPluginAudioProcessorEditor::saveFileIntoSynth(
-    const juce::File &file) {
-  processorRef.getPulsarSynthEngine()
-      .getConvolutionResource()
-      ->saveLastSampleFileAsBlock(file);
-  processorRef.getPulsarSynthEngine()
-      .getConvolutionResource()
-      ->loadSampleSourceFile(file);
+void AudioPluginAudioProcessorEditor::saveFileIntoSynth(const juce::File &file) {
+  processorRef.getPulsarSynthEngine().getConvolutionResource()->saveLastSampleFileAsBlock(file);
+  processorRef.getPulsarSynthEngine().getConvolutionResource()->loadSampleSourceFile(file);
 }
 
 /**
@@ -1278,8 +1082,7 @@ void AudioPluginAudioProcessorEditor::saveFileIntoSynth(
  * response
  */
 void AudioPluginAudioProcessorEditor::loadSampleImpulseWhenSelected() {
-  if (impulseSwitchComboBox.getSelectedId() !=
-      static_cast<int>(why::ImpulseSwitchEnum::Sample) + 1) {
+  if (impulseSwitchComboBox.getSelectedId() != static_cast<int>(why::ImpulseSwitchEnum::Sample) + 1) {
     return;
   }
   // 暂时保留该方法，实际上没去加载为impulse
@@ -1291,30 +1094,22 @@ void AudioPluginAudioProcessorEditor::loadSampleImpulseWhenSelected() {
  */
 void AudioPluginAudioProcessorEditor::loadTemplateImpulseWhenSelected() {
   // 当前如果是template模式则直接加载
-  if (impulseSwitchComboBox.getSelectedId() !=
-      static_cast<int>(why::ImpulseSwitchEnum::Template) + 1) {
+  if (impulseSwitchComboBox.getSelectedId() != static_cast<int>(why::ImpulseSwitchEnum::Template) + 1) {
     return;
   }
-  processorRef.getPulsarSynthEngine()
-      .getConvolutionResource()
-      ->loadTemplateImpulseFile();
+  processorRef.getPulsarSynthEngine().getConvolutionResource()->loadTemplateImpulseFile();
 }
 
 /**
  * Save the binary file under Resources to synth. If impulse selects the
  * template file, it will be loaded as impulse response
  */
-void AudioPluginAudioProcessorEditor::saveTemplateImpulseThenLoadAfterSelect(
-    int selectedId) {
+void AudioPluginAudioProcessorEditor::saveTemplateImpulseThenLoadAfterSelect(int selectedId) {
   double fileSampleRate;
   std::unique_ptr<juce::AudioBuffer<float>> bf;
 
-  if (BinaryResourceSingleton::getInstance().readFileFromResources(
-          why::resourceIdToName[selectedId].toRawUTF8(), fileSampleRate, bf)) {
-    processorRef.getPulsarSynthEngine()
-        .getConvolutionResource()
-        ->saveLastTemplateImpulseData(
-            *bf, fileSampleRate, why::resourceIdToName[selectedId].toRawUTF8());
+  if (BinaryResourceSingleton::getInstance().readFileFromResources(why::resourceIdToName[selectedId].toRawUTF8(), fileSampleRate, bf)) {
+    processorRef.getPulsarSynthEngine().getConvolutionResource()->saveLastTemplateImpulseData(*bf, fileSampleRate, why::resourceIdToName[selectedId].toRawUTF8());
     loadTemplateImpulseWhenSelected();
   }
 }

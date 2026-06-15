@@ -228,6 +228,66 @@ public:
     }
 
     /**
+     * Set whether to use FM envelope instead of LFO waveform
+     */
+    void setUseFmEnvelope(bool useEnvelope)
+    {
+        if (getNumVoices() > 0)
+        {
+            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
+            {
+                voice->getCommonVoiceSate()->useFmEnvelope.store(useEnvelope);
+            }
+        }
+    }
+
+    /**
+     * Set FM envelope Y axis range (semitones)
+     */
+    void setFmEnvelopeYRange(float yMin, float yMax)
+    {
+        if (getNumVoices() > 0)
+        {
+            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
+            {
+                voice->getCommonVoiceSate()->fmEnvelopeYMin.store(yMin);
+                voice->getCommonVoiceSate()->fmEnvelopeYMax.store(yMax);
+            }
+        }
+    }
+
+    /**
+     * Set FM envelope data (2048 samples)
+     */
+    void setFmEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE>& data)
+    {
+        if (getNumVoices() > 0)
+        {
+            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
+            {
+                voice->getCommonVoiceSate()->fmEnvelopeData = data;
+            }
+        }
+    }
+
+    /**
+     * Get FM envelope data
+     */
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getFmEnvelopeData() const
+    {
+        if (getNumVoices() > 0)
+        {
+            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
+            {
+                return voice->getCommonVoiceSate()->fmEnvelopeData;
+            }
+        }
+        std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+        defaultData.fill(0.0f);
+        return defaultData;
+    }
+
+    /**
      * In auto mode, the renderNextBlock does not follow the renderNextBlock of juce's synthesizer
      * because there is no midi trigger. So write it here.
      *

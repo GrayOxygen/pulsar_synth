@@ -1,229 +1,236 @@
 #pragma once
 
-//#include <juce_audio_utils/gui/juce_AudioVisualiserComponent.h>
+// #include <juce_audio_utils/gui/juce_AudioVisualiserComponent.h>
 #include "PluginProcessor.h"
+#include "include/EnvelopeCanvas.h"
 
 //==============================================================================
 class AudioPluginAudioProcessorEditor final : public juce::AudioProcessorEditor
-                                              // , public juce::Timer
-                                              // , public juce::AudioProcessorValueTreeState::Listener
-                                              // , public juce::ValueTree::Listener //监听property变化
-                                              , public juce::ChangeListener //监听juce::ChangeBroadcaster的广播
+    // , public juce::Timer
+    // , public juce::AudioProcessorValueTreeState::Listener
+    // , public juce::ValueTree::Listener //监听property变化
+    ,
+                                              public juce::ChangeListener // 监听juce::ChangeBroadcaster的广播
 
 {
 public:
-    void makeVisible();
-    void setUIStyle();
-    void connectUIAndAudioParameter();
-    void initUITriggerEvent();
-    void setWindowSize();
-    explicit AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor&);
+  void makeVisible();
+  void setUIStyle();
+  void connectUIAndAudioParameter();
+  void initUITriggerEvent();
+  void setWindowSize();
+  explicit AudioPluginAudioProcessorEditor(AudioPluginAudioProcessor &);
 
-    ~AudioPluginAudioProcessorEditor() override;
+  ~AudioPluginAudioProcessorEditor() override;
 
-    //==============================================================================
-    void paint(juce::Graphics&) override;
-    void topFlexBox(juce::FlexBox& flexBoxTop, std::shared_ptr<juce::FlexBox> trainLenFlexBox,
-                    std::shared_ptr<juce::FlexBox> trainDutyCycleFlexBox,
-                    std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox, std::shared_ptr<juce::FlexBox> bpmFlexBox,
-                    std::shared_ptr<juce::FlexBox> playModeAndImpulseFlexBox);
-    void bottomFlexBox(juce::FlexBox& bottomFlexBox, std::shared_ptr<juce::FlexBox> pulsarWaveformFlexBox,
-                       std::shared_ptr<juce::FlexBox> pulsarDutyCycleClusterLenFlexBox,
-                       std::shared_ptr<juce::FlexBox> pulsarDutyCycleRatioFlexBox,
-                       std::shared_ptr<juce::FlexBox> ampEnvelopeFlexBox,
-                       std::shared_ptr<juce::FlexBox> ampLfoDepthFlexBox,
-                       std::shared_ptr<juce::FlexBox> formantFreqLfoWaveformFlexBox,
-                       std::shared_ptr<juce::FlexBox> formantFreqLfoDepthFlexBox,
-                       std::shared_ptr<juce::FlexBox> attackFlexBox, std::shared_ptr<juce::FlexBox> decayFlexBox,
-                       std::shared_ptr<juce::FlexBox> sustainFlexBox, std::shared_ptr<juce::FlexBox> releaseFlexBox);
-    void midFlexBox(juce::FlexBox& midFlexBox, std::shared_ptr<juce::FlexBox> maskOptionFlexBox,
-                    std::shared_ptr<juce::FlexBox> burstMaskFlexBox,
-                    std::shared_ptr<juce::FlexBox> euclidStepFlexBox, std::shared_ptr<juce::FlexBox> euclidHitFlexBox,
-                    std::shared_ptr<juce::FlexBox> stochasticMaskFlexBox);
+  //==============================================================================
+  void paint(juce::Graphics &) override;
+  void topFlexBox(juce::FlexBox &flexBoxTop, std::shared_ptr<juce::FlexBox> trainLenFlexBox, std::shared_ptr<juce::FlexBox> trainDutyCycleFlexBox,
+                  std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox, std::shared_ptr<juce::FlexBox> bpmFlexBox, std::shared_ptr<juce::FlexBox> playModeAndImpulseFlexBox);
+  void bottomFlexBox(juce::FlexBox &bottomFlexBox, std::shared_ptr<juce::FlexBox> pulsarWaveformFlexBox, std::shared_ptr<juce::FlexBox> pulsarDutyCycleClusterLenFlexBox,
+                     std::shared_ptr<juce::FlexBox> pulsarDutyCycleRatioFlexBox, std::shared_ptr<juce::FlexBox> ampEnvelopeFlexBox, std::shared_ptr<juce::FlexBox> ampLfoDepthFlexBox,
+                     std::shared_ptr<juce::FlexBox> formantFreqLfoWaveformFlexBox, std::shared_ptr<juce::FlexBox> formantFreqLfoDepthFlexBox, std::shared_ptr<juce::FlexBox> fmEnvelopeFlexBox,
+                     std::shared_ptr<juce::FlexBox> attackFlexBox, std::shared_ptr<juce::FlexBox> decayFlexBox, std::shared_ptr<juce::FlexBox> sustainFlexBox, std::shared_ptr<juce::FlexBox> releaseFlexBox);
+  void midFlexBox(juce::FlexBox &midFlexBox, std::shared_ptr<juce::FlexBox> maskOptionFlexBox, std::shared_ptr<juce::FlexBox> burstMaskFlexBox, std::shared_ptr<juce::FlexBox> euclidStepFlexBox,
+                  std::shared_ptr<juce::FlexBox> euclidHitFlexBox, std::shared_ptr<juce::FlexBox> stochasticMaskFlexBox);
 
-    void resized() override;
+  void resized() override;
 
-    /**
-     * When the asynchronous change message is received, juce will call back this method
-     * Note: During the test, it was found that the parameterChanged listening would be executed first,
-     * followed by changeListenerCallback
-     *
-     * @param source listener
-     */
-    void changeListenerCallback(juce::ChangeBroadcaster* source) override;
+  /**
+   * When the asynchronous change message is received, juce will call back this method
+   * Note: During the test, it was found that the parameterChanged listening would be executed first,
+   * followed by changeListenerCallback
+   *
+   * @param source listener
+   */
+  void changeListenerCallback(juce::ChangeBroadcaster *source) override;
 
-    //========================================自定义方法======================================
-    /**
-     * set lasted value after close window
-     */
-    void setLastValueAfterCloseWindow();
+  //========================================自定义方法======================================
+  /**
+   * set lasted value after close window
+   */
+  void setLastValueAfterCloseWindow();
 
-    /**
-     * Update the parameters of the preset to the UI
-     */
-    void refreshUIFromPreset();
+  /**
+   * Update the parameters of the preset to the UI
+   */
+  void refreshUIFromPreset();
 
-    //=======methods related to impulse file=======
-    /**
-     * open file window and select impulse file
-     */
-    void openFileChooser();
+  //=======methods related to impulse file=======
+  /**
+   * open file window and select impulse file
+   */
+  void openFileChooser();
 
-    /**
-     * Save the impulse file to the convolution resource memory of synth
-     * @param file impulse file，as juce default surpport format like .wav, .mp3
-     */
-    void saveFileIntoSynth(const juce::File& file);
+  /**
+   * Save the impulse file to the convolution resource memory of synth
+   * @param file impulse file，as juce default surpport format like .wav, .mp3
+   */
+  void saveFileIntoSynth(const juce::File &file);
 
-    /**
-     * When sample impulse is selected, the sample file is loaded as impulse response
-     */
-    void loadSampleImpulseWhenSelected();
+  /**
+   * When sample impulse is selected, the sample file is loaded as impulse response
+   */
+  void loadSampleImpulseWhenSelected();
 
-    /**
-     * init template impulse option
-     */
-    void initTemplateImpulseComboboxNames();
+  /**
+   * init template impulse option
+   */
+  void initTemplateImpulseComboboxNames();
 
-    /**
-     * When template impulse is selected, the template file is loaded as impulse response
-     */
-    void loadTemplateImpulseWhenSelected();
+  /**
+   * When template impulse is selected, the template file is loaded as impulse response
+   */
+  void loadTemplateImpulseWhenSelected();
 
-    /**
-     * Save template impulse to synth. If template impulse is selected,
-     * it will be directly loaded as impulse response
-     *
-     * @param selectedId
-     */
-    void saveTemplateImpulseThenLoadAfterSelect(int selectedId);
+  /**
+   * Save template impulse to synth. If template impulse is selected,
+   * it will be directly loaded as impulse response
+   *
+   * @param selectedId
+   */
+  void saveTemplateImpulseThenLoadAfterSelect(int selectedId);
 
-    void rebalanceStepHitValueDisplay();
+  void rebalanceStepHitValueDisplay();
 
 private:
-    // This reference is provided as a quick way for your editor to access the processor object that created it.
-    juce::AudioVisualiserComponent visualiser = juce::AudioVisualiserComponent(0); // 波形显示组件
+  // This reference is provided as a quick way for your editor to access the processor object that created it.
+  juce::AudioVisualiserComponent visualiser = juce::AudioVisualiserComponent(0); // 波形显示组件
 
-    //==============================自定义控件==============================
-    //output gain
-    juce::Label outputGainLabel;
-    juce::Slider outputGainSlider;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputGainAttachment;
+  //==============================自定义控件==============================
+  // output gain
+  juce::Label outputGainLabel;
+  juce::Slider outputGainSlider;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> outputGainAttachment;
 
-    //bpm
-    juce::Slider bpmSlider;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpmAttachment;
+  // bpm
+  juce::Slider bpmSlider;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpmAttachment;
 
-    //play mode
-    juce::Label playModeLabel;
-    juce::ComboBox playModeCombobox;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> playModeComboboxAttachment;
+  // play mode
+  juce::Label playModeLabel;
+  juce::ComboBox playModeCombobox;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> playModeComboboxAttachment;
 
-    //train
-    juce::Slider trainLenSlider;
-    juce::Label trainLenLabel;
+  // train
+  juce::Slider trainLenSlider;
+  juce::Label trainLenLabel;
 
-    juce::Slider trainDutyCycleLenSlider;
-    juce::Label trainDutyCycleLenLabel;
+  juce::Slider trainDutyCycleLenSlider;
+  juce::Label trainDutyCycleLenLabel;
 
-    juce::Slider trainSilenceLenSlider;
-    juce::Label trainSilenceLenLabel;
+  juce::Slider trainSilenceLenSlider;
+  juce::Label trainSilenceLenLabel;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trainLenAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trainDutyCycleAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trainSilenceAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trainLenAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trainDutyCycleAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trainSilenceAttachment;
 
-    //pulsar
-    juce::Slider pulsarWaveformSlider;
-    juce::Label pulsarWaveformLabel;
-    juce::Label pulsarWaveformNameLabel; // shows current waveform name
+  // pulsar
+  juce::Slider pulsarWaveformSlider;
+  juce::Label pulsarWaveformLabel;
+  juce::Label pulsarWaveformNameLabel; // shows current waveform name
 
-    juce::Slider pulsarDutyCycleClusterLenSlider;
-    juce::Label pulsarDutyCycleClusterLenLabel;
+  juce::Slider pulsarDutyCycleClusterLenSlider;
+  juce::Label pulsarDutyCycleClusterLenLabel;
 
-    juce::Slider pulsarDutyCycleRatioSlider;
-    juce::Label pulsarDutyCycleRatioLabel;
+  juce::Slider pulsarDutyCycleRatioSlider;
+  juce::Label pulsarDutyCycleRatioLabel;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> pulsarWaveformAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> pulsarDutyCycleClusterLenAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> pulsarDutyCycleRatioAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> pulsarWaveformAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> pulsarDutyCycleClusterLenAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> pulsarDutyCycleRatioAttachment;
 
-    // AM 包络绘制组件（替代波形选择）
-    EnvelopeCanvas ampEnvelopeCanvas;
-    juce::Label ampEnvelopeLabel;
-    juce::ToggleButton ampEnvelopeToggle{"Use Envelope"}; // 启用/禁用包络
-    juce::Slider ampEnvelopeYMinSlider;  // Y轴最小值
-    juce::Label ampEnvelopeYMinLabel;
-    juce::Slider ampEnvelopeYMaxSlider;  // Y轴最大值
-    juce::Label ampEnvelopeYMaxLabel;
-    juce::Slider ampLfoDepthSlider;      // 调制深度（保留）
-    juce::Label ampLfoDepthLabel;
-    juce::TextButton ampEnvelopeClearButton{"Clear"}; // 清空包络
+  // AM 包络绘制组件（替代波形选择）
+  EnvelopeCanvas ampEnvelopeCanvas;
+  juce::Label ampEnvelopeLabel;
+  juce::ToggleButton ampEnvelopeToggle{"Use Envelope"}; // 启用/禁用包络
+  juce::Slider ampEnvelopeYMinSlider;                   // Y轴最小值
+  juce::Label ampEnvelopeYMinLabel;
+  juce::Slider ampEnvelopeYMaxSlider; // Y轴最大值
+  juce::Label ampEnvelopeYMaxLabel;
+  juce::Slider ampLfoDepthSlider; // 调制深度（保留）
+  juce::Label ampLfoDepthLabel;
+  juce::TextButton ampEnvelopeClearButton{"Clear"}; // 清空包络
+  juce::Component ampEnvControlRow;  // 开关+按钮容器
+  juce::Component ampEnvRangeRow;      // Y轴范围滑块容器
 
-    // FM LFO（保持不变）
-    juce::ComboBox formantFreqLfoWaveformCombo;
-    juce::Label formantFreqLfoWaveformLabel;
-    juce::Slider formantFreqLfoDepthSlider;
-    juce::Label formantFreqLfoDepthLabel;
+  // FM 包络绘制组件（替代波形选择）
+  EnvelopeCanvas fmEnvelopeCanvas;
+  juce::Label fmEnvelopeLabel;
+  juce::ToggleButton fmEnvelopeToggle{"Use FM Envelope"}; // 启用/禁用 FM 包络
+  juce::Slider fmEnvelopeYMinSlider;                     // Y轴最小值 (semitones)
+  juce::Label fmEnvelopeYMinLabel;
+  juce::Slider fmEnvelopeYMaxSlider;                     // Y轴最大值 (semitones)
+  juce::Label fmEnvelopeYMaxLabel;
+  juce::TextButton fmEnvelopeClearButton{"Clear"};        // 清空包络
+  juce::Component fmEnvControlRow;   // FM 开关+按钮容器
+  juce::Component fmEnvRangeRow;       // FM Y轴范围滑块容器
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ampLfoDepthAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> formantFreqLfoWaveformAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> formantFreqLfoDepthAttachment;
+  // FM LFO（保持不变）
+  juce::ComboBox formantFreqLfoWaveformCombo;
+  juce::Label formantFreqLfoWaveformLabel;
+  juce::Slider formantFreqLfoDepthSlider;
+  juce::Label formantFreqLfoDepthLabel;
 
-    //envelope
-    juce::Slider attackSlider;
-    juce::Label attackLabel;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ampLfoDepthAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> formantFreqLfoWaveformAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> formantFreqLfoDepthAttachment;
 
-    juce::Slider decaySlider;
-    juce::Label decayLabel;
+  // envelope
+  juce::Slider attackSlider;
+  juce::Label attackLabel;
 
-    juce::Slider sustainSlider;
-    juce::Label sustainLabel;
+  juce::Slider decaySlider;
+  juce::Label decayLabel;
 
-    juce::Slider releaseSlider;
-    juce::Label releaseLabel;
+  juce::Slider sustainSlider;
+  juce::Label sustainLabel;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decayAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sustainAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseAttachment;
+  juce::Slider releaseSlider;
+  juce::Label releaseLabel;
 
-    //masking
-    juce::Label maskComboBoxLabel;
-    juce::ComboBox maskOptionComboBox;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> attackAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> decayAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> sustainAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> releaseAttachment;
 
-    juce::Label burstMaskLabel;
-    juce::TextEditor burstMaskTextEditor;
+  // masking
+  juce::Label maskComboBoxLabel;
+  juce::ComboBox maskOptionComboBox;
 
-    juce::Label euclidStepLabel;
-    juce::Slider euclidStepSlider;
+  juce::Label burstMaskLabel;
+  juce::TextEditor burstMaskTextEditor;
 
-    juce::Label euclidHitLabel;
-    juce::Slider euclidHitSlider;
+  juce::Label euclidStepLabel;
+  juce::Slider euclidStepSlider;
 
-    juce::Label stochasticMaskLabel;
-    juce::TextEditor stochasticMaskTextEditor;
+  juce::Label euclidHitLabel;
+  juce::Slider euclidHitSlider;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> maskOptionComboBoxAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> euclidStepDialAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> euclidHitDialAttachment;
+  juce::Label stochasticMaskLabel;
+  juce::TextEditor stochasticMaskTextEditor;
 
-    //convolution impulse
-    juce::Label impulseSwitchLabel;
-    juce::ComboBox impulseSwitchComboBox; //0 disable 1 enable
+  std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> maskOptionComboBoxAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> euclidStepDialAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> euclidHitDialAttachment;
 
-    juce::Label impulseTemplateLabel;
-    juce::ComboBox impulseTemplateFileComboBox;
+  // convolution impulse
+  juce::Label impulseSwitchLabel;
+  juce::ComboBox impulseSwitchComboBox; // 0 disable 1 enable
 
-    juce::TextEditor sampleImpulsePathTextEditor; //impulse file path
-    juce::TextButton selectSampleImpulseFileButton;
+  juce::Label impulseTemplateLabel;
+  juce::ComboBox impulseTemplateFileComboBox;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> impulseSwitchComboBoxAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> impulseTemplateFileComboBoxAttachment;
+  juce::TextEditor sampleImpulsePathTextEditor; // impulse file path
+  juce::TextButton selectSampleImpulseFileButton;
 
-    //open file chooser window and select file
-    std::unique_ptr<juce::FileChooser> fileChooser;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> impulseSwitchComboBoxAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> impulseTemplateFileComboBoxAttachment;
 
-    AudioPluginAudioProcessor& processorRef;
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)
+  // open file chooser window and select file
+  std::unique_ptr<juce::FileChooser> fileChooser;
+
+  AudioPluginAudioProcessor &processorRef;
+  JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)
 };
