@@ -816,7 +816,7 @@ float PulsarSynthVoice::calcFormantLfoInterpolation(float phase, float pulsarMod
   if (depth <= 0.0f) {
     return 0.0f;
   }
-  
+
   // 如果启用了 FM 包络，从包络数据采样
   if (commonVoiceSate->useFmEnvelope.load()) {
     float envelopeValue = getFmEnvelopeValueAtPhase(phase);
@@ -830,7 +830,7 @@ float PulsarSynthVoice::calcFormantLfoInterpolation(float phase, float pulsarMod
     float modValue = (freqRatio - 1.0f) * depth;
     return modValue * amount;
   }
-  
+
   // 否则使用 LFO 波形调制
   lfoModulator.setFrequency(pulsarModFreq);
   return lfoModulator.calcSampleAfterFM(depth) * amount;
@@ -861,7 +861,7 @@ float PulsarSynthVoice::calcAmpLfoInterpolation(float phase, float amount) {
 }
 
 float PulsarSynthVoice::getAmpEnvelopeValueAtPhase(float phase) const {
-  const auto& envelopeData = commonVoiceSate->ampEnvelopeData;
+  const auto &envelopeData = commonVoiceSate->ampEnvelopeData;
   constexpr int size = EnvelopeCanvas::ENVELOPE_SIZE;
 
   // phase 归一化到 0-1
@@ -879,7 +879,7 @@ float PulsarSynthVoice::getAmpEnvelopeValueAtPhase(float phase) const {
 }
 
 float PulsarSynthVoice::getFmEnvelopeValueAtPhase(float phase) const {
-  const auto& envelopeData = commonVoiceSate->fmEnvelopeData;
+  const auto &envelopeData = commonVoiceSate->fmEnvelopeData;
   constexpr int size = EnvelopeCanvas::ENVELOPE_SIZE;
 
   // phase 归一化到 0-1

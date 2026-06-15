@@ -124,7 +124,7 @@ void AudioPluginAudioProcessorEditor::resized() {
   std::shared_ptr<juce::FlexBox> column9 = std::make_shared<juce::FlexBox>();
   std::shared_ptr<juce::FlexBox> column10 = std::make_shared<juce::FlexBox>();
   std::shared_ptr<juce::FlexBox> column11 = std::make_shared<juce::FlexBox>();
-  std::shared_ptr<juce::FlexBox> column12 = std::make_shared<juce::FlexBox>(); // FM 包络
+  std::shared_ptr<juce::FlexBox> column12 = std::make_shared<juce::FlexBox>();
 
   this->bottomFlexBox(bottomFlexBox, column1, column2, column3, column4, column5, column6, column7, column8, column9, column10, column11, column12);
 
@@ -337,8 +337,8 @@ void AudioPluginAudioProcessorEditor::bottomFlexBox(juce::FlexBox &bottomFlexBox
   pulsarWaveformFlexBox->items.add(juce::FlexItem(pulsarWaveformSlider).withFlex(2.0));
   bottomFlexBox.items.add(juce::FlexItem(*pulsarWaveformFlexBox).withFlex(1.0f));
 
-  pulsarDutyCycleClusterLenFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   pulsarDutyCycleClusterLenFlexBox->flexDirection = juce::FlexBox::Direction::column;
+  pulsarDutyCycleClusterLenFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   // margin：上右下左
   pulsarDutyCycleClusterLenFlexBox->items.add(juce::FlexItem(pulsarDutyCycleClusterLenLabel).withFlex(1).withMaxWidth(200).withMaxHeight(20));
   pulsarDutyCycleClusterLenFlexBox->items.add(juce::FlexItem(pulsarDutyCycleClusterLenSlider).withFlex(2.0));
@@ -352,8 +352,8 @@ void AudioPluginAudioProcessorEditor::bottomFlexBox(juce::FlexBox &bottomFlexBox
   bottomFlexBox.items.add(juce::FlexItem(*pulsarDutyCycleRatioFlexBox).withFlex(1.0f));
 
   // AM 包络绘制区域 + Y轴范围控制
-  ampEnvelopeFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   ampEnvelopeFlexBox->flexDirection = juce::FlexBox::Direction::column;
+  ampEnvelopeFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   ampEnvelopeFlexBox->items.add(juce::FlexItem(ampEnvelopeLabel).withFlex(0.5).withMaxHeight(18));
   // 启用开关和清空按钮行 (使用 Component 容器)
   ampEnvelopeFlexBox->items.add(juce::FlexItem(ampEnvControlRow).withFlex(0.5).withMaxHeight(24));
@@ -363,27 +363,27 @@ void AudioPluginAudioProcessorEditor::bottomFlexBox(juce::FlexBox &bottomFlexBox
   ampEnvelopeFlexBox->items.add(juce::FlexItem(ampEnvelopeCanvas).withFlex(2.0).withMinHeight(80));
   bottomFlexBox.items.add(juce::FlexItem(*ampEnvelopeFlexBox).withFlex(1.5f));
 
-  ampLfoDepthFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   ampLfoDepthFlexBox->flexDirection = juce::FlexBox::Direction::column;
+  ampLfoDepthFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   ampLfoDepthFlexBox->items.add(juce::FlexItem(ampLfoDepthLabel).withFlex(1).withMaxHeight(20));
   ampLfoDepthFlexBox->items.add(juce::FlexItem(ampLfoDepthSlider).withFlex(2.0));
   bottomFlexBox.items.add(juce::FlexItem(*ampLfoDepthFlexBox).withFlex(1.0f));
 
-  formantFreqLfoWaveformFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   formantFreqLfoWaveformFlexBox->flexDirection = juce::FlexBox::Direction::column;
+  formantFreqLfoWaveformFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   formantFreqLfoWaveformFlexBox->items.add(juce::FlexItem(formantFreqLfoWaveformLabel).withFlex(1).withMaxHeight(20));
   formantFreqLfoWaveformFlexBox->items.add(juce::FlexItem(formantFreqLfoWaveformCombo).withFlex(1).withMaxHeight(28));
   bottomFlexBox.items.add(juce::FlexItem(*formantFreqLfoWaveformFlexBox).withFlex(0.8f));
 
-  formantFreqLfoDepthFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   formantFreqLfoDepthFlexBox->flexDirection = juce::FlexBox::Direction::column;
+  formantFreqLfoDepthFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   formantFreqLfoDepthFlexBox->items.add(juce::FlexItem(formantFreqLfoDepthLabel).withFlex(1).withMaxHeight(20));
   formantFreqLfoDepthFlexBox->items.add(juce::FlexItem(formantFreqLfoDepthSlider).withFlex(2.0));
   bottomFlexBox.items.add(juce::FlexItem(*formantFreqLfoDepthFlexBox).withFlex(1.0f));
 
   // FM 包络绘制区域 + Y轴范围控制 (使用传入的 fmEnvelopeFlexBox 参数)
-  fmEnvelopeFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   fmEnvelopeFlexBox->flexDirection = juce::FlexBox::Direction::column;
+  fmEnvelopeFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
   fmEnvelopeFlexBox->items.add(juce::FlexItem(fmEnvelopeLabel).withFlex(0.5).withMaxHeight(18));
   // 启用开关和清空按钮行
   fmEnvelopeFlexBox->items.add(juce::FlexItem(fmEnvControlRow).withFlex(0.5).withMaxHeight(24));
