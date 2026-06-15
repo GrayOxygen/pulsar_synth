@@ -14,6 +14,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include "Commons.h"
 #include "PulsarSynthVoice.h"
+#include "EnvelopeCanvas.h"
 
 /**
  * Custom synthesizers, with different play modes corresponding to different synths
@@ -167,25 +168,82 @@ public:
     }
 
     /**
+     * Set whether to use AM envelope instead of LFO waveform
+     */
+    void setUseAmpEnvelope(bool useEnvelope)
+    {
+        if (getNumVoices() > 0)
+        {
+            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
+            {
+                voice->getCommonVoiceSate()->useAmpEnvelope.store(useEnvelope);
+            }
+        }
+    }
+
+    /**
+     * Set AM envelope Y axis range
+     */
+    void setAmpEnvelopeYRange(float yMin, float yMax)
+    {
+        if (getNumVoices() > 0)
+        {
+            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
+            {
+                voice->getCommonVoiceSate()->ampEnvelopeYMin.store(yMin);
+                voice->getCommonVoiceSate()->ampEnvelopeYMax.store(yMax);
+            }
+        }
+    }
+
+    /**
+     * Set AM envelope data (2048 samples)
+     */
+    void setAmpEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE>& data)
+    {
+        if (getNumVoices() > 0)
+        {
+            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
+            {
+                voice->getCommonVoiceSate()->ampEnvelopeData = data;
+            }
+        }
+    }
+
+    /**
+     * Get AM envelope data
+     */
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getAmpEnvelopeData() const
+    {
+        if (getNumVoices() > 0)
+        {
+            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
+            {
+                return voice->getCommonVoiceSate()->ampEnvelopeData;
+            }
+        }
+        std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+        defaultData.fill(1.0f);
+        return defaultData;
+    }
+
+    /**
      * In auto mode, the renderNextBlock does not follow the renderNextBlock of juce's synthesizer
      * because there is no midi trigger. So write it here.
      *
      * @param buffer audio buffer
      * @param audioPlayHead audio play head
-     * @param midiBuffer midi buffer
      * @param start start index
      * @param numSamples num of samples
-     * @param currentPlayModeEnum current play mode
      */
     void renderNextBlockDirectly(juce::AudioBuffer<float>& buffer, juce::AudioPlayHead* audioPlayHead,
-                                 const juce::MidiBuffer& midiBuffer, int start,
-                                 int numSamples, why::PlayModeEnum currentPlayModeEnum)
+                                 int start, int numSamples)
     {
         for (int i = 0; i < getNumVoices(); ++i)
-        {
+        {   
             juce::SynthesiserVoice* voice = getVoice(i);
             PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-            pulsarVoice->renderNextBlockDirectly(buffer, audioPlayHead, start, numSamples, currentPlayModeEnum);
+            pulsarVoice->renderNextBlockDirectly(buffer, audioPlayHead, start, numSamples);
         }
     }
 

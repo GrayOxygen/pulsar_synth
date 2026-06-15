@@ -1,4 +1,5 @@
 # Example Audio Plugin CMakeLists.txt
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # To get started on a new plugin, copy this entire folder (containing this file and C++ sources) to
 # a convenient location, and then start making modifications.
@@ -12,24 +13,68 @@ cmake_minimum_required(VERSION 3.28)
 # The top-level CMakeLists.txt file for a project must contain a literal, direct call to the
 # `project()` command. `project()` sets up some helpful variables that describe source/binary
 # directories, and the current project version. This is a standard CMake command.
+# set(CMAKE_INSTALL_PREFIX "C:/Program Files/Common Files/VST3" CACHE PATH "VST3 Installation directory" FORCE)
+# 1. 保持 JUCE/VST3 默认的安装前缀（让插件正确生成在 VST3 子目录下）
+# set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install" CACHE PATH "Default install path" FORCE)
+# 2. 设置“暂存前缀”：告诉 CMake 实际把文件拷贝到哪里
+# 这样插件会被直接拷贝到系统的 VST3 标准目录，而不会生成多余的 bin/lib/include
+# set(CMAKE_STAGING_PREFIX "C:/Program Files/Common Files" CACHE PATH "VST3 Staging directory" FORCE)
 
 ########################My Configure########################
 project(pulsar_synth VERSION 0.0.8)
 set(CMAKE_CXX_STANDARD 20)
-# 包含头文件目录
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Windows / MSVC build configuration
+if(WIN32 AND MSVC)
+    # /MP : multi-core parallel compilation
+    add_compile_options(/MP)
+    # Build 64-bit (x64) binaries; configure with -A x64
+    message(STATUS "Configuring for Windows MSVC, generator platform: ${CMAKE_GENERATOR_PLATFORM}")
+endif()
+
 include_directories(${CMAKE_SOURCE_DIR}/Source/include)
 include_directories(${CMAKE_SOURCE_DIR}/Source/)
 
 ########################自定义########################
 
-# If you've installed JUCE somehow (via a package manager, or directly using the CMake install
-# target), you'll need to tell this project that it depends on the installed copy of JUCE. If you've
-# included JUCE directly in your source tree (perhaps as a submodule), you'll need to tell CMake to
-# include that subdirectory as part of the build.
+# JUCE path configuration
+# Default Windows path, can be overridden with -DPULSAR_JUCE_DIR=...
+set(DEFAULT_JUCE_DIR "E:/env/juce-7.0.12-windows/JUCE")
+# 确保这一行存在，并且路径是你电脑里真实的 JUCE 路径
+set(JUCE_DIR "E:/env/juce-7.0.12-windows/JUCE")
 
-# find_package(JUCE CONFIG REQUIRED)        # If you've installed JUCE to your system
-# or
-add_subdirectory("/Applications/JUCE" JUCE)                    # If you've put JUCE in a subdirectory called JUCE
+set(JUCE_DIR "$ENV{PULSAR_JUCE_DIR}")
+if(NOT JUCE_DIR)
+    set(JUCE_DIR "${DEFAULT_JUCE_DIR}")
+endif()
+string(REPLACE "\\" "/" JUCE_DIR "${JUCE_DIR}")
+
+if(WIN32)
+    set(JUCE_FIND_OPTIONS NO_CMAKE_PATH NO_CMAKE_ENVIRONMENT_PATH)
+endif()
+
+# JUCE library selection
+if(EXISTS "${JUCE_DIR}")
+    message(STATUS "Using JUCE from: ${JUCE_DIR}")
+    add_subdirectory("${JUCE_DIR}" JUCE)
+elseif(TARGET juce::juce_core)
+    message(STATUS "Using system-installed JUCE")
+    find_package(JUCE CONFIG REQUIRED)
+else()
+    message(FATAL_ERROR "JUCE not found at: ${JUCE_DIR}. Set PULSAR_JUCE_DIR environment variable or use -DPULSAR_JUCE_DIR=...")
+endif()
+
+ 
+# Plugin formats - AU is macOS only
+if(APPLE)
+    set(PULSAR_FORMATS AU VST3 Standalone)
+else()
+    set(PULSAR_FORMATS VST3)
+    # 暂时不导出standalone
+    # set(PULSAR_FORMATS VST3 Standalone)
+endif()
+
 
 # If you are building a VST2 or AAX plugin, CMake needs to be told where to find these SDKs on your
 # system. This setup should be done before calling `juce_add_plugin`.
@@ -49,7 +94,9 @@ juce_add_plugin(pulsar_synth
         # ICON_SMALL ...
         COMPANY_NAME MrWang                          # Specify the name of the plugin's author
         IS_SYNTH TRUE                       # Is this a synth or an effect?
-        NEEDS_MIDI_INPUT TRUE               # Does the plugin need midi input?
+        NEEDS_MIDI_INPUT TRUE               # An instrument (IS_SYNTH) must expose a MIDI/event input bus,
+                                            # otherwise hosts like Ableton Live reject/disable the plugin during scan.
+                                            # Playback is still driven by the DAW transport (Auto mode); MIDI notes are not used.
         # NEEDS_MIDI_OUTPUT TRUE/FALSE              # Does the plugin need midi output?
         # IS_MIDI_EFFECT TRUE/FALSE                 # Is this plugin a MIDI effect?
         # EDITOR_WANTS_KEYBOARD_FOCUS TRUE/FALSE    # Does the editor need keyboard focus?
@@ -57,10 +104,17 @@ juce_add_plugin(pulsar_synth
         COPY_PLUGIN_AFTER_BUILD TRUE        # Should the plugin be installed to a default location after building?
         PLUGIN_MANUFACTURER_CODE Juce               # A four-character manufacturer id with at least one upper-case character
         # 出现如下错误更改code
-        PLUGIN_CODE 3711                            # A unique four-character plugin id with exactly one upper-case character
+        PLUGIN_CODE Puls                            # A unique four-character plugin id with exactly one upper-case character
         # GarageBand 10.3 requires the first letter to be upper-case, and the remaining letters to be lower-case
-        FORMATS AU VST3 Standalone                  # The formats to build. Other valid formats are: AAX Unity VST AU AUv3
-        PRODUCT_NAME "Pulsar Wang")        # The name of the final executable, which can differ from the target name
+        FORMATS ${PULSAR_FORMATS}                   # The formats to build. Other valid formats are: AAX Unity VST AU AUv3
+        PRODUCT_NAME "Pulsar Wang"
+        # 只在这里声明你需要的模块，不要重复
+        MODULES 
+            juce::juce_audio_utils
+            juce::juce_dsp
+            juce::juce_audio_processors
+            juce::juce_audio_basics 
+        )        # The name of the final executable, which can differ from the target name
 
 
 # `juce_generate_juce_header` will create a JuceHeader.h for a given target, which will be generated
@@ -137,13 +191,38 @@ target_link_libraries(pulsar_synth
         #        AudioPluginData           # If we'd created a binary data target, we'd link to it here
         BinaryData #关联juce生成的binarydata
         juce::juce_audio_utils
-        juce::juce_dsp #使用juce的dsp包
-
+        juce::juce_dsp
+        juce::juce_audio_processors
+        juce::juce_audio_basics
         PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
         juce::juce_recommended_warning_flags
 )
+
+target_include_directories(pulsar_synth PRIVATE
+    ${CMAKE_SOURCE_DIR}/Source/include
+    ${CMAKE_SOURCE_DIR}/Source/
+    # 显式添加 JUCE 的模块路径，确保 compile_commands.json 包含它们
+    ${JUCE_DIR}/modules
+)
+
+if(TARGET pulsar_synth_Standalone)
+    install(TARGETS pulsar_synth_Standalone
+        RUNTIME DESTINATION bin
+    )
+endif()
+
+set(PULSAR_ARTEFACTS_DIR "${CMAKE_BINARY_DIR}/pulsar_synth_artefacts")
+set(PULSAR_VST3_DIR "${PULSAR_ARTEFACTS_DIR}/${CMAKE_BUILD_TYPE}/VST3/Pulsar Wang.vst3")
+
+if(CMAKE_BUILD_TYPE AND WIN32)
+    install(DIRECTORY "${PULSAR_VST3_DIR}"
+        DESTINATION VST3
+        OPTIONAL
+    )
+endif()
+
 
 
 ##
@@ -153,3 +232,5 @@ target_link_libraries(pulsar_synth
 #    # 或者使用 -O2（更高的优化级别，但可能影响调试）
 #    # target_compile_options(${PROJECT_NAME} PRIVATE -O2)
 #endif ()
+
+# install(TARGETS pulsar_synth)     # 仅安装 pulsar_synth 这个目标

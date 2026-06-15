@@ -1,37 +1,65 @@
-# 忽略 CLion 和 JetBrains 的 IDE 配置文件
+# ===== 构建目录（核心：不纳入版本管理）=====
+build/
+build-*/
+/cmake-build-*/
+out/
+juce_build/
+
+# ===== CMake 缓存与生成文件 =====
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+*.cmake.stamp
+JuceLibraryCode/
+
+# ===== Visual Studio / MSVC =====
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.user
+x64/
+Win32/
+Debug/
+Release/
+
+# ===== CLion / JetBrains IDE =====
 .idea/
 *.iml
 
-# 忽略 CMake 构建文件夹
-/cmake-build-*/
+# ===== VS Code =====
+.vscode/
 
-# 忽略生成的二进制文件
+# ===== 生成的二进制 / 中间产物 =====
 *.o
+*.obj
 *.a
+*.lib
 *.so
 *.dylib
+*.dll
 *.exe
 *.out
 *.app
+*.vst3
+*.pdb
+*.ilk
+*.exp
 
-# 忽略编译缓存
-CMakeCache.txt
-CMakeFiles/
-
-# 忽略 macOS 系统文件
+# ===== 系统文件 =====
 .DS_Store
+Thumbs.db
 
-# 忽略 JUCE 的临时文件
-juce_build/
-
-# 忽略临时文件和日志
+# ===== 临时文件与日志 =====
 *.log
 *.tmp
-
-# 忽略 Visual Studio 文件（如果你使用的是 Windows）
-.vs/
-*.vcxproj
-*.vcxproj.filters
-
-# 忽略 macOS 的临时文件
 *.swp
+
+# ===== 生成的文档 =====
+docs/html/
+docs/latex/

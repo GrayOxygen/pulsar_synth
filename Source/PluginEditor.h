@@ -30,8 +30,10 @@ public:
     void bottomFlexBox(juce::FlexBox& bottomFlexBox, std::shared_ptr<juce::FlexBox> pulsarWaveformFlexBox,
                        std::shared_ptr<juce::FlexBox> pulsarDutyCycleClusterLenFlexBox,
                        std::shared_ptr<juce::FlexBox> pulsarDutyCycleRatioFlexBox,
-                       std::shared_ptr<juce::FlexBox> ampLfoFlexBox,
-                       std::shared_ptr<juce::FlexBox> formantFreqLfoFlexBox,
+                       std::shared_ptr<juce::FlexBox> ampEnvelopeFlexBox,
+                       std::shared_ptr<juce::FlexBox> ampLfoDepthFlexBox,
+                       std::shared_ptr<juce::FlexBox> formantFreqLfoWaveformFlexBox,
+                       std::shared_ptr<juce::FlexBox> formantFreqLfoDepthFlexBox,
                        std::shared_ptr<juce::FlexBox> attackFlexBox, std::shared_ptr<juce::FlexBox> decayFlexBox,
                        std::shared_ptr<juce::FlexBox> sustainFlexBox, std::shared_ptr<juce::FlexBox> releaseFlexBox);
     void midFlexBox(juce::FlexBox& midFlexBox, std::shared_ptr<juce::FlexBox> maskOptionFlexBox,
@@ -134,6 +136,7 @@ private:
     //pulsar
     juce::Slider pulsarWaveformSlider;
     juce::Label pulsarWaveformLabel;
+    juce::Label pulsarWaveformNameLabel; // shows current waveform name
 
     juce::Slider pulsarDutyCycleClusterLenSlider;
     juce::Label pulsarDutyCycleClusterLenLabel;
@@ -145,15 +148,27 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> pulsarDutyCycleClusterLenAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> pulsarDutyCycleRatioAttachment;
 
-    //lfo modulation
-    juce::Slider ampLfoSlider;
-    juce::Label ampLfoLabel;
+    // AM 包络绘制组件（替代波形选择）
+    EnvelopeCanvas ampEnvelopeCanvas;
+    juce::Label ampEnvelopeLabel;
+    juce::ToggleButton ampEnvelopeToggle{"Use Envelope"}; // 启用/禁用包络
+    juce::Slider ampEnvelopeYMinSlider;  // Y轴最小值
+    juce::Label ampEnvelopeYMinLabel;
+    juce::Slider ampEnvelopeYMaxSlider;  // Y轴最大值
+    juce::Label ampEnvelopeYMaxLabel;
+    juce::Slider ampLfoDepthSlider;      // 调制深度（保留）
+    juce::Label ampLfoDepthLabel;
+    juce::TextButton ampEnvelopeClearButton{"Clear"}; // 清空包络
 
-    juce::Slider formantFreqLfoSlider;
-    juce::Label formantFreqLfoLabel;
+    // FM LFO（保持不变）
+    juce::ComboBox formantFreqLfoWaveformCombo;
+    juce::Label formantFreqLfoWaveformLabel;
+    juce::Slider formantFreqLfoDepthSlider;
+    juce::Label formantFreqLfoDepthLabel;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ampLfoAttachment;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> formantFreqLfoAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ampLfoDepthAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> formantFreqLfoWaveformAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> formantFreqLfoDepthAttachment;
 
     //envelope
     juce::Slider attackSlider;
