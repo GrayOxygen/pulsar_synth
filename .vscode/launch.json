@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [ // 不能用c++官方的调试，只能在visual studio里用，所以，调试改用lldb
+        {
+            "name": "Attach Reaper (LLDB)",
+            "type": "lldb",
+            "request": "attach",
+            "pid": "${command:pickProcess}",
+            "program": "G:/apps/REAPER/reaper.exe",
+            "cwd": "G:/apps/REAPER",
+            "sourceLanguages": [
+                "cpp"
+            ]
+        }
+    ]
+}

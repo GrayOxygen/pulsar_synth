@@ -33,7 +33,7 @@ Release/
 *.iml
 
 # ===== VS Code =====
-.vscode/
+# .vscode/
 
 # ===== 生成的二进制 / 中间产物 =====
 *.o

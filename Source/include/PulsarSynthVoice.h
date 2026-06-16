@@ -13,8 +13,7 @@
  */
 class PulsarSynthVoice : public juce::SynthesiserVoice {
 private:
-  //====================================properties related to Auto
-  // mode==================================== Whether it was in the playing state
+  //====================================properties related to Auto  mode==================================== Whether it was in the playing state
   // last time, determine which one is the first time to start playing (rather
   // than after playing).
   bool wasPlayingLastFrame;
@@ -118,7 +117,7 @@ private:
   //===========================common properties===========================
   std::shared_ptr<CommonVoiceSate> commonVoiceSate;
   SnapShot snapShot;
- 
+
 public:
   PulsarSynthVoice() {}
 
@@ -132,7 +131,7 @@ public:
   void saveSnapShot();
   void saveNonTrainParams();
   void refreshSnapShot(int trainDurationLen, int trainIntervalSilenceLen, int trainLen);
-  
+
   void renderNextBlockDirectly(juce::AudioSampleBuffer &outputBuffer, juce::AudioPlayHead *audioPlayHead, int startSample, int numSamples);
 
   void pitchWheelMoved(int) override;
@@ -311,21 +310,22 @@ public:
    * @return sample
    */
   float calcActualPulse(float pulsarModFreq);
-
+  float getCurrentDutyCycleRatio(float phase, float depth);
+  float getCurrentDutyCycleCluster(float phase, float depth);
   /**
    * Smoothly transition different waveforms in the waveform table to apply FM
-   * modulation with different waveform characteristics, or use envelope data
-   * 
+   * modulation with different waveform characteristics, or use fm envelope data
+   *
    * @param phase pulsaret phase (0.0 - 1.0) for envelope lookup
    * @param pulsarModFreq new pulsar modulation frequency
    * @param amount decide how much modulation, 0.0f - 1.0f
    * @return modulated frequency offset in semitones
    */
-  float calcFormantLfoInterpolation(float phase, float pulsarModFreq, float amount);
-  
+  float calcFormantLfoInterpolation(float phase, float pulsarModFreq);
+
   /**
    * Smoothly transition different waveforms in the waveform table to apply AM
-   * modulation with different waveform characteristics, or use envelope data
+   * modulation with different waveform characteristics, or use am envelope data
    *
    * @param phase pulsaret phase (0.0 - 1.0) for envelope lookup
    * @param amount decide how much modulation, 0.0f - 1.0f
@@ -346,7 +346,8 @@ public:
    * @return envelope value (semitones offset)
    */
   float getFmEnvelopeValueAtPhase(float phase) const;
-
+  float getDutyCycleRatioEnvelopeValueAtPhase(float phase) const;
+  float getDutyCycleClusterEnvelopeValueAtPhase(float phase) const;
   /**
    * Get Cluster envelope value at given phase using linear interpolation
    * @param phase pulsaret phase (0.0 - 1.0)

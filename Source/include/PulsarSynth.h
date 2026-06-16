@@ -3,6 +3,9 @@
 //
 #pragma once
 
+#include "Commons.h"
+#include "EnvelopeCanvas.h"
+#include "PulsarSynthVoice.h"
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_audio_devices/juce_audio_devices.h>
 #include <juce_audio_formats/juce_audio_formats.h>
@@ -12,302 +15,340 @@
 #include <juce_core/juce_core.h>
 #include <juce_data_structures/juce_data_structures.h>
 #include <juce_dsp/juce_dsp.h>
-#include "Commons.h"
-#include "PulsarSynthVoice.h"
-#include "EnvelopeCanvas.h"
 
 /**
  * Custom synthesizers, with different play modes corresponding to different synths
  */
-class PulsarSynth : public juce::Synthesiser
-{
+class PulsarSynth : public juce::Synthesiser {
 public:
-    PulsarSynth()
-    {
-    };
+  PulsarSynth() {};
 
-    PulsarSynth(why::PlayModeEnum myPlayModeEnum)
-    {
-        this->myPlayModeEnum = myPlayModeEnum;
-    };
+  PulsarSynth(why::PlayModeEnum myPlayModeEnum) { this->myPlayModeEnum = myPlayModeEnum; };
 
-    [[nodiscard]] why::PlayModeEnum& getMyPlayModeEnum()
-    {
-        return myPlayModeEnum;
+  [[nodiscard]] why::PlayModeEnum &getMyPlayModeEnum() { return myPlayModeEnum; }
+
+  void setMyPlayModeEnum(why::PlayModeEnum myPlayModeEnum) { this->myPlayModeEnum = myPlayModeEnum; }
+
+  /**
+   * When switching the play mode, turn off all sounds.
+   * The auto mode will be played in the playback of the next daw, and the midi mode will be played in the next note
+   */
+  void triggerSoundOffWhenSwitchPlayMode(bool closeFlag) {
+    for (int i = 0; i < getNumVoices(); ++i) {
+      juce::SynthesiserVoice *voice = getVoice(i);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      pulsarVoice->setSoundOffWhenSwitchPlayMode(closeFlag);
+    }
+  }
+
+  /**
+   * Modify the bpm of the plugin, force refresh the bpm and rebuild the train, because when the bpm changes,
+   * the train also changes
+   *
+   * @param bpm The bpm of the plugin has nothing to do with that of the daw
+   */
+  void forceRefreshBpmAndRebuildTrain(float bpm) {
+    for (int i = 0; i < getNumVoices(); ++i) {
+      juce::SynthesiserVoice *voice = getVoice(i);
+      // 将其转换为自定义的 PulsarSynthVoice
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      bool bpmChangedFlag = pulsarVoice->updateBpmDirectly(bpm);
+      pulsarVoice->changeToNewTrainAfterPulsarPeriodOrTrainEnd(bpmChangedFlag);
+    }
+  }
+
+  /**
+   * Initialize trian. Each voice has a separate train, and the voice also points to the same CommonVoiceState,
+   * sharing some common data
+   *
+   * @param sampleRate sample rate
+   * @param sampleBuffer  sample buffer，TODO Not used now, but retained (planned for implementing sample as pulsaret)
+   * @param audioPlayHead obtain information such as the playback position
+   */
+  void initTrain(double sampleRate, std::unique_ptr<juce::AudioBuffer<float>> &sampleBuffer, juce::AudioPlayHead *audioPlayHead) {
+    for (int i = 0; i < getNumVoices(); ++i) {
+      juce::SynthesiserVoice *voice = getVoice(i);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      pulsarVoice->initSynthVoice(sampleRate, sampleBuffer, audioPlayHead);
+    }
+  }
+
+  /**
+   * Parameter change, update voice:
+   *
+   * When AudioProcessorValueTreeState parameterChanged listening is after the callback, the method will be triggered
+   *
+   * @param apvts tree state
+   * @param parameterID  parameter id
+   * @param newValue up-to-date value
+   * @param isGeneratedStochasticMask Whether the stochasticMask was generated, this arg will be updated when func end
+   */
+  void parameterChanged(juce::AudioProcessorValueTreeState &apvts, juce::String parameterID, float newValue, bool &isGeneratedStochasticMask) {
+    for (int i = 0; i < getNumVoices(); ++i) {
+      juce::SynthesiserVoice *voice = getVoice(i);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      ;
+      pulsarVoice->parameterChanged(apvts, parameterID, newValue, isGeneratedStochasticMask);
+    }
+  }
+
+  /**
+   * Refresh the voice according to the preset
+   * @param apvts tree state
+   */
+  void reloadPreset(juce::AudioProcessorValueTreeState &apvts) {
+    for (int i = 0; i < getNumVoices(); ++i) {
+      juce::SynthesiserVoice *voice = getVoice(i);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      pulsarVoice->reloadPreset(apvts);
+    }
+  }
+
+  /**
+   * Update the burstMask of all voices, but the voices all point to the same CommonVoiceSate,
+   * so only one voice needs to be updated
+   *
+   * @param burstMask burst mask
+   */
+  void refreshBurstMask(juce::String burstMask) {
+    if (getNumVoices() > 0) {
+      juce::SynthesiserVoice *voice = getVoice(0);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      pulsarVoice->getCommonVoiceSate()->burstMask = burstMask.toStdString();
+    }
+  }
+
+  /**
+   * get stochastic mask for display
+   *
+   * @return stochastic mask
+   */
+  std::string getStochasticMaskStr() {
+    std::string result;
+    // auto模式下，仅包含一个voice，所以stochastic mask只有一个，midi模式下仅展示第一个voice的即可，实际上每个voice的可能不同
+    if (getNumVoices() <= 0) {
+      result = std::string("");
+      return result;
     }
 
-    void setMyPlayModeEnum(why::PlayModeEnum myPlayModeEnum)
-    {
-        this->myPlayModeEnum = myPlayModeEnum;
+    if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+      auto state = voice->getCommonVoiceSate();
+      if (state && !state->stochasticMaskStr.empty())
+        return state->stochasticMaskStr;
     }
+    return "";
+  }
 
-    /**
-     * When switching the play mode, turn off all sounds.
-     * The auto mode will be played in the playback of the next daw, and the midi mode will be played in the next note
-     */
-    void triggerSoundOffWhenSwitchPlayMode(bool closeFlag)
-    {
-        for (int i = 0; i < getNumVoices(); ++i)
-        {
-            juce::SynthesiserVoice* voice = getVoice(i);
-            PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-            pulsarVoice->setSoundOffWhenSwitchPlayMode(closeFlag);
-        }
+  /**
+   * Set whether to use AM envelope instead of LFO waveform
+   */
+  void setUseAmpEnvelope(bool useEnvelope) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->useAmpEnvelope.store(useEnvelope);
+      }
     }
+  }
 
-    /**
-     * Modify the bpm of the plugin, force refresh the bpm and rebuild the train, because when the bpm changes,
-     * the train also changes
-     *
-     * @param bpm The bpm of the plugin has nothing to do with that of the daw
-     */
-    void forceRefreshBpmAndRebuildTrain(float bpm)
-    {
-        for (int i = 0; i < getNumVoices(); ++i)
-        {
-            juce::SynthesiserVoice* voice = getVoice(i);
-            // 将其转换为自定义的 PulsarSynthVoice
-            PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-            bool bpmChangedFlag = pulsarVoice->updateBpmDirectly(bpm);
-            pulsarVoice->changeToNewTrainAfterPulsarPeriodOrTrainEnd(bpmChangedFlag);
-        }
+  /**
+   * Set AM envelope Y axis range
+   */
+  void setAmpEnvelopeYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->ampEnvelopeYMin.store(yMin);
+        voice->getCommonVoiceSate()->ampEnvelopeYMax.store(yMax);
+      }
     }
+  }
 
-    /**
-     * Initialize trian. Each voice has a separate train, and the voice also points to the same CommonVoiceState,
-     * sharing some common data
-     *
-     * @param sampleRate sample rate
-     * @param sampleBuffer  sample buffer，TODO Not used now, but retained (planned for implementing sample as pulsaret)
-     * @param audioPlayHead obtain information such as the playback position
-     */
-    void initTrain(double sampleRate, std::unique_ptr<juce::AudioBuffer<float>>& sampleBuffer,
-                   juce::AudioPlayHead* audioPlayHead)
-    {
-        for (int i = 0; i < getNumVoices(); ++i)
-        {
-            juce::SynthesiserVoice* voice = getVoice(i);
-            PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-            pulsarVoice->initSynthVoice(sampleRate, sampleBuffer, audioPlayHead);
-        }
+  /**
+   * Set AM envelope data (2048 samples)
+   */
+  void setAmpEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->ampEnvelopeData = data;
+      }
     }
+  }
 
-    /**
-     * Parameter change, update voice:
-     *
-     * When AudioProcessorValueTreeState parameterChanged listening is after the callback, the method will be triggered
-     *
-     * @param apvts tree state
-     * @param parameterID  parameter id
-     * @param newValue up-to-date value
-     * @param isGeneratedStochasticMask Whether the stochasticMask was generated, this arg will be updated when func end
-     */
-    void parameterChanged(juce::AudioProcessorValueTreeState& apvts, juce::String parameterID, float newValue,
-                          bool& isGeneratedStochasticMask)
-    {
-        for (int i = 0; i < getNumVoices(); ++i)
-        {
-            juce::SynthesiserVoice* voice = getVoice(i);
-            PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);;
-            pulsarVoice->parameterChanged(apvts, parameterID, newValue, isGeneratedStochasticMask);
-        }
+  /**
+   * Get AM envelope data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getAmpEnvelopeData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->ampEnvelopeData;
+      }
     }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(1.0f);
+    return defaultData;
+  }
 
-    /**
-     * Refresh the voice according to the preset
-     * @param apvts tree state
-     */
-    void reloadPreset(juce::AudioProcessorValueTreeState& apvts)
-    {
-        for (int i = 0; i < getNumVoices(); ++i)
-        {
-            juce::SynthesiserVoice* voice = getVoice(i);
-            PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-            pulsarVoice->reloadPreset(apvts);
-        }
+  /**
+   * Set whether to use FM envelope instead of LFO waveform
+   */
+  void setUseFmEnvelope(bool useEnvelope) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->useFmEnvelope.store(useEnvelope);
+      }
     }
+  }
 
-    /**
-     * Update the burstMask of all voices, but the voices all point to the same CommonVoiceSate,
-     * so only one voice needs to be updated
-     *
-     * @param burstMask burst mask
-     */
-    void refreshBurstMask(juce::String burstMask)
-    {
-        if (getNumVoices() > 0)
-        {
-            juce::SynthesiserVoice* voice = getVoice(0);
-            PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-            pulsarVoice->getCommonVoiceSate()->burstMask = burstMask.toStdString();
-        }
+  /**
+   * Set FM envelope Y axis range (semitones)
+   */
+  void setFmEnvelopeYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmEnvelopeYMin.store(yMin);
+        voice->getCommonVoiceSate()->fmEnvelopeYMax.store(yMax);
+      }
     }
+  }
 
-    /**
-     * get stochastic mask for display
-     *
-     * @return stochastic mask
-     */
-    std::string getStochasticMaskStr()
-    {
-        std::string result;
-        //auto模式下，仅包含一个voice，所以stochastic mask只有一个，midi模式下仅展示第一个voice的即可，实际上每个voice的可能不同
-        if (getNumVoices() <= 0)
-        {
-            result = std::string("");
-            return result;
-        }
-
-        if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
-        {
-            auto state = voice->getCommonVoiceSate();
-            if (state && !state->stochasticMaskStr.empty())
-                return state->stochasticMaskStr;
-        }
-        return "";
+  /**
+   * Set FM envelope data (2048 samples)
+   */
+  void setFmEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmEnvelopeData = data;
+      }
     }
+  }
 
-    /**
-     * Set whether to use AM envelope instead of LFO waveform
-     */
-    void setUseAmpEnvelope(bool useEnvelope)
-    {
-        if (getNumVoices() > 0)
-        {
-            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
-            {
-                voice->getCommonVoiceSate()->useAmpEnvelope.store(useEnvelope);
-            }
-        }
+  /**
+   * Get FM envelope data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getFmEnvelopeData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->fmEnvelopeData;
+      }
     }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(0.0f);
+    return defaultData;
+  }
 
-    /**
-     * Set AM envelope Y axis range
-     */
-    void setAmpEnvelopeYRange(float yMin, float yMax)
-    {
-        if (getNumVoices() > 0)
-        {
-            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
-            {
-                voice->getCommonVoiceSate()->ampEnvelopeYMin.store(yMin);
-                voice->getCommonVoiceSate()->ampEnvelopeYMax.store(yMax);
-            }
-        }
+  /**
+   * Set whether to use Duty Cycle Ratio envelope instead of LFO waveform
+   */
+  void setUseDutyCycleRatioEnvelope(bool useEnvelope) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->useDutyCycleRatioEnvelope.store(useEnvelope);
+      }
     }
+  }
 
-    /**
-     * Set AM envelope data (2048 samples)
-     */
-    void setAmpEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE>& data)
-    {
-        if (getNumVoices() > 0)
-        {
-            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
-            {
-                voice->getCommonVoiceSate()->ampEnvelopeData = data;
-            }
-        }
+  /**
+   * Set Duty Cycle Ratio envelope Y axis range (semitones)
+   */
+  void setDutyCycleRatioEnvelopeYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeYMin.store(yMin);
+        voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeYMax.store(yMax);
+      }
     }
+  }
 
-    /**
-     * Get AM envelope data
-     */
-    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getAmpEnvelopeData() const
-    {
-        if (getNumVoices() > 0)
-        {
-            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
-            {
-                return voice->getCommonVoiceSate()->ampEnvelopeData;
-            }
-        }
-        std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
-        defaultData.fill(1.0f);
-        return defaultData;
+  /**
+   * Set Duty Cycle Ratio envelope data (2048 samples)
+   */
+  void setDutyCycleRatioEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeData = data;
+      }
     }
+  }
 
-    /**
-     * Set whether to use FM envelope instead of LFO waveform
-     */
-    void setUseFmEnvelope(bool useEnvelope)
-    {
-        if (getNumVoices() > 0)
-        {
-            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
-            {
-                voice->getCommonVoiceSate()->useFmEnvelope.store(useEnvelope);
-            }
-        }
+  /**
+   * Get Duty Cycle Ratio envelope data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getDutyCycleRatioEnvelopeData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeData;
+      }
     }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(0.01f);
+    return defaultData;
+  }
 
-    /**
-     * Set FM envelope Y axis range (semitones)
-     */
-    void setFmEnvelopeYRange(float yMin, float yMax)
-    {
-        if (getNumVoices() > 0)
-        {
-            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
-            {
-                voice->getCommonVoiceSate()->fmEnvelopeYMin.store(yMin);
-                voice->getCommonVoiceSate()->fmEnvelopeYMax.store(yMax);
-            }
-        }
+  /**
+   * Set whether to use Duty Cycle Cluster envelope instead of LFO waveform
+   */
+  void setUseDutyCycleClusterEnvelope(bool useEnvelope) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->useDutyCycleClusterEnvelope.store(useEnvelope);
+      }
     }
+  }
 
-    /**
-     * Set FM envelope data (2048 samples)
-     */
-    void setFmEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE>& data)
-    {
-        if (getNumVoices() > 0)
-        {
-            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
-            {
-                voice->getCommonVoiceSate()->fmEnvelopeData = data;
-            }
-        }
+  /**
+   * Set Duty Cycle Cluster envelope Y axis range (semitones)
+   */
+  void setDutyCycleClusterEnvelopeYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeYMin.store(yMin);
+        voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeYMax.store(yMax);
+      }
     }
+  }
 
-    /**
-     * Get FM envelope data
-     */
-    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getFmEnvelopeData() const
-    {
-        if (getNumVoices() > 0)
-        {
-            if (auto* voice = dynamic_cast<PulsarSynthVoice*>(getVoice(0)))
-            {
-                return voice->getCommonVoiceSate()->fmEnvelopeData;
-            }
-        }
-        std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
-        defaultData.fill(0.0f);
-        return defaultData;
+  /**
+   * Set Duty Cycle Cluster envelope data (2048 samples)
+   */
+  void setDutyCycleClusterEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeData = data;
+      }
     }
+  }
 
-    /**
-     * In auto mode, the renderNextBlock does not follow the renderNextBlock of juce's synthesizer
-     * because there is no midi trigger. So write it here.
-     *
-     * @param buffer audio buffer
-     * @param audioPlayHead audio play head
-     * @param start start index
-     * @param numSamples num of samples
-     */
-    void renderNextBlockDirectly(juce::AudioBuffer<float>& buffer, juce::AudioPlayHead* audioPlayHead,
-                                 int start, int numSamples)
-    {
-        for (int i = 0; i < getNumVoices(); ++i)
-        {   
-            juce::SynthesiserVoice* voice = getVoice(i);
-            PulsarSynthVoice* pulsarVoice = dynamic_cast<PulsarSynthVoice*>(voice);
-            pulsarVoice->renderNextBlockDirectly(buffer, audioPlayHead, start, numSamples);
-        }
+  /**
+   * Get Duty Cycle Cluster envelope data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getDutyCycleClusterEnvelopeData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeData;
+      }
     }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(1.0f);
+    return defaultData;
+  }
+
+  /**
+   * In auto mode, the renderNextBlock does not follow the renderNextBlock of juce's synthesizer
+   * because there is no midi trigger. So write it here.
+   *
+   * @param buffer audio buffer
+   * @param audioPlayHead audio play head
+   * @param start start index
+   * @param numSamples num of samples
+   */
+  void renderNextBlockDirectly(juce::AudioBuffer<float> &buffer, juce::AudioPlayHead *audioPlayHead, int start, int numSamples) {
+    for (int i = 0; i < getNumVoices(); ++i) {
+      juce::SynthesiserVoice *voice = getVoice(i);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      pulsarVoice->renderNextBlockDirectly(buffer, audioPlayHead, start, numSamples);
+    }
+  }
 
 private:
-    //which play mode is
-    why::PlayModeEnum myPlayModeEnum;
+  // which play mode is
+  why::PlayModeEnum myPlayModeEnum;
 };

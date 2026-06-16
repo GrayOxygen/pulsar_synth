@@ -13,7 +13,7 @@
 /**
  * Commons maintains some common states and simple methods
  */
-namespace why { 
+namespace why {
 // use beatDivision * beat as a minimal unit
 extern std::atomic<int> beatDivision;
 
@@ -79,11 +79,13 @@ struct ParameterID {
   static constexpr const char *euclidHits = "euclidHits";
   static constexpr const char *pulsarWaveform = "pulsarWaveform";
   static constexpr const char *pulsarDutyCycleClusterLen = "pulsarDutyCycleClusterLen";
-  static constexpr const char *pulsarDutyCycleRatio = "pulsarDutyCycleRatio";
+  // static constexpr const char *pulsarDutyCycleRatio = "pulsarDutyCycleRatio";
   static constexpr const char *ampLfoWaveform = "ampLfoWaveform";
   static constexpr const char *formantFreqLfoWaveform = "formantFreqLfoWaveform";
   static constexpr const char *ampLfoDepth = "ampLfoDepth";
   static constexpr const char *formantFreqLfoDepth = "formantFreqLfoDepth";
+  static constexpr const char *dutyCycleRatioDepth = "dutyCycleRatioDepth";
+  static constexpr const char *dutyCycleClusterDepth = "dutyCycleClusterDepth";
   static constexpr const char *pulsarAttack = "pulsarAttack";
   static constexpr const char *pulsarDecay = "pulsarDecay";
   static constexpr const char *pulsarSustain = "pulsarSustain";

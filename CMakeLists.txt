@@ -28,7 +28,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Windows / MSVC build configuration
 if(WIN32 AND MSVC)
     # /MP : multi-core parallel compilation
-    add_compile_options(/MP)
+    add_compile_options(/MP) 
     # Build 64-bit (x64) binaries; configure with -A x64
     message(STATUS "Configuring for Windows MSVC, generator platform: ${CMAKE_GENERATOR_PLATFORM}")
 endif()
@@ -108,12 +108,12 @@ juce_add_plugin(pulsar_synth
         # GarageBand 10.3 requires the first letter to be upper-case, and the remaining letters to be lower-case
         FORMATS ${PULSAR_FORMATS}                   # The formats to build. Other valid formats are: AAX Unity VST AU AUv3
         PRODUCT_NAME "Pulsar Wang"
-        # 只在这里声明你需要的模块，不要重复
-        MODULES 
-            juce::juce_audio_utils
-            juce::juce_dsp
-            juce::juce_audio_processors
-            juce::juce_audio_basics 
+        # # 只在这里声明你需要的模块，不要重复
+        # MODULES 
+        #     juce::juce_audio_utils
+        #     juce::juce_dsp
+        #     juce::juce_audio_processors
+        #     juce::juce_audio_basics 
         )        # The name of the final executable, which can differ from the target name
 
 
@@ -131,7 +131,7 @@ juce_generate_juce_header(pulsar_synth)
 # Finally, we supply a list of source files that will be built into the target. This is a standard
 # CMake command.
 
-#定义自己的代码
+#定义自己的代码  
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/Source/src/*.cpp")
 
 target_sources(pulsar_synth
@@ -167,17 +167,29 @@ target_compile_definitions(pulsar_synth
 # 将资源文件路径添加到编译中
 
 # 自定义资源嵌入
-file(GLOB_RECURSE RESOURCE_FILES "${CMAKE_SOURCE_DIR}/Resources/*.wav")
+# file(GLOB_RECURSE RESOURCE_FILES "${CMAKE_SOURCE_DIR}/Resources/*.wav")  
+# # 在编译时将资源文件嵌入到插件中
+# juce_add_binary_data(BinaryData 
+#         HEADER_NAME BinaryData.h
+#         NAMESPACE BinaryData
+#         SOURCES ${RESOURCE_FILES}
+# )
 
-#set(BINARY_DATA_CPP "${CMAKE_BINARY_DIR}/BinaryData.cpp")
-#set(BINARY_DATA_H   "${CMAKE_BINARY_DIR}/BinaryData.h")
+# 指定参数是否输出resources 看setting中cmake的cmake.configureArgs
+option(EMBED_RESOURCES "Embed wav resources" OFF)
+ 
+if(EMBED_RESOURCES) 
+    file(GLOB_RECURSE RESOURCE_FILES
+        "${CMAKE_SOURCE_DIR}/Resources/*.wav") 
+else() 
+    set(RESOURCE_FILES
+        "${CMAKE_SOURCE_DIR}/Resources/empty.txt") 
+endif()
 
-# 在编译时将资源文件嵌入到插件中
-#juce_add_binary_data(customer_name_resources SOURCES ${RESOURCE_FILES})
 juce_add_binary_data(BinaryData
         HEADER_NAME BinaryData.h
         NAMESPACE BinaryData
-        SOURCES ${RESOURCE_FILES}
+    SOURCES ${RESOURCE_FILES}
 )
 
 # `target_link_libraries` links libraries and JUCE modules to other libraries or executables. Here,
@@ -189,7 +201,7 @@ juce_add_binary_data(BinaryData
 target_link_libraries(pulsar_synth
         PRIVATE
         #        AudioPluginData           # If we'd created a binary data target, we'd link to it here
-        BinaryData #关联juce生成的binarydata
+        BinaryData #关联juce生成的binarydata 
         juce::juce_audio_utils
         juce::juce_dsp
         juce::juce_audio_processors
@@ -224,7 +236,10 @@ if(CMAKE_BUILD_TYPE AND WIN32)
 endif()
 
 
-
+target_compile_options(pulsar_synth PRIVATE
+    /MP
+    /utf-8
+)
 ##
 #if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 #    # 在 Debug 模式下启用 -O1 优化（比 -O0 快，但仍保留调试信息）

@@ -21,9 +21,9 @@ public:
     // 初始化 FM 包络数据为默认值 (0.0 = 无调制，表示 semitones 偏移为 0)
     fmEnvelopeData.fill(0.0f);
     // 初始化 Cluster 包络数据为默认值 (1.0 = 基础值)
-    clusterEnvelopeData.fill(1.0f);
+    dutyCycleClusterEnvelopeData.fill(1.0f);
     // 初始化 Duty Ratio 包络数据为默认值 (0.5 = 基础值)
-    dutyRatioEnvelopeData.fill(0.5f);
+    dutyCycleRatioEnvelopeData.fill(0.5f);
   }
 
   // whether loop playback train or not
@@ -44,6 +44,8 @@ public:
   std::string euclids;
 
   //===========================mapping parameter of plugin processor===========================
+  std::atomic<float> *bpm;
+
   // parameters to receive values from AudioProcessorValueTreeState，thread safe
   std::atomic<float> *outputGainParam;
   std::atomic<float> *playModeParam;
@@ -57,22 +59,9 @@ public:
   std::atomic<float> *trainLenParam;
 
   // pulsar duty cycle
-  std::atomic<float> *pulsarDutyCycleRatioParam;
+  // std::atomic<float> *pulsarDutyCycleRatioParam;
   // pulsaret waveform
   std::atomic<float> *pulsarWaveformParam;
-  // A pulse can be divided into multiple pulses.
-  // For example, if a train has only one pulsar period and the pulse ratio is
-  // 0.5, then the pulse duty cycle ==pulse silence If the cluster is set to 4,
-  // it was originally pulse and silence, and now it is (pulse, pulse, pulse,
-  // pulse)(occupying the length of the original 1 pulse), silence
-  std::atomic<float> *pulsarDutyCycleClusterLenParam;
-
-  // LFO waveform shape selection (0=Sine, 1=Triangle, 2=Saw, 3=Square)
-  std::atomic<float> *ampLfoWaveformParam;
-  std::atomic<float> *formantFreqLfoWaveformParam;
-  // LFO modulation depth (0.0 = off, 1.0 = full)
-  std::atomic<float> *ampLfoDepthParam;
-  std::atomic<float> *formantFreqLfoDepthParam;
 
   // AM 包络数据（替代波形选择）- 2048 个 samples
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> ampEnvelopeData;
@@ -80,23 +69,43 @@ public:
   std::atomic<float> ampEnvelopeYMax{10.0f};
   std::atomic<bool> useAmpEnvelope{false}; // 是否使用包络代替 LFO
 
+  std::atomic<float> *ampLfoDepthParam;
+
   // FM 包络数据（替代波形选择）- 2048 个 samples
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> fmEnvelopeData;
-  std::atomic<float> fmEnvelopeYMin{-12.0f};  // 默认 -12 semitones
-  std::atomic<float> fmEnvelopeYMax{12.0f};   // 默认 +12 semitones
+  std::atomic<float> fmEnvelopeYMin{-12.0f}; // 默认 -12 semitones
+  std::atomic<float> fmEnvelopeYMax{12.0f};  // 默认 +12 semitones
   std::atomic<bool> useFmEnvelope{false};    // 是否使用包络代替 LFO
 
+  std::atomic<float> *formantFreqLfoDepthParam;
+
+  // duty cycle ratio 包络数据 - 2048 个 samples
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> dutyCycleRatioEnvelopeData;
+  std::atomic<float> dutyCycleRatioEnvelopeYMin{0.01f};
+  std::atomic<float> dutyCycleRatioEnvelopeYMax{1.0f};
+  std::atomic<bool> useDutyCycleRatioEnvelope{false};
+
+  std::atomic<float> *dutyCycleRatioDepthParam;
+
+  // duty cycle Cluster 包络数据 - 2048 个 samples
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> dutyCycleClusterEnvelopeData;
+  std::atomic<float> dutyCycleClusterEnvelopeYMin{0.01f};
+  std::atomic<float> dutyCycleClusterEnvelopeYMax{1.0f};
+  std::atomic<bool> useDutyCycleClusterEnvelope{false};
+
+  std::atomic<float> *dutyCycleClusterDepthParam;
+
   // Cluster 包络数据 - 2048 个 samples
-  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> clusterEnvelopeData;
-  std::atomic<float> clusterEnvelopeYMin{1.0f};   // 默认 1
-  std::atomic<float> clusterEnvelopeYMax{16.0f};   // 默认 16
-  std::atomic<bool> useClusterEnvelope{false};    // 是否使用包络
+  // std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> clusterEnvelopeData;
+  // std::atomic<float> clusterEnvelopeYMin{1.0f};  // 默认 1
+  // std::atomic<float> clusterEnvelopeYMax{16.0f}; // 默认 16
+  // std::atomic<bool> useClusterEnvelope{false};   // 是否使用包络
 
   // Duty Ratio 包络数据 - 2048 个 samples
-  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> dutyRatioEnvelopeData;
-  std::atomic<float> dutyRatioEnvelopeYMin{0.01f}; // 默认 0.01
-  std::atomic<float> dutyRatioEnvelopeYMax{1.0f};  // 默认 1.0
-  std::atomic<bool> useDutyRatioEnvelope{false};   // 是否使用包络
+  // std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> dutyRatioEnvelopeData;
+  // std::atomic<float> dutyRatioEnvelopeYMin{0.01f}; // 默认 0.01
+  // std::atomic<float> dutyRatioEnvelopeYMax{1.0f};  // 默认 1.0
+  // std::atomic<bool> useDutyRatioEnvelope{false};   // 是否使用包络
 
   // Adsr: applied to the single final pulse(notice!silence can be converted to
   // pulse) (if cluster>0, then it still is applied to the whole pulse not
