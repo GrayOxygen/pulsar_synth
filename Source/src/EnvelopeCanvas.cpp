@@ -54,8 +54,8 @@ void EnvelopeCanvas::setYAxisRange(float minVal, float maxVal) {
   repaint();
 }
 
-void EnvelopeCanvas::clearEnvelope() {
-  envelopeData.fill(1.0f); // 默认值为1 (无调制)
+void EnvelopeCanvas::clearEnvelope(float value) {
+  envelopeData.fill(value); // 默认值为1 (无调制)
   repaint();
   sendChangeMessage();
 }
@@ -63,6 +63,94 @@ void EnvelopeCanvas::clearEnvelope() {
 void EnvelopeCanvas::resetToDefault() {
   // 默认平直包络 (值为1，表示无调制)
   envelopeData.fill(1.0f);
+}
+
+void EnvelopeCanvas::randomize() {
+  juce::Random rng;
+
+  // 随机选一种曲线模式
+  int mode = rng.nextInt(5);
+
+  // 随机生成几个控制点的频率和相位
+  float freq1 = 1.0f + rng.nextFloat() * 3.0f;
+  float freq2 = 2.0f + rng.nextFloat() * 5.0f;
+  float freq3 = 0.5f + rng.nextFloat() * 2.0f;
+  float phase1 = rng.nextFloat() * juce::MathConstants<float>::twoPi;
+  float phase2 = rng.nextFloat() * juce::MathConstants<float>::twoPi;
+  float phase3 = rng.nextFloat() * juce::MathConstants<float>::twoPi;
+  float amp1 = 0.3f + rng.nextFloat() * 0.4f;
+  float amp2 = 0.1f + rng.nextFloat() * 0.3f;
+  float amp3 = 0.05f + rng.nextFloat() * 0.2f;
+
+  constexpr int size = ENVELOPE_SIZE;
+  const float mid = (yMin + yMax) * 0.5f;
+  const float halfRange = (yMax - yMin) * 0.5f;
+
+  for (int i = 0; i < size; ++i) {
+    float t = static_cast<float>(i) / (size - 1); // 0 -> 1
+    float val = 0.0f;
+
+    switch (mode) {
+    case 0: // 多谐波正弦叠加
+      val = amp1 * std::sin(freq1 * juce::MathConstants<float>::twoPi * t + phase1) + amp2 * std::sin(freq2 * juce::MathConstants<float>::twoPi * t + phase2) +
+            amp3 * std::sin(freq3 * juce::MathConstants<float>::twoPi * t + phase3);
+      val = mid + val * halfRange;
+      break;
+
+    case 1: // ADSR 形状（攻击-衰减-延音-释放）
+    {
+      float attack = 0.05f + rng.nextFloat() * 0.2f;
+      float decay = attack + 0.05f + rng.nextFloat() * 0.15f;
+      float sustain = decay + 0.1f + rng.nextFloat() * 0.4f;
+      float sustainLevel = 0.4f + rng.nextFloat() * 0.4f;
+      if (t < attack)
+        val = t / attack;
+      else if (t < decay)
+        val = 1.0f - (1.0f - sustainLevel) * (t - attack) / (decay - attack);
+      else if (t < sustain)
+        val = sustainLevel;
+      else
+        val = sustainLevel * (1.0f - (t - sustain) / (1.0f - sustain));
+      val = yMin + val * (yMax - yMin);
+    } break;
+
+    case 2: // 锯齿波 + 抖动
+      val = std::fmod(freq1 * t + phase1 / juce::MathConstants<float>::twoPi, 1.0f);
+      val += 0.05f * (rng.nextFloat() - 0.5f);
+      val = yMin + juce::jlimit(0.0f, 1.0f, val) * (yMax - yMin);
+      break;
+
+    case 3: // 指数衰减 + 周期性脉冲
+    {
+      float decay = 2.0f + rng.nextFloat() * 4.0f;
+      float base = std::exp(-decay * t);
+      float pulse = 0.3f * std::pow(std::max(0.0f, std::sin(freq2 * juce::MathConstants<float>::twoPi * t + phase2)), 8.0f);
+      val = yMin + (base * 0.7f + pulse) * (yMax - yMin);
+    } break;
+
+    case 4: // 平滑随机游走（低频噪声）
+    {
+      // 先用粗网格随机点，再平滑
+      constexpr int nodes = 16;
+      int node = static_cast<int>(t * nodes);
+      float nodeFrac = t * nodes - node;
+      // 用哈希生成伪随机但确定的节点值
+      auto hashVal = [&](int n) {
+        n = (n ^ 0x12345678) * 0x9e3779b9;
+        return 0.2f + 0.6f * static_cast<float>((n >> 8) & 0xFFFF) / 65535.0f;
+      };
+      float v0 = hashVal(node + static_cast<int>(phase1 * 100));
+      float v1 = hashVal(node + 1 + static_cast<int>(phase1 * 100));
+      float smooth = nodeFrac * nodeFrac * (3.0f - 2.0f * nodeFrac); // smoothstep
+      val = yMin + (v0 + smooth * (v1 - v0)) * (yMax - yMin);
+    } break;
+    }
+
+    envelopeData[i] = juce::jlimit(yMin, yMax, val);
+  }
+
+  repaint();
+  sendChangeMessage();
 }
 
 // 坐标转换

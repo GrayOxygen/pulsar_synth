@@ -1,0 +1,46 @@
+// {
+//   "configurations": [
+//     {
+//       "name": "Win32",
+//       "includePath": [
+//         "${workspaceFolder}/Source/include",
+//         "${workspaceFolder}/Source",
+//         "${workspaceFolder}/build/pulsar_synth_artefacts/JuceLibraryCode",
+//         "E:/env/juce-7.0.12-windows/JUCE/modules",
+//         "E:/env/juce-7.0.12-windows/JUCE/modules/juce_audio_processors/format_types/VST3_SDK",
+//         "E:/env/juce-7.0.12-windows/JUCE/modules/juce_audio_processors/format_types/LV2_SDK"
+//       ],
+//       "defines": [
+//         "DEBUG=1",
+//         "_DEBUG=1",
+//         "JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1",
+//         "JUCE_MODULE_AVAILABLE_juce_core=1",
+//         "JUCE_MODULE_AVAILABLE_juce_audio_basics=1",
+//         "JUCE_MODULE_AVAILABLE_juce_audio_devices=1",
+//         "JUCE_MODULE_AVAILABLE_juce_audio_formats=1",
+//         "JUCE_MODULE_AVAILABLE_juce_audio_processors=1",
+//         "JUCE_MODULE_AVAILABLE_juce_audio_utils=1",
+//         "JUCE_MODULE_AVAILABLE_juce_dsp=1",
+//         "JUCE_MODULE_AVAILABLE_juce_events=1",
+//         "JUCE_MODULE_AVAILABLE_juce_graphics=1",
+//         "JUCE_MODULE_AVAILABLE_juce_gui_basics=1",
+//         "JUCE_MODULE_AVAILABLE_juce_gui_extra=1",
+//         "JUCE_MODULE_AVAILABLE_juce_data_structures=1"
+//       ],
+//       "compilerPath": "G:/apps/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe",
+//       "cStandard": "c17",
+//       "cppStandard": "c++20",
+//       "intelliSenseMode": "windows-msvc-x64",
+//       "browse": {
+//         "path": [
+//           "${workspaceFolder}/Source",
+//           "${workspaceFolder}/Source/include",
+//           "${workspaceFolder}/build/pulsar_synth_artefacts/JuceLibraryCode",
+//           "E:/env/juce-7.0.12-windows/JUCE/modules"
+//         ],
+//         "limitSymbolsToIncludedHeaders": false
+//       }
+//     }
+//   ],
+//   "version": 4
+// }

@@ -116,7 +116,7 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
   highPassFilter.prepare(spec);
 
   // 使用公共 API 设置系数（ProcessorDuplicator 通过 *state 共享系数给所有声道）
-  *highPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 37.0f, 0.5f);
+  *highPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 20.0f, 0.1f);
 }
 
 void AudioPluginAudioProcessor::releaseResources() {
@@ -267,7 +267,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
 
   // train
   params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID(why::ParameterID::trainLen, 1), "Train Period", 1, 8, 1.0));
-  params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID(why::ParameterID::trainDutyCycleLen, 1), "Train Duty Cycle", 1, 640, 0));
+  params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID(why::ParameterID::trainDutyCycleLen, 1), "Train Duty Cycle", 1, 64 * 100, 0));
   params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID(why::ParameterID::trainSilenceLen, 1), "Train Silence", 0, 64, 0));
 
   // masking
@@ -290,6 +290,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
   params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::pulsarDecay, 1), "Pulsar Decay", 0.0, 1.0, 0.0));
   params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::pulsarSustain, 1), "Pulsar Sustain", 0.01, 1.0, 1.0));
   params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::pulsarRelease, 1), "Pulsar Release", 0.0, 1.0, 0.0));
+
+  // granular
+  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::grainSize, 1), "Grain Size (ms)", 10.0, 1000.0, 100.0));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::grainWet, 1), "Grain Wet (ms)", 0.0, 1.0, 1.0));
 
   return {params.begin(), params.end()};
 }

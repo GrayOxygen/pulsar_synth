@@ -14,7 +14,7 @@ public:
     static PulsaretWaveformSingleton instance;
     return instance;
   }
-
+  
   // Remove the copy constructor and assignment operator to ensure that only a
   // unique instance can be obtained
   PulsaretWaveformSingleton(const PulsaretWaveformSingleton &) = delete;
@@ -42,30 +42,6 @@ public:
     juce::dsp::LookupTableTransform<float> &upperWaveform = *waveformLUTs[upperIndex];
 
     float s = lowerWaveform.processSample(phase) + (upperWaveform.processSample(phase) - lowerWaveform.processSample(phase)) * interpolationFactor;
-    // float waveformGain = 1.0f;
-    // switch (lowerIndex) {
-    // case 0: // sine
-    //   waveformGain = 1.0f;
-    //   break;
-    // case 1: // triangle
-    //   waveformGain = 1.0f;
-    //   break;
-    // case 2: // softSaw
-    //   waveformGain = 1.0f;
-    //   break;
-    // case 3: // saw
-    //   waveformGain = 1.0f;
-    //   break;
-    // case 4: // pwm
-    //   waveformGain = 1.0f;
-    //   break;
-    // case 5: // square
-    //   waveformGain = 0.73f;
-    //   break;
-    // default:
-    //   waveformGain = 0.5f;
-    // }
-    // s = s * waveformGain;
     s = juce::jlimit(-1.0f, 1.0f, s);
     return s;
   }

@@ -265,6 +265,7 @@ public:
     if (getNumVoices() > 0) {
       if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
         voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeData = data;
+        voice->setChangeTrainTrace(true);
       }
     }
   }
@@ -313,6 +314,7 @@ public:
     if (getNumVoices() > 0) {
       if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
         voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeData = data;
+        voice->setChangeTrainTrace(true);
       }
     }
   }
@@ -328,6 +330,33 @@ public:
     }
     std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
     defaultData.fill(1.0f);
+    return defaultData;
+  }
+
+  void setUsePgWaveformEnvelope(bool useEnvelope) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->usePgWaveformEnvelope.store(useEnvelope);
+      }
+    }
+  }
+
+  void setPgWaveformEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->pgWaveformEnvelopeData = data;
+      }
+    }
+  }
+
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getPgWaveformEnvelopeData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->pgWaveformEnvelopeData;
+      }
+    }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(0.5f);
     return defaultData;
   }
 

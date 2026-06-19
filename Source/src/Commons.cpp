@@ -3,12 +3,13 @@
 //
 #include "../include/Commons.h"
 
-namespace why { 
+namespace why {
 // 1: 1 beat , 16: 1/16 * 1 beat, etc
 std::atomic<int> beatDivision(1);
 
 std::atomic<float> bpm(120);
 std::atomic<double> sampleRate(44100.0);
+std::atomic<double> blockSize(512);
 
 // id from 1(=item id in combobox), The display order is sorted by id
 std::map<int, juce::String> resourceIdToName = {

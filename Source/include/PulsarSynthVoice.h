@@ -13,9 +13,10 @@
  */
 class PulsarSynthVoice : public juce::SynthesiserVoice {
 private:
+  // 包络下标
+  int envIndex = 0;
   //====================================properties related to Auto  mode==================================== Whether it was in the playing state
-  // last time, determine which one is the first time to start playing (rather
-  // than after playing).
+  // last time, determine which one is the first time to start playing (rather than after playing).
   bool wasPlayingLastFrame;
   // true: Because the switching mode requires muting, false does not.
   // control the switching mode to pause the sound and allow the user to play
@@ -29,6 +30,7 @@ private:
   int trainCounter = 0;
   bool isActive = false;
 
+  int samplesInPulsar = 0.0;
   // The duration of the current pulse state (StateEnum) corresponds to the required number of samples
   int currentStateDurationSampleNum = 0.0;
   // The number of samples processed in the current state (StateEnum), -999 indicates the start of the train
@@ -80,7 +82,7 @@ private:
   // will not directly rebuild the train. Wait until the nearest pulsar silence
   // or train silence ends before entering. If all silence are 0, proceed to the
   // next train after the most recent pulse ends
-  bool changeTrainTrace = false;
+  std::atomic<bool> changeTrainTrace{false};
   // // true: The same train. false: If the parameters related to train change, change train trace can be allowed
   // bool isTheSameTrainConfig;
   // // new train duration length
@@ -114,13 +116,22 @@ private:
   // setSampleRate on the audio thread
   // double adsrSampleRate = 0.0;
 
+  //===========================waveform grain pool===========================
+  static constexpr int MAX_WAVEFORM_GRAINS = 64;
+  struct WaveformGrain {
+    float phase = 0.0f;
+    float phaseInc = 0.0f;
+    bool active = false;
+  };
+  WaveformGrain waveformGrains[MAX_WAVEFORM_GRAINS];
+  int waveformGrainWriteIdx = 0;
+
   //===========================common properties===========================
   std::shared_ptr<CommonVoiceSate> commonVoiceSate;
   SnapShot snapShot;
 
 public:
   PulsarSynthVoice() {}
-
   //==============================重写方法==============================
   void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
 
@@ -129,7 +140,6 @@ public:
 
   void renderNextBlock(juce::AudioSampleBuffer &outputBuffer, int startSample, int numSamples) override;
   void saveSnapShot();
-  void saveNonTrainParams();
   void refreshSnapShot(int trainDurationLen, int trainIntervalSilenceLen, int trainLen);
 
   void renderNextBlockDirectly(juce::AudioSampleBuffer &outputBuffer, juce::AudioPlayHead *audioPlayHead, int startSample, int numSamples);
@@ -279,7 +289,7 @@ public:
    * parameter
    * @param silenceToPulseFlag Was it once silence and now it is pulse
    */
-  void calcNewPulsarFreq(float pulsarDutyCycleRatio, float &pulsarModFreq, bool silenceToPulseFlag);
+  void calcNewPulsarFreq(float pulsarDutyCycleRatio, float &pulsarModFreq, bool silenceToPulseFlag, int cluster);
 
   /**
    * process the final samples respectively based on the state
@@ -299,9 +309,9 @@ public:
 
   /**
    * This method is executed to calculate the sample in both auto and midi modes
-   * @return calculated sample
+   * @return calculated sample and new pulsar frequency
    */
-  float processSample();
+  std::pair<float, float> processSample();
 
   /**
    * calculate sample
@@ -312,6 +322,7 @@ public:
   float calcActualPulse(float pulsarModFreq);
   float getCurrentDutyCycleRatio(float phase, float depth);
   float getCurrentDutyCycleCluster(float phase, float depth);
+  float getCurrentSampleFromWaveformEnvelope(float phase);
   /**
    * Smoothly transition different waveforms in the waveform table to apply FM
    * modulation with different waveform characteristics, or use fm envelope data
@@ -348,6 +359,8 @@ public:
   float getFmEnvelopeValueAtPhase(float phase) const;
   float getDutyCycleRatioEnvelopeValueAtPhase(float phase) const;
   float getDutyCycleClusterEnvelopeValueAtPhase(float phase) const;
+  float getWaveformEnvelopeValueAtPhase(float phase) const;
+
   /**
    * Get Cluster envelope value at given phase using linear interpolation
    * @param phase pulsaret phase (0.0 - 1.0)
@@ -378,6 +391,7 @@ public:
   [[nodiscard]] std::shared_ptr<CommonVoiceSate> &getCommonVoiceSate() { return commonVoiceSate; }
 
   void setCommonVoiceSate(std::shared_ptr<CommonVoiceSate> &commonVoiceSate) { this->commonVoiceSate = commonVoiceSate; }
+  void setChangeTrainTrace(bool flag) { this->changeTrainTrace = flag; }
 
   void setSoundOffWhenSwitchPlayMode(bool soundOffWhenSwitchPlayMode) { this->soundOffWhenSwitchPlayMode = soundOffWhenSwitchPlayMode; }
 };

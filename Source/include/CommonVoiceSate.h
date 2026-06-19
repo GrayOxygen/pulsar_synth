@@ -24,6 +24,11 @@ public:
     dutyCycleClusterEnvelopeData.fill(1.0f);
     // 初始化 Duty Ratio 包络数据为默认值 (0.5 = 基础值)
     dutyCycleRatioEnvelopeData.fill(0.5f);
+    // 初始化 Pg Waveform 包络数据为默认值 (sine: sin(2pi*x), 范围 [-1, 1])
+    for (int i = 0; i < (int)pgWaveformEnvelopeData.size(); ++i) {
+      float x = static_cast<float>(i) / (pgWaveformEnvelopeData.size() - 1);
+      pgWaveformEnvelopeData[i] = std::sin(2.0f * 3.14159265f * x);
+    }
   }
 
   // whether loop playback train or not
@@ -65,16 +70,16 @@ public:
 
   // AM 包络数据（替代波形选择）- 2048 个 samples
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> ampEnvelopeData;
-  std::atomic<float> ampEnvelopeYMin{0.1f};
-  std::atomic<float> ampEnvelopeYMax{10.0f};
+  std::atomic<float> ampEnvelopeYMin{0.01f};
+  std::atomic<float> ampEnvelopeYMax{1.0f};
   std::atomic<bool> useAmpEnvelope{false}; // 是否使用包络代替 LFO
 
   std::atomic<float> *ampLfoDepthParam;
 
   // FM 包络数据（替代波形选择）- 2048 个 samples
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> fmEnvelopeData;
-  std::atomic<float> fmEnvelopeYMin{-12.0f}; // 默认 -12 semitones
-  std::atomic<float> fmEnvelopeYMax{12.0f};  // 默认 +12 semitones
+  std::atomic<float> fmEnvelopeYMin{-24.0f}; // 默认 0
+  std::atomic<float> fmEnvelopeYMax{24.0f};  // 默认 +24 semitones
   std::atomic<bool> useFmEnvelope{false};    // 是否使用包络代替 LFO
 
   std::atomic<float> *formantFreqLfoDepthParam;
@@ -89,23 +94,15 @@ public:
 
   // duty cycle Cluster 包络数据 - 2048 个 samples
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> dutyCycleClusterEnvelopeData;
-  std::atomic<float> dutyCycleClusterEnvelopeYMin{0.01f};
-  std::atomic<float> dutyCycleClusterEnvelopeYMax{1.0f};
+  std::atomic<float> dutyCycleClusterEnvelopeYMin{1.0f};
+  std::atomic<float> dutyCycleClusterEnvelopeYMax{16.0f};
   std::atomic<bool> useDutyCycleClusterEnvelope{false};
 
+  // Pg Waveform 包络数据 - 2048 个 samples，Y轴范围 [-1, 1]，用户绘制的一个周期波形
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> pgWaveformEnvelopeData;
+  std::atomic<bool> usePgWaveformEnvelope{false};
+
   std::atomic<float> *dutyCycleClusterDepthParam;
-
-  // Cluster 包络数据 - 2048 个 samples
-  // std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> clusterEnvelopeData;
-  // std::atomic<float> clusterEnvelopeYMin{1.0f};  // 默认 1
-  // std::atomic<float> clusterEnvelopeYMax{16.0f}; // 默认 16
-  // std::atomic<bool> useClusterEnvelope{false};   // 是否使用包络
-
-  // Duty Ratio 包络数据 - 2048 个 samples
-  // std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> dutyRatioEnvelopeData;
-  // std::atomic<float> dutyRatioEnvelopeYMin{0.01f}; // 默认 0.01
-  // std::atomic<float> dutyRatioEnvelopeYMax{1.0f};  // 默认 1.0
-  // std::atomic<bool> useDutyRatioEnvelope{false};   // 是否使用包络
 
   // Adsr: applied to the single final pulse(notice!silence can be converted to
   // pulse) (if cluster>0, then it still is applied to the whole pulse not
@@ -125,6 +122,10 @@ public:
 
   // mask menu option
   std::atomic<float> *impulseSwitchParam;
+
+  // parameters to receive values from AudioProcessorValueTreeState，thread safe
+  std::atomic<float> *grainSizeParam;
+  std::atomic<float> *grainWetParam;
 
   //===========================Convolution===========================
   // store impulse file data, initialize this field when initializing synth.
@@ -199,21 +200,14 @@ public:
   float pulsarPeriodTime;
   float fundamentalFreq; // 发射频率
 
+  float dutyCycleRatio;
+  float dutyCycleCluster;
+  float dutyCycleTime;
+  float pulsarSilenceTime;
+
+  float pulsarDutyCycleSamples;
+  float pulsarIntraSilenceSamples;
   float trainDutyCycleSamples;
   float interTrainSilenceSamples;
-  // 根据pulsarDutyCycleRatioParam实时计算
-  // float pulsarDutyCycleSamples;
-  // float pulsarIntraSilenceSamples;
-
-  // 和pulsars生成时间长度无关，可以直接拿最新参数
-  // current adsr
-  // float attackParam;
-  // float decayParam;
-  // float sustainParam;
-  // float releaseParam;
-
-  // float pulsarDutyCycleRatioParam;
-  // float pulsarWaveformParam;
-  // float pulsarDutyCycleClusterLenParam;
 };
 #endif // SHAREDVOICESTATE_H

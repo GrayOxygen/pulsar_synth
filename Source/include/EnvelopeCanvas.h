@@ -18,7 +18,7 @@ public:
 
   void paint(juce::Graphics &g) override;
   void resized() override;
-    
+
   // 鼠标交互绘制
   void mouseDown(const juce::MouseEvent &event) override;
   void mouseDrag(const juce::MouseEvent &event) override;
@@ -34,8 +34,9 @@ public:
   std::pair<float, float> getYAxisRange() const { return {yMin, yMax}; }
 
   // 工具方法
-  void clearEnvelope();
+  void clearEnvelope(float value = 1.0f);
   void resetToDefault();
+  void randomize();
 
 private:
   std::array<float, ENVELOPE_SIZE> envelopeData{};

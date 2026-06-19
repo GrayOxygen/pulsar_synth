@@ -21,7 +21,8 @@ extern std::atomic<int> beatDivision;
 // of the DAW. This plugin is only affected by the speed of the plugin
 extern std::atomic<float> bpm;
 extern std::atomic<double> sampleRate;
-
+extern std::atomic<double> blockSize;
+ 
 // ensure the relation id(or combobox index) and resource name is one-to-one,
 //  !!!There are new additions or modifications in the subsequent resource. The
 //  mapping relationship can also be kept unchanged by modifying the filename
@@ -91,6 +92,8 @@ struct ParameterID {
   static constexpr const char *pulsarSustain = "pulsarSustain";
   static constexpr const char *pulsarRelease = "pulsarRelease";
   static constexpr const char *playMode = "playMode";
+  static constexpr const char *grainSize = "grainSize";
+  static constexpr const char *grainWet = "grainWet";
 };
 
 // Some UI elements cannot be bound to audio parameters, so preset and UI
