@@ -53,7 +53,7 @@ public:
       // 将其转换为自定义的 PulsarSynthVoice
       PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
       bool bpmChangedFlag = pulsarVoice->updateBpmDirectly(bpm);
-      pulsarVoice->changeToNewTrainAfterPulsarPeriodOrTrainEnd(bpmChangedFlag);
+      pulsarVoice->setEnterNextTrain(true);
     }
   }
 
@@ -265,7 +265,7 @@ public:
     if (getNumVoices() > 0) {
       if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
         voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeData = data;
-        voice->setChangeTrainTrace(true);
+        // voice->setEnterNextTrain(true);
       }
     }
   }
@@ -314,7 +314,7 @@ public:
     if (getNumVoices() > 0) {
       if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
         voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeData = data;
-        voice->setChangeTrainTrace(true);
+        // voice->setEnterNextTrain(true);
       }
     }
   }

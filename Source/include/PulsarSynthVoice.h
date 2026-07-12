@@ -24,18 +24,15 @@ private:
   bool soundOffWhenSwitchPlayMode;
 
   //====================================train state====================================
-  // The number of times the train has been completed is used to determine the
-  // non-loop mode. If it is played once, it will end. For now, it can only be
-  // played in a loop
-  int trainCounter = 0;
+  // loop or one time playback
+  bool firstTrain = false;
   bool isActive = false;
 
-  int samplesInPulsar = 0.0;
   // The duration of the current pulse state (StateEnum) corresponds to the required number of samples
-  int currentStateDurationSampleNum = 0.0;
-  // The number of samples processed in the current state (StateEnum), -999 indicates the start of the train
-  int hasPassedSampleNumInsideTrain = -999.0f;
-  // The latest position in a single train (unit: samples) is reinitialized each time a new train is entered
+  int currentStateDurationSampleNum = 0;
+  // The number of samples processed in the current state (StateEnum)
+  int hasPassedSampleNumInsideTrain = 0;
+  // The latest stage end position in a single train (unit: samples) is reinitialized each time a new train is entered
   int endPosInTrainSamples = 0.0;
 
   // The current original stage identifier (before masking, because after  masking)
@@ -49,79 +46,25 @@ private:
   bool isTriggeredReleaseFlag = false;
 
   // Count of pulsar stage change times, used to determine which value through the mask whether to release Before mask processing,
-  // the train dutycycle is composed of multiple pulsar periods. For example, pulse silence represents 1, 2, 3, 4...
+  // the train dutycycle is composed of multiple pulsar periods. For example, pulse silence represents 1, 2, 3, 4... 从1开始
   int pulsarStageIndexInTrainDutyCycle = 0;
   // pulsaret phase
   float pulsaretPhase = 0.0f;
   // per-voice LFO modulator (independent phase per voice/instance)
   LfoModulator lfoModulator;
 
-  // The default time of 1 beat (in seconds)
-  // double trainLenBlock;
-  // // trainTime = trainLen * trainLenBlock;
-  // double trainTime;
-
-  // //========train duty cycle, train silence and train len all lead to changes in train. bpm is the same======== The length of the last train duty cycle: How
-  // // many pulsar periods
-  // int previousTrainDutyCycleNum = 0;
-  // // The length of the last train silence: How many pulsar periods
-  // int previousTrainSilenceNum = 0;
-  // // The length of the last train: How many trainLenBlocks(beats)
-  // int previousTrainLen = 0;
-
-  // // train period time = trainDutyCycleTime + trainSilenceTime，sec
-  // float trainPeriodTime = 0.0f;
-  // // train duty cycle: The actual duration of the sent pulse period is in
-  // // seconds
-  // float trainDutyCycleTime = 0.0f;
-  // // After the train duty cycle is over, enter the train silence in seconds
-  // float trainSilenceTime = 0.0f;
+  std::atomic<float> currentPulsarModFreq;
 
   // =====control DAW play stop, train change=====
-  // Whether it is necessary to enter the new train or not, each train change
-  // will not directly rebuild the train. Wait until the nearest pulsar silence
-  // or train silence ends before entering. If all silence are 0, proceed to the
-  // next train after the most recent pulse ends
-  std::atomic<bool> changeTrainTrace{false};
-  // // true: The same train. false: If the parameters related to train change, change train trace can be allowed
-  // bool isTheSameTrainConfig;
-  // // new train duration length
-  // int newTrainDurationLen;
-  // // new train intervale silence length
-  // int newTrainIntervalSilenceLen;
-  // // new train len
-  // int newTrainLen;
-  // // pulsar samples = pulsar duty cycle time (if cluster>0，this is pulsar duty cycle, also all divisions sum too) * sampleRate
-  // int pulsarDutyCycleSamples;
-  // // pulsar silence time * sample rate
-  // int pulsarIntraSilenceSamples;
-  // // train interval silence time * sample rate
-  // int interTrainSilenceSamples;
-  // // train duty cycle time * sample rate
-  // int trainDutyCycleSamples;
-
-  //===========================pulsaret===========================
-  // // fundamental frequency of pulsar emitter，This actually not used much because this plugin mainly focuses on train
-  // float fundamentalFreq = 0.0;
-  // // ratio = pulse duty cycle length/(pulse duty cycle length + silence length)
-  // float pulsarDutyCycleRatio = 0.5f;
-  // // pulsar period = pulsar duty cycle time + pulsar silence time
-  // float pulsarPeriodTime = 0.0f;
-  // // pulsar silence
-  // float pulsarSilenceTime = 0.0f;
-
-  //===========================pulsaret envelope===========================
-
-  // cache the sample rate last applied to pulsarAdsr to avoid redundant
-  // setSampleRate on the audio thread
-  // double adsrSampleRate = 0.0;
+  std::atomic<bool> enterNextTrain{false};
 
   //===========================waveform grain pool===========================
-  static constexpr int MAX_WAVEFORM_GRAINS = 64;
+  static constexpr int MAX_WAVEFORM_GRAINS = 128;
   struct WaveformGrain {
     float phase = 0.0f;
     float phaseInc = 0.0f;
     bool active = false;
+    int remainSamples = 0;
   };
   WaveformGrain waveformGrains[MAX_WAVEFORM_GRAINS];
   int waveformGrainWriteIdx = 0;
@@ -136,12 +79,12 @@ public:
   void startNote(int midiNoteNumber, float velocity, juce::SynthesiserSound *sound, int currentPitchWheelPosition) override;
 
   void stopNote(float /*velocity*/, bool allowTailOff) override;
-  void processSampleWithConvolution(juce::AudioSampleBuffer &outputBuffer, int startSample, int numSamples);
+  void processBlockSamples(juce::AudioSampleBuffer &outputBuffer, int startSample, int numSamples);
 
   void renderNextBlock(juce::AudioSampleBuffer &outputBuffer, int startSample, int numSamples) override;
   void saveSnapShot();
-  void refreshSnapShot(int trainDurationLen, int trainIntervalSilenceLen, int trainLen);
-
+  void refreshSnapShot();
+  void refreshPulsarInSnapShot();
   void renderNextBlockDirectly(juce::AudioSampleBuffer &outputBuffer, juce::AudioPlayHead *audioPlayHead, int startSample, int numSamples);
 
   void pitchWheelMoved(int) override;
@@ -151,37 +94,6 @@ public:
   bool canPlaySound(juce::SynthesiserSound *sound) override;
 
   //=============================自定义方法===================================
-  /**
-   * calculate pulsar silence time
-   * @param dutyCylceRatio pulsar duty cycle ratio =  pulsar duty cycle/pulsar
-   * period
-   */
-  void setPulsarSilence(float dutyCylceRatio);
-
-  /**
-   *If the train-related parameters indicate that the train has changed, wait
-   * for the next pulsar silence or train silence to end and enter the new
-   * train. If all silos are 0, then after the most recent pulse ends, enter a
-   * new train
-   *
-   * @param bpmChangedFlag is bpm changed or not
-   */
-  void changeToNewTrainAfterPulsarPeriodOrTrainEnd(bool bpmChangedFlag);
-
-  /**
-   * Update the latest train config directly to synth without any delay
-   */
-  void realChangeTrainConfig();
-
-  /**
-   * init train
-   *
-   * @param durationLen train duty cycle length
-   * @param intervalSilenceLen train interval silence length
-   * @param isLoop loop or not
-   * @param trainLen train length
-   */
-  void initTrain(int durationLen, int intervalSilenceLen, float isLoop, int trainLen);
 
   /**
    * reset train related status to initial
@@ -201,7 +113,7 @@ public:
    * @param isLoop  loop or not
    * @param trainLen  train length
    */
-  void resetTrain(int durationLen, int intervalSilenceLen, float isLoop, int trainLen);
+  void resetTrain();
 
   /**
    * !!!!!!Initializing all train and pulsar related config is equivalent to the overall initialization entry!!!!!!
@@ -254,9 +166,9 @@ public:
 
   /**
    * refresh adsr
-   * @param pulsarDutyCycleTime
+   * @param pulsaretTime: seconds
    */
-  void refreshPulsaretAdsr(float pulsarDutyCycleTime);
+  void refreshPulsaretAdsr(float pulsaretTime);
 
   /**
    * whether the current sample has passed the mask
@@ -270,13 +182,8 @@ public:
 
   /**
    * enter to the next stage
-   *
-   * @param pulsarDutyCycleSamples current pulsar duty cycle samples
-   * @param intraSilenceSamples  current pulsar silence samples
-   * @param interTrainSilenceSamples current train interval silence samples
-   * @param trainDutyCycleSamples  current train duty cycle samples
    */
-  void changeStage(int pulsarDutyCycleSamples, int intraSilenceSamples, int interTrainSilenceSamples, int trainDutyCycleSamples);
+  void changeStage();
 
   /**
    * calculate new modulated pulsar frequency
@@ -296,16 +203,9 @@ public:
    *
    * @param passMaskFlag passed by mask or not
    * @param existMask mask exist or not
-   * @param pulsarModFreq modulate frequency
    * @return
    */
-  float calSampleByState(bool passMaskFlag, bool existMask, float pulsarModFreq);
-
-  /**
-   * When reset train, recalculate the relevant samples to locate the play
-   * position info
-   */
-  void resetTrainRelatedSamples4Location();
+  float calSampleByState(bool passMaskFlag, bool existMask);
 
   /**
    * This method is executed to calculate the sample in both auto and midi modes
@@ -317,9 +217,8 @@ public:
    * calculate sample
    *
    * @param pulsarModFreq the newest frequency for sample calculation
-   * @return sample
    */
-  float calcActualPulse(float pulsarModFreq);
+  float calcActualPulse();
   float getCurrentDutyCycleRatio(float phase, float depth);
   float getCurrentDutyCycleCluster(float phase, float depth);
   float getCurrentSampleFromWaveformEnvelope(float phase);
@@ -387,11 +286,12 @@ public:
    * @return true: changed a different bpm false:no need to update
    */
   bool updateBpmDirectly(float bpm);
-
   [[nodiscard]] std::shared_ptr<CommonVoiceSate> &getCommonVoiceSate() { return commonVoiceSate; }
 
   void setCommonVoiceSate(std::shared_ptr<CommonVoiceSate> &commonVoiceSate) { this->commonVoiceSate = commonVoiceSate; }
-  void setChangeTrainTrace(bool flag) { this->changeTrainTrace = flag; }
+  void setEnterNextTrain(bool flag) { this->enterNextTrain = flag; }
+  void setCurrentPulsarDutyCycleFreq(float freq) { this->currentPulsarModFreq = freq; }
+  float getCurrentPulsarDutyCycleFreq() { return this->currentPulsarModFreq; }
 
   void setSoundOffWhenSwitchPlayMode(bool soundOffWhenSwitchPlayMode) { this->soundOffWhenSwitchPlayMode = soundOffWhenSwitchPlayMode; }
 };

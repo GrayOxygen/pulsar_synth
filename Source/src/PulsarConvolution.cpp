@@ -301,6 +301,10 @@ void PulsarConvolution::spawnGrain(float pulsarAmplitude) {
   } else {
     grain.externalSourceStartIndex = 0;
   }
+  // Perlin noise pitch shift
+  float perlinValue = perlinNoise.noise(perlinTime);
+  grain.readSpeed = juce::jmap(perlinValue, -1.0f, 1.0f, pitchRangeMin, pitchRangeMax);
+  perlinTime += perlinStep;
 
   activeGrains.push_back(grain);
 }
@@ -310,19 +314,40 @@ float PulsarConvolution::processGrain(Grain &grain) {
     return 0.0f;
   }
 
-  // ===== Time-Domain Grain Reading =====
+  // ===== Time-Domain Grain Reading with Perlin pitch shift =====
   float sample = 0.0f;
   if (grain.externalSource != nullptr) {
-    int readPos = grain.externalSourceStartIndex + grain.sourceReadOffset;
     int sourceLength = grain.externalSource->getNumSamples();
-    readPos = readPos % sourceLength;
+    int grainSourceEnd = grain.externalSourceStartIndex + grain.totalDuration;
+    if (grainSourceEnd > sourceLength)
+      grainSourceEnd = sourceLength;
 
-    // Mix down channels for mono output
-    int numCh = grain.externalSource->getNumChannels();
-    for (int ch = 0; ch < numCh; ++ch) {
-      sample += grain.externalSource->getSample(ch, readPos);
+    int index = static_cast<int>(grain.readHead);
+    float frac = grain.readHead - static_cast<float>(index);
+    int i0 = grain.externalSourceStartIndex + index;
+    int i1 = i0 + 1;
+
+    if (i0 >= grainSourceEnd) {
+      grain.samplesRemaining = 0;
+      return 0.0f;
     }
-    sample /= juce::jmax(1, numCh);
+
+    // Mix down channels for mono output with interpolation
+    int numCh = grain.externalSource->getNumChannels();
+    float s0 = 0.0f, s1 = 0.0f;
+    for (int ch = 0; ch < numCh; ++ch) {
+      const float *src = grain.externalSource->getReadPointer(ch);
+      s0 += src[i0 % sourceLength];
+      if (i1 < grainSourceEnd)
+        s1 += src[i1 % sourceLength];
+      else
+        s1 += s0; // hold last sample if at end
+    }
+    s0 /= juce::jmax(1, numCh);
+    s1 /= juce::jmax(1, numCh);
+    sample = s0 * (1.0f - frac) + s1 * frac;
+
+    grain.readHead += grain.readSpeed;
   }
 
   // ===== Blackman-Harris Window (Better than Hann: -92dB sidelobes vs -31dB) =====
@@ -343,7 +368,6 @@ float PulsarConvolution::processGrain(Grain &grain) {
   sample *= envelope * grain.amplitude;
 
   // Advance
-  grain.sourceReadOffset++;
   grain.samplesRemaining--;
 
   return sample;

@@ -113,15 +113,14 @@ void AudioPluginAudioProcessorEditor::resized() {
 
   // bottom
   juce::FlexBox bottomFlexBox;
-  std::shared_ptr<juce::FlexBox> column1 = std::make_shared<juce::FlexBox>();  // pulsarWaveform
-  std::shared_ptr<juce::FlexBox> column9 = std::make_shared<juce::FlexBox>();  // attack
+   std::shared_ptr<juce::FlexBox> column9 = std::make_shared<juce::FlexBox>();  // attack
   std::shared_ptr<juce::FlexBox> column10 = std::make_shared<juce::FlexBox>(); // decay
   std::shared_ptr<juce::FlexBox> column11 = std::make_shared<juce::FlexBox>(); // sustain
   std::shared_ptr<juce::FlexBox> column12 = std::make_shared<juce::FlexBox>(); // release
   std::shared_ptr<juce::FlexBox> column13 = std::make_shared<juce::FlexBox>(); // grain size
   std::shared_ptr<juce::FlexBox> column14 = std::make_shared<juce::FlexBox>(); // grain wet
 
-  this->bottomFlexBox(bottomFlexBox, column13, column14, column1, column9, column10, column11, column12);
+  this->bottomFlexBox(bottomFlexBox, column13, column14,  column9, column10, column11, column12);
 
   // AM/FM 包络行 - 在最底部单独一行，水平均分
   juce::FlexBox amFmRowFlexBox;
@@ -229,7 +228,7 @@ void AudioPluginAudioProcessorEditor::resized() {
   // 为 Pg Waveform 包络容器内的控件设置布局
   auto pgWaveformControlBounds = pgWaveformEnvControlRow.getLocalBounds();
   int pgCtrlW = pgWaveformControlBounds.getWidth();
-  pgWaveformEnvelopeToggle.setBounds(pgWaveformControlBounds.removeFromLeft(pgCtrlW / 4));
+  // pgWaveformEnvelopeToggle.setBounds(pgWaveformControlBounds.removeFromLeft(pgCtrlW / 4));
   pgWaveformEnvelopeClearButton.setBounds(pgWaveformControlBounds.removeFromLeft(pgCtrlW / 4));
   pgWaveformEnvelopeRandomButton.setBounds(pgWaveformControlBounds.removeFromLeft(pgCtrlW / 4));
   pgWaveformLoadFileButton.setBounds(pgWaveformControlBounds);
@@ -449,8 +448,7 @@ void AudioPluginAudioProcessorEditor::topFlexBox(juce::FlexBox &flexBoxTop, std:
 /**
  * Arrange each flexbox horizontally (with vertical arrangement inside)
  * @param bottomFlexBox bottom flexbox
- * @param pulsarWaveformFlexBox pulsar wave form in row
- * @param pulsarDutyCycleClusterLenFlexBox pulsar duty cycle cluster length in a row
+  * @param pulsarDutyCycleClusterLenFlexBox pulsar duty cycle cluster length in a row
  * @param pulsarDutyCycleRatioFlexBox pulsar duty cyle ratio in a row
  * @param ampLfoWaveformFlexBox AM LFO waveform selection in a row
  * @param ampLfoDepthFlexBox AM LFO depth in a row
@@ -462,20 +460,14 @@ void AudioPluginAudioProcessorEditor::topFlexBox(juce::FlexBox &flexBoxTop, std:
  * @param releaseFlexBox release in a row
  */
 void AudioPluginAudioProcessorEditor::bottomFlexBox(juce::FlexBox &bottomFlexBox, std::shared_ptr<juce::FlexBox> grainSizeFlexBox, std::shared_ptr<juce::FlexBox> grainWetFlexBox,
-                                                    std::shared_ptr<juce::FlexBox> pulsarWaveformFlexBox, std::shared_ptr<juce::FlexBox> attackFlexBox, std::shared_ptr<juce::FlexBox> decayFlexBox,
+                                                    std::shared_ptr<juce::FlexBox> attackFlexBox, std::shared_ptr<juce::FlexBox> decayFlexBox,
                                                     std::shared_ptr<juce::FlexBox> sustainFlexBox, std::shared_ptr<juce::FlexBox> releaseFlexBox) {
   bottomFlexBox.flexDirection = juce::FlexBox::Direction::row;
   // flexBoxLeftBottom.flexWrap = juce::FlexBox::Wrap::noWrap; // 是否换行
   bottomFlexBox.justifyContent = juce::FlexBox::JustifyContent::spaceAround; // 控件均匀分布
   bottomFlexBox.alignContent = juce::FlexBox::AlignContent::flexStart;       //
-
-  pulsarWaveformFlexBox->flexDirection = juce::FlexBox::Direction::column;
-  pulsarWaveformFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
-  // margin：上右下左
-  pulsarWaveformFlexBox->items.add(juce::FlexItem(pulsarWaveformLabel).withFlex(1.0).withMaxWidth(200).withMaxHeight(20));
-  pulsarWaveformFlexBox->items.add(juce::FlexItem(pulsarWaveformNameLabel).withFlex(0.5).withMaxHeight(16));
-  pulsarWaveformFlexBox->items.add(juce::FlexItem(pulsarWaveformSlider).withFlex(2.0));
-  bottomFlexBox.items.add(juce::FlexItem(*pulsarWaveformFlexBox).withFlex(1.0f));
+ 
+  // margin：上右下左 
 
   grainSizeFlexBox->flexDirection = juce::FlexBox::Direction::column;
   grainSizeFlexBox->alignContent = juce::FlexBox::AlignContent::flexStart;
@@ -598,19 +590,14 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   addAndMakeVisible(trainDutyCycleLenLabel);
   addAndMakeVisible(trainSilenceLenLabel);
 
-  // pulsar
-  addAndMakeVisible(pulsarWaveformSlider);
-  addAndMakeVisible(pulsarWaveformLabel);
-  addAndMakeVisible(pulsarWaveformNameLabel);
-
   // Pg Waveform 包络控件
   addAndMakeVisible(pgWaveformEnvelopeCanvas);
   addAndMakeVisible(pgWaveformEnvelopeLabel);
-  addAndMakeVisible(pgWaveformEnvelopeToggle);
+  // addAndMakeVisible(pgWaveformEnvelopeToggle);
   addAndMakeVisible(pgWaveformEnvelopeClearButton);
   addAndMakeVisible(pgWaveformEnvelopeRandomButton);
   addAndMakeVisible(pgWaveformEnvControlRow);
-  pgWaveformEnvControlRow.addAndMakeVisible(pgWaveformEnvelopeToggle);
+  // pgWaveformEnvControlRow.addAndMakeVisible(pgWaveformEnvelopeToggle);
   pgWaveformEnvControlRow.addAndMakeVisible(pgWaveformEnvelopeClearButton);
   pgWaveformEnvControlRow.addAndMakeVisible(pgWaveformEnvelopeRandomButton);
   pgWaveformEnvControlRow.addAndMakeVisible(pgWaveformLoadFileButton);
@@ -790,39 +777,18 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   trainSilenceLenSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
   trainSilenceLenSlider.setTextValueSuffix(" (count)");
 
-  trainSilenceLenLabel.setText("Train Silence", juce::dontSendNotification);
-  // trainSilenceLenLabel.attachToComponent(&trainSilenceLenSlider, true);
-
-  // pulsar
-  pulsarWaveformSlider.setSliderStyle(juce::Slider::LinearVertical);
-  pulsarWaveformSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-  pulsarWaveformSlider.setTextValueSuffix("");
-  pulsarWaveformSlider.setRange(0.0, 1.0, 0.001);
-
-  pulsarWaveformLabel.setText("Pg Waveform", juce::dontSendNotification);
-
-  // waveform name display: maps slider 0.0-1.0 to 10 waveform names
-  pulsarWaveformNameLabel.setJustificationType(juce::Justification::centred);
-  pulsarWaveformNameLabel.setFont(juce::Font(13.0f));
-  auto updateWaveformName = [this]() {
-    static const juce::StringArray names = {"Sine", "Triangle", "SoftSaw", "Saw", "PWM", "Square", "SmRand", "StpRand"};
-    int numWaveforms = names.size();
-    float val = static_cast<float>(pulsarWaveformSlider.getValue());
-    int idx = juce::jlimit(0, numWaveforms - 1, static_cast<int>(val * (numWaveforms - 1) + 0.5f));
-    float crossfade = val * (numWaveforms - 1) - static_cast<int>(val * (numWaveforms - 1));
-    int idxNext = juce::jlimit(0, numWaveforms - 1, idx + 1);
-    if (crossfade < 0.05f || idx == idxNext)
-      pulsarWaveformNameLabel.setText(names[idx], juce::dontSendNotification);
-    else
-      pulsarWaveformNameLabel.setText(names[idx] + " > " + names[idxNext], juce::dontSendNotification);
-  };
-  pulsarWaveformSlider.onValueChange = updateWaveformName;
-  updateWaveformName();
+  trainSilenceLenLabel.setText("Train Silence", juce::dontSendNotification); 
 
   // ========================== Pg Waveform 包络绘制控件样式 ==========================
   pgWaveformEnvelopeLabel.setText("Pg Waveform (Drawn)", juce::dontSendNotification);
   pgWaveformEnvelopeCanvas.setYAxisRange(-1.0f, 1.0f);
   pgWaveformEnvelopeCanvas.addChangeListener(this);
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultPgWaveformData;
+  for (int i = 0; i < (int)defaultPgWaveformData.size(); ++i) {
+    float x = static_cast<float>(i) / (defaultPgWaveformData.size() - 1);
+    defaultPgWaveformData[i] = std::sin(2.0f * juce::MathConstants<float>::pi * x);
+  }
+  pgWaveformEnvelopeCanvas.setEnvelopeData(defaultPgWaveformData);
 
   // ========================== AM 包络绘制控件样式 ==========================
   ampEnvelopeLabel.setText("AM Envelope", juce::dontSendNotification);
@@ -858,14 +824,14 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
 
   fmEnvelopeYMinSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   fmEnvelopeYMinSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
-  fmEnvelopeYMinSlider.setRange(-24.0, 0.0, -24.0);
+  fmEnvelopeYMinSlider.setRange(-24.0 * 3, 0.0, -24.0 * 3);
   fmEnvelopeYMinSlider.setValue(0.0);
   fmEnvelopeYMinLabel.setText("Min", juce::dontSendNotification);
 
   fmEnvelopeYMaxSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   fmEnvelopeYMaxSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
-  fmEnvelopeYMaxSlider.setRange(1.0, 24.0, 1);
-  fmEnvelopeYMaxSlider.setValue(24.0);
+  fmEnvelopeYMaxSlider.setRange(1.0, 24.0 * 3, 1);
+  fmEnvelopeYMaxSlider.setValue(24.0 * 3);
   fmEnvelopeYMaxLabel.setText("Max", juce::dontSendNotification);
 
   fmLfoDepthSlider.setSliderStyle(juce::Slider::LinearVertical);
@@ -874,7 +840,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   fmLfoDepthSlider.setRange(0.0, 1.0, 0.01);
   fmLfoDepthLabel.setText("FM Depth", juce::dontSendNotification);
 
-  fmEnvelopeCanvas.setYAxisRange(-24.0f, 24.0f);
+  fmEnvelopeCanvas.setYAxisRange(-24.0f * 3, 24.0f * 3);
 
   // FM 包络默认值为 0.0（无调制）
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultFmData{};
@@ -1066,9 +1032,6 @@ void AudioPluginAudioProcessorEditor::connectUIAndAudioParameter() {
   trainDutyCycleAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::trainDutyCycleLen, trainDutyCycleLenSlider);
   trainSilenceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::trainSilenceLen, trainSilenceLenSlider);
 
-  // pulsar
-  pulsarWaveformAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::pulsarWaveform, pulsarWaveformSlider);
-
   ampLfoDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::ampLfoDepth, ampLfoDepthSlider);
   formantFreqLfoDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::formantFreqLfoDepth, fmLfoDepthSlider);
   dutyCycleRatioDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::dutyCycleRatioDepth, dutyCycleRatioDepthSlider);
@@ -1217,10 +1180,10 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   // ===============================================================================================
 
   // Pg Waveform 包络开关
-  pgWaveformEnvelopeToggle.onStateChange = [this] {
-    bool enabled = pgWaveformEnvelopeToggle.getToggleState();
-    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setUsePgWaveformEnvelope(enabled); });
-  };
+  // pgWaveformEnvelopeToggle.onStateChange = [this] {
+  //   bool enabled = pgWaveformEnvelopeToggle.getToggleState();
+  //   processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setUsePgWaveformEnvelope(enabled); });
+  // };
   pgWaveformEnvelopeClearButton.onClick = [this] {
     std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> sineData;
     for (int i = 0; i < (int)sineData.size(); ++i) {
@@ -1232,44 +1195,40 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   pgWaveformEnvelopeRandomButton.onClick = [this] { pgWaveformEnvelopeCanvas.randomize(); };
 
   pgWaveformLoadFileButton.onClick = [this] {
-    auto chooser = std::make_shared<juce::FileChooser>("Load audio file as waveform", juce::File::getSpecialLocation(juce::File::userDesktopDirectory),
-                                                       "*.wav;*.aiff;*.aif;*.mp3;*.flac;*.ogg");
-    chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles,
-                         [this, chooser](const juce::FileChooser &fc) {
-                           auto result = fc.getResult();
-                           if (!result.existsAsFile())
-                             return;
+    auto chooser = std::make_shared<juce::FileChooser>("Load audio file as waveform", juce::File::getSpecialLocation(juce::File::userDesktopDirectory), "*.wav;*.aiff;*.aif;*.mp3;*.flac;*.ogg");
+    chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, [this, chooser](const juce::FileChooser &fc) {
+      auto result = fc.getResult();
+      if (!result.existsAsFile())
+        return;
 
-                           juce::AudioFormatManager formatManager;
-                           formatManager.registerBasicFormats();
-                           std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(result));
-                           if (!reader)
-                             return;
+      juce::AudioFormatManager formatManager;
+      formatManager.registerBasicFormats();
+      std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(result));
+      if (!reader)
+        return;
 
-                           constexpr int targetSize = EnvelopeCanvas::ENVELOPE_SIZE;
-                           int64 numSrcSamples = reader->lengthInSamples;
-                           if (numSrcSamples <= 0)
-                             return;
+      constexpr int targetSize = EnvelopeCanvas::ENVELOPE_SIZE;
+      int64 numSrcSamples = reader->lengthInSamples;
+      if (numSrcSamples <= 0)
+        return;
 
-                           juce::AudioBuffer<float> srcBuffer(1, (int)std::min(numSrcSamples, (int64)reader->sampleRate)); // 最多读取1秒
-                           reader->read(&srcBuffer, 0, srcBuffer.getNumSamples(), 0, true, false);
+      juce::AudioBuffer<float> srcBuffer(1, (int)std::min(numSrcSamples, (int64)reader->sampleRate)); // 最多读取1秒
+      reader->read(&srcBuffer, 0, srcBuffer.getNumSamples(), 0, true, false);
 
-                           // 线性重采样到 targetSize 点
-                           std::array<float, targetSize> waveData;
-                           const float *src = srcBuffer.getReadPointer(0);
-                           int srcLen = srcBuffer.getNumSamples();
-                           for (int i = 0; i < targetSize; ++i) {
-                             float srcIdx = static_cast<float>(i) * (srcLen - 1) / (targetSize - 1);
-                             int idx0 = static_cast<int>(srcIdx);
-                             int idx1 = std::min(idx0 + 1, srcLen - 1);
-                             float frac = srcIdx - idx0;
-                             waveData[i] = juce::jlimit(-1.0f, 1.0f, src[idx0] + frac * (src[idx1] - src[idx0]));
-                           }
+      // 线性重采样到 targetSize 点
+      std::array<float, targetSize> waveData;
+      const float *src = srcBuffer.getReadPointer(0);
+      int srcLen = srcBuffer.getNumSamples();
+      for (int i = 0; i < targetSize; ++i) {
+        float srcIdx = static_cast<float>(i) * (srcLen - 1) / (targetSize - 1);
+        int idx0 = static_cast<int>(srcIdx);
+        int idx1 = std::min(idx0 + 1, srcLen - 1);
+        float frac = srcIdx - idx0;
+        waveData[i] = juce::jlimit(-1.0f, 1.0f, src[idx0] + frac * (src[idx1] - src[idx0]));
+      }
 
-                           juce::MessageManager::callAsync([this, waveData] {
-                             pgWaveformEnvelopeCanvas.setEnvelopeData(waveData);
-                           });
-                         });
+      juce::MessageManager::callAsync([this, waveData] { pgWaveformEnvelopeCanvas.setEnvelopeData(waveData); });
+    });
   };
   // ===============================================================================================
 
@@ -1327,7 +1286,7 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   bpmSlider.onValueChange = [&] {
     processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->forceRefreshBpmAndRebuildTrain(bpmSlider.getValue()); });
   };
-
+  
   maskOptionComboBox.onChange = [&] {
     // 只在选中stochastic mask时才展示生成的随机mask
     if (maskOptionComboBox.getSelectedItemIndex() == static_cast<int>(why::MaskOptionEnum::StochasticMask)) {

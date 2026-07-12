@@ -211,7 +211,6 @@ public:
       pulsarConvolution = std::make_unique<why::PulsarConvolution>();
       pulsarConvolution->prepare(spec.sampleRate, numSamples);
     }
-
     // Configure parameters
     pulsarConvolution->setSampleObjectDuration(sampleObjectDurationMs);
     pulsarConvolution->setPulsarPeriod(pulsarPeriodMs);
@@ -225,7 +224,7 @@ public:
 
     // Advance read head
     sampleSourceReadHead = (sampleSourceReadHead + numSamples) % sampleSourceBuffer.getNumSamples();
-
+    
     return true;
   }
 
@@ -247,117 +246,118 @@ public:
   }
 
   // sample playback + time-varying read pointer
-  bool processSampleSourceWithPulsarIr(const juce::AudioBuffer<float> &pulsarBuffer, juce::AudioBuffer<float> &outputBuffer) {
-    if (sampleSourceBuffer.getNumSamples() <= 0)
-      return false;
-
-    const int numChannels = outputBuffer.getNumChannels();
-    const int numSamples = outputBuffer.getNumSamples();
-
-    const int sourceChannels = sampleSourceBuffer.getNumChannels();
-    const int sourceSamples = sampleSourceBuffer.getNumSamples();
-    // =========================================================
-    // STEP 0: local read head (IMPORTANT: per-block continuity)
-    // =========================================================
-    float localReadHead = (float)sampleSourceReadHead;
-
-    const float baseSpeed = 1.0f;
-    const float warpStrength = 2.0f; // control this for "pulsar distortion"
-    outputBuffer.clear();
-
-    // =========================================================
-    // STEP 1: time-domain scan (NOT event triggering anymore)
-    // =========================================================
-    for (int i = 0; i < numSamples; ++i) {
-      // mono pulsar control field
-      float pulse = pulsarBuffer.getSample(0, i);
-
-      // optional shaping (VERY important for audibility)
-      // makes sparse pulses become "structure field"
-      float shaped = pulse * pulse; // simple energy emphasis
-
-      // =====================================================
-      // STEP 2: pulse controls TIME SPEED (THIS is the key)
-      // =====================================================
-      float speed = baseSpeed + shaped * warpStrength;
-
-      localReadHead += speed;
-
-      // wrap
-      if (localReadHead >= sourceSamples)
-        localReadHead -= sourceSamples * (int)(localReadHead / sourceSamples);
-
-      int index = (int)localReadHead;
-      int i1 = (index + 1) % sourceSamples;
-
-      float frac = localReadHead - index;
-
-      // =====================================================
-      // STEP 3: read sample source (continuous waveform)
-      // =====================================================
-      for (int ch = 0; ch < numChannels; ++ch) {
-        const float *src = sampleSourceBuffer.getReadPointer(juce::jmin(ch, sourceChannels - 1));
-
-        float *dst = outputBuffer.getWritePointer(ch);
-        dst[i] = src[index] * (1.0f - frac) + src[i1] * frac;
-      }
-    }
-
-    // commit read head
-    sampleSourceReadHead = (int)localReadHead;
-
-    return true;
-  }
-
-  // bool processSampleSourceWithPulsarIr(const juce::AudioBuffer<float> &pulsarIrBuffer, juce::AudioBuffer<float> &outputBuffer) {
-  //   // 没有加载 sample source 时，无法把 sample source 当作被卷积的输入信号。
-  //   if (sampleSourceBuffer.getNumSamples() <= 0) {
+  // bool processSampleSourceWithPulsarIr(const juce::AudioBuffer<float> &pulsarBuffer, juce::AudioBuffer<float> &outputBuffer) {
+  //   if (sampleSourceBuffer.getNumSamples() <= 0)
   //     return false;
-  //   }
 
-  //   // outputBuffer 决定本次 audio block 需要处理的声道数和采样数。
   //   const int numChannels = outputBuffer.getNumChannels();
   //   const int numSamples = outputBuffer.getNumSamples();
-  //   // sampleSourceBuffer 是循环播放的源素材，声道数可能少于 outputBuffer。
+
   //   const int sourceChannels = sampleSourceBuffer.getNumChannels();
   //   const int sourceSamples = sampleSourceBuffer.getNumSamples();
+  //   // =========================================================
+  //   // STEP 0: local read head (IMPORTANT: per-block continuity)
+  //   // =========================================================
+  //   float localReadHead = (float)sampleSourceReadHead;
 
-  //   // sampleSourceProcessBuffer 保存本次从 sample source 读取出来的 dry input block。
-  //   if (sampleSourceProcessBuffer.getNumChannels() != numChannels || sampleSourceProcessBuffer.getNumSamples() != numSamples) {
-  //     sampleSourceProcessBuffer.setSize(numChannels, numSamples, false, true, true);
-  //   }
+  //   const float baseSpeed = 1.0f;
+  //   const float warpStrength = 2.0f; // control this for "pulsar distortion"
   //   outputBuffer.clear();
 
-  //   // 从 sampleSourceBuffer 按 sampleSourceReadHead 读取当前 block，并循环回绕。
-  //   for (int channel = 0; channel < numChannels; ++channel) {
-  //     auto *writePtr = sampleSourceProcessBuffer.getWritePointer(channel);
-  //     // 如果输出声道多于 sample source 声道，则复用 sample source 最后一个声道。
-  //     const auto *readPtr = sampleSourceBuffer.getReadPointer(juce::jmin(channel, sourceChannels - 1));
-  //     for (int sample = 0; sample < numSamples; ++sample) {
-  //       writePtr[sample] = readPtr[(sampleSourceReadHead + sample) % sourceSamples];
+  //   // =========================================================
+  //   // STEP 1: time-domain scan (NOT event triggering anymore)
+  //   // =========================================================
+  //   for (int i = 0; i < numSamples; ++i) {
+  //     // mono pulsar control field
+  //     float pulse = pulsarBuffer.getSample(0, i);
+
+  //     // optional shaping (VERY important for audibility)
+  //     // makes sparse pulses become "structure field"
+  //     float shaped = pulse * pulse; // simple energy emphasis
+
+  //     // =====================================================
+  //     // STEP 2: pulse controls TIME SPEED (THIS is the key)
+  //     // =====================================================
+  //     float speed = baseSpeed + shaped * warpStrength;
+
+  //     localReadHead += speed;
+
+  //     // wrap
+  //     if (localReadHead >= sourceSamples)
+  //       localReadHead -= sourceSamples * (int)(localReadHead / sourceSamples);
+
+  //     int index = (int)localReadHead;
+  //     int i1 = (index + 1) % sourceSamples;
+
+  //     float frac = localReadHead - index;
+
+  //     // =====================================================
+  //     // STEP 3: read sample source (continuous waveform)
+  //     // =====================================================
+  //     for (int ch = 0; ch < numChannels; ++ch) {
+  //       const float *src = sampleSourceBuffer.getReadPointer(juce::jmin(ch, sourceChannels - 1));
+
+  //       float *dst = outputBuffer.getWritePointer(ch);
+  //       dst[i] = src[index] * (1.0f - frac) + src[i1] * frac;
   //     }
   //   }
 
-  //   sampleSourceReadHead = (sampleSourceReadHead + numSamples) % sourceSamples;
+  //   // commit read head
+  //   sampleSourceReadHead = (int)localReadHead;
 
-  //   // pulsar IR 变化时重新加载。loadImpulseResponse 是异步的，JUCE Convolution 内部 overlap-save 会自动保留前一次卷积的 tail，不需要双卷积器或 crossfade.
-  //   if (pulsarIrBuffer.getNumSamples() > 0) {
-  //     juce::AudioBuffer<float> irCopy(pulsarIrBuffer);
-  //     pulsarIrConvolutionA->loadImpulseResponse(std::move(irCopy), spec.sampleRate, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::no, juce::dsp::Convolution::Normalise::yes);
-  //   }
-
-  //   // 直接卷积：process() 内部 overlap-save 自动延续前一 block 的 tail。
-  //   juce::dsp::AudioBlock<float> block(sampleSourceProcessBuffer);
-  //   juce::dsp::ProcessContextReplacing<float> context(block);
-  //   pulsarIrConvolutionA->process(context);
-
-  //   // 这样做不仅能彻底消除导致扬声器纸盆剧烈震动的直流偏移（DC Offset），还能完美保留脉冲序列本身的波形形状和节奏 Pattern（即 Curtis Road 所说的次声波律动）。
-  //   // removeDCOffset(const_cast<juce::AudioBuffer<float> &>(sampleSourceProcessBuffer));
-
-  //   // 将卷积结果?写回调用方传入的 outputBuffer。
-  //   outputBuffer.makeCopyOf(sampleSourceProcessBuffer, true);
   //   return true;
   // }
+
+  bool processSampleSourceWithPulsarIr(const juce::AudioBuffer<float> &pulsarIrBuffer, juce::AudioBuffer<float> &outputBuffer) {
+    // 没有加载 sample source 时，无法把 sample source 当作被卷积的输入信号。
+    if (sampleSourceBuffer.getNumSamples() <= 0) {
+      return false;
+    }
+
+    // outputBuffer 决定本次 audio block 需要处理的声道数和采样数。
+    const int numChannels = outputBuffer.getNumChannels();
+    const int numSamples = outputBuffer.getNumSamples();
+    // sampleSourceBuffer 是循环播放的源素材，声道数可能少于 outputBuffer。
+    const int sourceChannels = sampleSourceBuffer.getNumChannels();
+    const int sourceSamples = sampleSourceBuffer.getNumSamples();
+
+    // sampleSourceProcessBuffer 保存本次从 sample source 读取出来的 dry input block。
+    if (sampleSourceProcessBuffer.getNumChannels() != numChannels || sampleSourceProcessBuffer.getNumSamples() != numSamples) {
+      sampleSourceProcessBuffer.setSize(numChannels, numSamples, false, true, true);
+    }
+    outputBuffer.clear();
+
+    // 从 sampleSourceBuffer 按 sampleSourceReadHead 读取当前 block，并循环回绕。
+    for (int channel = 0; channel < numChannels; ++channel) {
+      auto *writePtr = sampleSourceProcessBuffer.getWritePointer(channel);
+      // 如果输出声道多于 sample source 声道，则复用 sample source 最后一个声道。
+      const auto *readPtr = sampleSourceBuffer.getReadPointer(juce::jmin(channel, sourceChannels - 1));
+      for (int sample = 0; sample < numSamples; ++sample) {
+        writePtr[sample] = readPtr[(sampleSourceReadHead + sample) % sourceSamples];
+      }
+    }
+
+    sampleSourceReadHead = (sampleSourceReadHead + numSamples) % sourceSamples;
+
+    // pulsar IR 变化时重新加载。loadImpulseResponse 是异步的，JUCE Convolution 内部 overlap-save 会自动保留前一次卷积的 tail，不需要双卷积器或 crossfade.
+    if (pulsarIrBuffer.getNumSamples() > 0) {
+      juce::AudioBuffer<float> irCopy(pulsarIrBuffer);
+      pulsarIrConvolutionA->loadImpulseResponse(std::move(irCopy), spec.sampleRate, juce::dsp::Convolution::Stereo::yes, juce::dsp::Convolution::Trim::no, juce::dsp::Convolution::Normalise::yes);
+    }
+
+    // 直接卷积：process() 内部 overlap-save 自动延续前一 block 的 tail。
+    juce::dsp::AudioBlock<float> block(sampleSourceProcessBuffer);
+    juce::dsp::ProcessContextReplacing<float> context(block);
+    pulsarIrConvolutionA->process(context);
+
+    // 这样做不仅能彻底消除导致扬声器纸盆剧烈震动的直流偏移（DC Offset），还能完美保留脉冲序列本身的波形形状和节奏 Pattern（即 Curtis Road 所说的次声波律动）。
+    // removeDCOffset(const_cast<juce::AudioBuffer<float> &>(sampleSourceProcessBuffer));
+
+    // 将卷积结果?写回调用方传入的 outputBuffer。
+    outputBuffer.makeCopyOf(sampleSourceProcessBuffer, true);
+    return true;
+  }
+
   [[nodiscard]] std::unique_ptr<juce::MemoryBlock> &getLastSampleImpulseMemoryBlock() { return lastSampleImpulseMemoryBlock; }
 
   void setLastSampleImpulseMemoryBlock(std::unique_ptr<juce::MemoryBlock> &lastSampleImpulseMemoryBlock) { this->lastSampleImpulseMemoryBlock = std::move(lastSampleImpulseMemoryBlock); }

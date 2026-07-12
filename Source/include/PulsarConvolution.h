@@ -3,8 +3,44 @@
 #include <juce_audio_basics/juce_audio_basics.h>
 #include <juce_core/juce_core.h>
 #include <vector>
+#include <cmath>
 
 namespace why {
+
+// ===== 1D Perlin Noise (for pitch shift randomization) =====
+class PerlinNoise {
+public:
+  PerlinNoise(unsigned seed = 0) {
+    juce::Random rng(seed);
+    for (int i = 0; i < 256; ++i) {
+      p[i] = i;
+      gradients[i] = rng.nextFloat() * 2.0f - 1.0f;
+    }
+    for (int i = 0; i < 256; ++i) {
+      int j = rng.nextInt(256);
+      std::swap(p[i], p[j]);
+      std::swap(gradients[i], gradients[j]);
+    }
+    for (int i = 0; i < 256; ++i) {
+      p[256 + i] = p[i];
+    }
+  }
+
+  float noise(float x) {
+    int X = static_cast<int>(std::floor(x)) & 255;
+    float xf = x - std::floor(x);
+    float u = fade(xf);
+    float g0 = gradients[p[X]];
+    float g1 = gradients[p[X + 1]];
+    return lerp(g0 * xf, g1 * (xf - 1.0f), u) * 2.0f;
+  }
+
+private:
+  float fade(float t) { return t * t * t * (t * (t * 6.0f - 15.0f) + 10.0f); }
+  float lerp(float a, float b, float t) { return a + t * (b - a); }
+  int p[512];
+  float gradients[256];
+};
 
 // ===== Processing Mode Enum =====
 enum class PulsarProcessingMode {
@@ -91,19 +127,23 @@ private:
   struct Grain {
     float amplitude;      // Peak amplitude at trigger (0-1 pulsar value)
     int samplesRemaining; // Samples left to play
-    int sourceReadOffset; // Read offset from grain start in external source
+    int sourceReadOffset; // Read offset from grain start in external source (legacy, kept for compat)
     int totalDuration;    // Total grain duration for envelope calculation
 
     // External source reference (full sample, not ring buffer)
     const juce::AudioBuffer<float> *externalSource;
     int externalSourceStartIndex; // Starting position in external source buffer
 
+    // Pitch-shift: variable-speed read with fractional head
+    float readHead = 0.0f;   // Fractional read position within grain
+    float readSpeed = 1.0f;  // Speed ratio (1.0 = normal pitch, 2.0 = +1 octave, 0.5 = -1 octave)
+
     // Simple constructor
-    Grain() : amplitude(0), samplesRemaining(0), sourceReadOffset(0), totalDuration(0), externalSource(nullptr), externalSourceStartIndex(0) {}
+    Grain() : amplitude(0), samplesRemaining(0), sourceReadOffset(0), totalDuration(0), externalSource(nullptr), externalSourceStartIndex(0), readHead(0.0f), readSpeed(1.0f) {}
   };
 
   // ===== Processing Mode =====
-  PulsarProcessingMode processingMode = PulsarProcessingMode::CurtisRoads;
+  PulsarProcessingMode processingMode = PulsarProcessingMode::GranularPool;
 
   // ===== Output Smoothing =====
   float smoothingAmount = 0.0f;  // 0.0 = no smoothing, 0.5 = medium, 0.9 = heavy
@@ -134,10 +174,17 @@ private:
   // Parameters
   double sampleRate = 44100.0;
   int grainDurationSamples = 44100; // Default 1 second
-  float triggerThreshold = 0.05f;
+  float triggerThreshold = 0.01f;
   float minimumTriggerInterval = 0.0f; // Prevent too dense triggers
   float wetMix = 1.0f;
   float dryMix = 0.0f;
+
+  // ===== Perlin Noise Pitch Shift =====
+  PerlinNoise perlinNoise{42}; // fixed seed for reproducibility
+  float perlinTime = 0.0f;
+  float perlinStep = 0.3f;        // increment per grain spawn (controls smoothness)
+  float pitchRangeMin = 0.5f;   // min speed ratio (-1 octave)
+  float pitchRangeMax = 2.0f;     // max speed ratio (+1 octave)
 
   // ===== Internal Methods =====
   void processBlockCurtisRoads(const float *pulsarBuffer, juce::AudioBuffer<float> &outputBuffer, int numSamples);

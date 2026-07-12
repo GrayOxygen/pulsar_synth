@@ -162,7 +162,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
   // limit & dc filter
   juce::dsp::AudioBlock<float> block(buffer);
   juce::dsp::ProcessContextReplacing<float> context(block);
-
+  
   // 对音频块应用高通滤波
   highPassFilter.process(juce::dsp::ProcessContextReplacing<float>(block));
   limiter.process(context);
@@ -276,8 +276,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
   // 欧几里得节奏划分pattern（只应用于train duty cycle）
   params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID(why::ParameterID::euclidSteps, 1), "Euclid Steps", 1, 16, 1));
   params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID(why::ParameterID::euclidHits, 1), "Euclid Hits", 1, 16, 1));
-
-  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::pulsarWaveform, 1), "Pg Waveform", 0.0, 1.0, 0.0));
 
   //   modulation depth
   params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::ampLfoDepth, 1), "AM LFO Depth", 0.0, 1.0, 0.0));

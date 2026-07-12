@@ -72,7 +72,7 @@ public:
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> ampEnvelopeData;
   std::atomic<float> ampEnvelopeYMin{0.01f};
   std::atomic<float> ampEnvelopeYMax{1.0f};
-  std::atomic<bool> useAmpEnvelope{false}; // 是否使用包络代替 LFO
+  std::atomic<bool> useAmpEnvelope{true}; // 是否使用包络代替 LFO
 
   std::atomic<float> *ampLfoDepthParam;
 
@@ -80,7 +80,7 @@ public:
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> fmEnvelopeData;
   std::atomic<float> fmEnvelopeYMin{-24.0f}; // 默认 0
   std::atomic<float> fmEnvelopeYMax{24.0f};  // 默认 +24 semitones
-  std::atomic<bool> useFmEnvelope{false};    // 是否使用包络代替 LFO
+  std::atomic<bool> useFmEnvelope{true};    // 是否使用包络代替 LFO
 
   std::atomic<float> *formantFreqLfoDepthParam;
 
@@ -88,7 +88,7 @@ public:
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> dutyCycleRatioEnvelopeData;
   std::atomic<float> dutyCycleRatioEnvelopeYMin{0.01f};
   std::atomic<float> dutyCycleRatioEnvelopeYMax{1.0f};
-  std::atomic<bool> useDutyCycleRatioEnvelope{false};
+  std::atomic<bool> useDutyCycleRatioEnvelope{true};
 
   std::atomic<float> *dutyCycleRatioDepthParam;
 
@@ -96,11 +96,11 @@ public:
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> dutyCycleClusterEnvelopeData;
   std::atomic<float> dutyCycleClusterEnvelopeYMin{1.0f};
   std::atomic<float> dutyCycleClusterEnvelopeYMax{16.0f};
-  std::atomic<bool> useDutyCycleClusterEnvelope{false};
+  std::atomic<bool> useDutyCycleClusterEnvelope{true};
 
   // Pg Waveform 包络数据 - 2048 个 samples，Y轴范围 [-1, 1]，用户绘制的一个周期波形
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> pgWaveformEnvelopeData;
-  std::atomic<bool> usePgWaveformEnvelope{false};
+  std::atomic<bool> usePgWaveformEnvelope{true};
 
   std::atomic<float> *dutyCycleClusterDepthParam;
 
@@ -204,10 +204,11 @@ public:
   float dutyCycleCluster;
   float dutyCycleTime;
   float pulsarSilenceTime;
-
+  
   float pulsarDutyCycleSamples;
   float pulsarIntraSilenceSamples;
   float trainDutyCycleSamples;
   float interTrainSilenceSamples;
 };
 #endif // SHAREDVOICESTATE_H
+

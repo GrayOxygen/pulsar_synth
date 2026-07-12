@@ -72,7 +72,7 @@ public:
     if (impulseSwitchIndex == static_cast<int>(why::ImpulseSwitchEnum::Template)) {
       getConvolutionResource()->saveTemplateImpulse(index + 1);
     }
-
+    
     // Display the latest sample impulse option and (must) directly load the
     // file into the convolution resource (because switch the impulse menu
     // option to no longer save the file)

@@ -29,9 +29,8 @@ public:
   void topFlexBox(juce::FlexBox &flexBoxTop, std::shared_ptr<juce::FlexBox> trainLenFlexBox, std::shared_ptr<juce::FlexBox> trainDutyCycleFlexBox,
                   std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox, std::shared_ptr<juce::FlexBox> bpmFlexBox, std::shared_ptr<juce::FlexBox> playModeAndImpulseFlexBox);
 
-  void bottomFlexBox(juce::FlexBox &bottomFlexBox, std::shared_ptr<juce::FlexBox> grainSizeFlexBox, std::shared_ptr<juce::FlexBox> grainWetFlexBox,
-                     std::shared_ptr<juce::FlexBox> pulsarWaveformFlexBox, std::shared_ptr<juce::FlexBox> attackFlexBox, std::shared_ptr<juce::FlexBox> decayFlexBox,
-                     std::shared_ptr<juce::FlexBox> sustainFlexBox, std::shared_ptr<juce::FlexBox> releaseFlexBox);
+  void bottomFlexBox(juce::FlexBox &bottomFlexBox, std::shared_ptr<juce::FlexBox> grainSizeFlexBox, std::shared_ptr<juce::FlexBox> grainWetFlexBox, std::shared_ptr<juce::FlexBox> attackFlexBox,
+                     std::shared_ptr<juce::FlexBox> decayFlexBox, std::shared_ptr<juce::FlexBox> sustainFlexBox, std::shared_ptr<juce::FlexBox> releaseFlexBox);
 
   void midFlexBox(juce::FlexBox &midFlexBox, std::shared_ptr<juce::FlexBox> maskOptionFlexBox, std::shared_ptr<juce::FlexBox> burstMaskFlexBox, std::shared_ptr<juce::FlexBox> euclidStepFlexBox,
                   std::shared_ptr<juce::FlexBox> euclidHitFlexBox, std::shared_ptr<juce::FlexBox> stochasticMaskFlexBox);
@@ -128,11 +127,6 @@ private:
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trainDutyCycleAttachment;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> trainSilenceAttachment;
 
-  // pulsar
-  juce::Slider pulsarWaveformSlider;
-  juce::Label pulsarWaveformLabel;
-  juce::Label pulsarWaveformNameLabel; // shows current waveform name
-
   // ========================== Pg Waveform 包络绘制组件 ==========================
   EnvelopeCanvas pgWaveformEnvelopeCanvas;
   juce::Label pgWaveformEnvelopeLabel;
@@ -159,9 +153,9 @@ private:
   juce::Label ampEnvelopeYMaxLabel;
   juce::TextButton ampEnvelopeClearButton{"Clear"};      // 清空包络
   juce::TextButton ampEnvelopeRandomButton{"Randomize"}; // 随机生成包络
-  juce::Component ampEnvControlRow;                 // 开关+按钮容器
-  juce::Component ampEnvRangeRow;                   // Y轴范围滑块容器
-  juce::Label ampLfoDepthLabel;                     // 调制深度
+  juce::Component ampEnvControlRow;                      // 开关+按钮容器
+  juce::Component ampEnvRangeRow;                        // Y轴范围滑块容器
+  juce::Label ampLfoDepthLabel;                          // 调制深度
   juce::Slider ampLfoDepthSlider;
 
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ampLfoDepthAttachment;
@@ -176,9 +170,9 @@ private:
   juce::Label fmEnvelopeYMaxLabel;
   juce::TextButton fmEnvelopeClearButton{"Clear"};      // 清空包络
   juce::TextButton fmEnvelopeRandomButton{"Randomize"}; // 随机生成包络
-  juce::Component fmEnvControlRow;                 // FM 开关+按钮容器
-  juce::Component fmEnvRangeRow;                   // FM Y轴范围滑块容器
-  juce::Label fmLfoDepthLabel;                     // 调制深度
+  juce::Component fmEnvControlRow;                      // FM 开关+按钮容器
+  juce::Component fmEnvRangeRow;                        // FM Y轴范围滑块容器
+  juce::Label fmLfoDepthLabel;                          // 调制深度
   juce::Slider fmLfoDepthSlider;
 
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> formantFreqLfoDepthAttachment;
@@ -193,9 +187,9 @@ private:
   juce::Label dutyCycleRatioEnvelopeYMaxLabel;
   juce::TextButton dutyCycleRatioEnvelopeClearButton{"Clear"};      // 清空包络
   juce::TextButton dutyCycleRatioEnvelopeRandomButton{"Randomize"}; // 随机生成包络
-  juce::Component dutyCycleRatioEnvControlRow;                 //   开关+按钮容器
-  juce::Component dutyCycleRatioEnvRangeRow;                   //   Y轴范围滑块容器
-  juce::Label dutyCycleRatioDepthLabel;                        // 调制深度
+  juce::Component dutyCycleRatioEnvControlRow;                      //   开关+按钮容器
+  juce::Component dutyCycleRatioEnvRangeRow;                        //   Y轴范围滑块容器
+  juce::Label dutyCycleRatioDepthLabel;                             // 调制深度
   juce::Slider dutyCycleRatioDepthSlider;
 
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> dutyCycleRatioDepthAttachment;
@@ -210,9 +204,9 @@ private:
   juce::Label dutyCycleClusterEnvelopeYMaxLabel;
   juce::TextButton dutyCycleClusterEnvelopeClearButton{"Clear"};      // 清空包络
   juce::TextButton dutyCycleClusterEnvelopeRandomButton{"Randomize"}; // 随机生成包络
-  juce::Component dutyCycleClusterEnvControlRow;                 //   开关+按钮容器
-  juce::Component dutyCycleClusterEnvRangeRow;                   //   Y轴范围滑块容器
-  juce::Label dutyCycleClusterDepthLabel;                        // 调制深度
+  juce::Component dutyCycleClusterEnvControlRow;                      //   开关+按钮容器
+  juce::Component dutyCycleClusterEnvRangeRow;                        //   Y轴范围滑块容器
+  juce::Label dutyCycleClusterDepthLabel;                             // 调制深度
   juce::Slider dutyCycleClusterDepthSlider;
 
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> dutyCycleClusterDepthAttachment;
