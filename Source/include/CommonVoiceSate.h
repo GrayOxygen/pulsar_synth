@@ -80,7 +80,7 @@ public:
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> fmEnvelopeData;
   std::atomic<float> fmEnvelopeYMin{-24.0f}; // 默认 0
   std::atomic<float> fmEnvelopeYMax{24.0f};  // 默认 +24 semitones
-  std::atomic<bool> useFmEnvelope{true};    // 是否使用包络代替 LFO
+  std::atomic<bool> useFmEnvelope{true};     // 是否使用包络代替 LFO
 
   std::atomic<float> *formantFreqLfoDepthParam;
 
@@ -204,11 +204,10 @@ public:
   float dutyCycleCluster;
   float dutyCycleTime;
   float pulsarSilenceTime;
-  
+
   float pulsarDutyCycleSamples;
   float pulsarIntraSilenceSamples;
   float trainDutyCycleSamples;
   float interTrainSilenceSamples;
 };
 #endif // SHAREDVOICESTATE_H
-

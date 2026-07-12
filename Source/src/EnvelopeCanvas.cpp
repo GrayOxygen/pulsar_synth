@@ -22,7 +22,10 @@ void EnvelopeCanvas::mouseDrag(const juce::MouseEvent &event) {
   }
 }
 
-void EnvelopeCanvas::mouseUp(const juce::MouseEvent &event) { isDragging = false; }
+void EnvelopeCanvas::mouseUp(const juce::MouseEvent &event) {
+  isDragging = false;
+  lastEditedIndex = -1;
+}
 
 void EnvelopeCanvas::setEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
   envelopeData = data;
@@ -209,14 +212,25 @@ void EnvelopeCanvas::drawEnvelope(juce::Graphics &g) {
     }
   }
 
-  g.strokePath(path, juce::PathStrokeType(2.0f));
+  // 更细的线条
+  g.strokePath(path, juce::PathStrokeType(0.1f));
 
   // 填充区域
   path.lineTo(static_cast<float>(getWidth()), static_cast<float>(getHeight()));
   path.lineTo(0.0f, static_cast<float>(getHeight()));
   path.closeSubPath();
-  g.setColour(juce::Colours::cyan.withAlpha(0.2f));
+  g.setColour(juce::Colours::cyan.withAlpha(0.15f));
   g.fillPath(path);
+
+  // 绘制数据点圆点，方便精确定位
+  // 根据画布宽度决定采样间隔，避免点太密
+  int pointSpacing = std::max(1, size / getWidth());
+  g.setColour(juce::Colours::white);
+  for (int i = 0; i < size; i += pointSpacing) {
+    float x = static_cast<float>(i) / (size - 1) * getWidth();
+    float y = static_cast<float>(valueToY(envelopeData[i]));
+    g.fillEllipse(x - 1.5f, y - 1.5f, 3.0f, 3.0f);
+  }
 }
 
 void EnvelopeCanvas::updateEnvelopeFromMouse(const juce::MouseEvent &event) {
@@ -227,21 +241,25 @@ void EnvelopeCanvas::updateEnvelopeFromMouse(const juce::MouseEvent &event) {
   value = juce::jlimit(yMin, yMax, value);
 
   constexpr int size = ENVELOPE_SIZE;
-  // 计算影响的索引范围（简单的圆形笔刷）
   int centerIndex = static_cast<int>(phase * (size - 1));
-  int brushRadius = 10; // 影响半径
+  centerIndex = juce::jlimit(0, size - 1, centerIndex);
 
-  for (int i = -brushRadius; i <= brushRadius; ++i) {
-    int idx = centerIndex + i;
-    if (idx >= 0 && idx < size) {
-      // 距离衰减
-      float dist = std::abs(i) / static_cast<float>(brushRadius);
-      float influence = 1.0f - dist * dist; // 二次衰减
-
-      // 混合当前值和新值
-      envelopeData[idx] = envelopeData[idx] * (1.0f - influence) + value * influence;
+  // 记录上一次编辑位置，用于插值填充中间点
+  if (lastEditedIndex >= 0 && lastEditedIndex != centerIndex) {
+    int start = std::min(lastEditedIndex, centerIndex);
+    int end = std::max(lastEditedIndex, centerIndex);
+    float startVal = envelopeData[start];
+    float endVal = value;
+    if (end - start > 1) {
+      for (int i = start + 1; i < end; ++i) {
+        float t = static_cast<float>(i - start) / static_cast<float>(end - start);
+        envelopeData[i] = startVal + t * (endVal - startVal);
+      }
     }
   }
+
+  envelopeData[centerIndex] = value;
+  lastEditedIndex = centerIndex;
 
   repaint();
   sendChangeMessage();

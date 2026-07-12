@@ -41,6 +41,7 @@ public:
 private:
   std::array<float, ENVELOPE_SIZE> envelopeData{};
   std::atomic<bool> isDragging{false};
+  int lastEditedIndex = -1; // 记录上一次鼠标编辑的索引，用于插值填充中间点
 
   float yMin = 0.1f;
   float yMax = 10.0f;

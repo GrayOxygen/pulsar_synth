@@ -153,7 +153,7 @@ void PulsarConvolution::processBlockGranular(const float *pulsarBuffer, juce::Au
     if (detectTrigger(currentPulsar, prevPulsar)) {
       spawnGrain(1.0f);
     }
-
+    
     lastPulsarValue = currentPulsar;
 
     // ===== STEP 2: Process all active grains =====

@@ -235,9 +235,10 @@ void AudioPluginAudioProcessorEditor::resized() {
 
   // 为 AM 包络容器内的控件设置布局
   auto controlBounds = ampEnvControlRow.getLocalBounds();
-  ampEnvelopeToggle.setBounds(controlBounds.removeFromLeft(controlBounds.getWidth() * 0.5f));
-  ampEnvelopeClearButton.setBounds(controlBounds.removeFromLeft(controlBounds.getWidth() * 0.5f));
-  ampEnvelopeRandomButton.setBounds(controlBounds);
+  ampEnvelopeToggle.setBounds(controlBounds.removeFromLeft(controlBounds.getWidth() * 0.4f));
+  ampEnvelopeClearButton.setBounds(controlBounds.removeFromLeft(controlBounds.getWidth() * 0.333f));
+  ampEnvelopeRandomButton.setBounds(controlBounds.removeFromLeft(controlBounds.getWidth() * 0.5f));
+  ampEnvelopeLoadFileButton.setBounds(controlBounds);
 
   auto rangeBounds = ampEnvRangeRow.getLocalBounds();
   int labelWidth = 40;
@@ -249,9 +250,10 @@ void AudioPluginAudioProcessorEditor::resized() {
 
   // 为 FM 包络容器内的控件设置布局
   auto fmControlBounds = fmEnvControlRow.getLocalBounds();
-  fmEnvelopeToggle.setBounds(fmControlBounds.removeFromLeft(fmControlBounds.getWidth() * 0.5f));
-  fmEnvelopeClearButton.setBounds(fmControlBounds.removeFromLeft(fmControlBounds.getWidth() * 0.5f));
-  fmEnvelopeRandomButton.setBounds(fmControlBounds);
+  fmEnvelopeToggle.setBounds(fmControlBounds.removeFromLeft(fmControlBounds.getWidth() * 0.4f));
+  fmEnvelopeClearButton.setBounds(fmControlBounds.removeFromLeft(fmControlBounds.getWidth() * 0.333f));
+  fmEnvelopeRandomButton.setBounds(fmControlBounds.removeFromLeft(fmControlBounds.getWidth() * 0.5f));
+  fmEnvelopeLoadFileButton.setBounds(fmControlBounds);
 
   auto fmRangeBounds = fmEnvRangeRow.getLocalBounds();
   fmEnvelopeYMinLabel.setBounds(fmRangeBounds.removeFromLeft(labelWidth));
@@ -261,9 +263,10 @@ void AudioPluginAudioProcessorEditor::resized() {
 
   // 为 duty cycle ratio 包络容器内的控件设置布局
   auto dutyCycleRatioControlBounds = dutyCycleRatioEnvControlRow.getLocalBounds();
-  dutyCycleRatioEnvelopeToggle.setBounds(dutyCycleRatioControlBounds.removeFromLeft(dutyCycleRatioControlBounds.getWidth() * 0.5f));
-  dutyCycleRatioEnvelopeClearButton.setBounds(dutyCycleRatioControlBounds.removeFromLeft(dutyCycleRatioControlBounds.getWidth() * 0.5f));
-  dutyCycleRatioEnvelopeRandomButton.setBounds(dutyCycleRatioControlBounds);
+  dutyCycleRatioEnvelopeToggle.setBounds(dutyCycleRatioControlBounds.removeFromLeft(dutyCycleRatioControlBounds.getWidth() * 0.4f));
+  dutyCycleRatioEnvelopeClearButton.setBounds(dutyCycleRatioControlBounds.removeFromLeft(dutyCycleRatioControlBounds.getWidth() * 0.333f));
+  dutyCycleRatioEnvelopeRandomButton.setBounds(dutyCycleRatioControlBounds.removeFromLeft(dutyCycleRatioControlBounds.getWidth() * 0.5f));
+  dutyCycleRatioEnvelopeLoadFileButton.setBounds(dutyCycleRatioControlBounds);
 
   auto dutyCycleRatioRangeBounds = dutyCycleRatioEnvRangeRow.getLocalBounds();
   dutyCycleRatioEnvelopeYMinLabel.setBounds(dutyCycleRatioRangeBounds.removeFromLeft(labelWidth));
@@ -273,9 +276,10 @@ void AudioPluginAudioProcessorEditor::resized() {
 
   // 为 duty cycle cluster 包络容器内的控件设置布局
   auto dutyCycleClusterControlBounds = dutyCycleClusterEnvControlRow.getLocalBounds();
-  dutyCycleClusterEnvelopeToggle.setBounds(dutyCycleClusterControlBounds.removeFromLeft(dutyCycleClusterControlBounds.getWidth() * 0.5f));
-  dutyCycleClusterEnvelopeClearButton.setBounds(dutyCycleClusterControlBounds.removeFromLeft(dutyCycleClusterControlBounds.getWidth() * 0.5f));
-  dutyCycleClusterEnvelopeRandomButton.setBounds(dutyCycleClusterControlBounds);
+  dutyCycleClusterEnvelopeToggle.setBounds(dutyCycleClusterControlBounds.removeFromLeft(dutyCycleClusterControlBounds.getWidth() * 0.4f));
+  dutyCycleClusterEnvelopeClearButton.setBounds(dutyCycleClusterControlBounds.removeFromLeft(dutyCycleClusterControlBounds.getWidth() * 0.333f));
+  dutyCycleClusterEnvelopeRandomButton.setBounds(dutyCycleClusterControlBounds.removeFromLeft(dutyCycleClusterControlBounds.getWidth() * 0.5f));
+  dutyCycleClusterEnvelopeLoadFileButton.setBounds(dutyCycleClusterControlBounds);
 
   auto dutyCycleClusterRangeBounds = dutyCycleClusterEnvRangeRow.getLocalBounds();
   dutyCycleClusterEnvelopeYMinLabel.setBounds(dutyCycleClusterRangeBounds.removeFromLeft(labelWidth));
@@ -614,12 +618,14 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   addAndMakeVisible(ampLfoDepthLabel);
   addAndMakeVisible(ampEnvelopeClearButton);
   addAndMakeVisible(ampEnvelopeRandomButton);
+  addAndMakeVisible(ampEnvelopeLoadFileButton);
   addAndMakeVisible(ampEnvControlRow);
   addAndMakeVisible(ampEnvRangeRow);
   // 将子控件添加到容器中
   ampEnvControlRow.addAndMakeVisible(ampEnvelopeToggle);
   ampEnvControlRow.addAndMakeVisible(ampEnvelopeClearButton);
   ampEnvControlRow.addAndMakeVisible(ampEnvelopeRandomButton);
+  ampEnvControlRow.addAndMakeVisible(ampEnvelopeLoadFileButton);
   ampEnvRangeRow.addAndMakeVisible(ampEnvelopeYMinSlider);
   ampEnvRangeRow.addAndMakeVisible(ampEnvelopeYMinLabel);
   ampEnvRangeRow.addAndMakeVisible(ampEnvelopeYMaxSlider);
@@ -637,12 +643,14 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   addAndMakeVisible(fmLfoDepthLabel);
   addAndMakeVisible(fmEnvelopeClearButton);
   addAndMakeVisible(fmEnvelopeRandomButton);
+  addAndMakeVisible(fmEnvelopeLoadFileButton);
   addAndMakeVisible(fmEnvControlRow);
   addAndMakeVisible(fmEnvRangeRow);
   // 将子控件添加到 FM 容器中
   fmEnvControlRow.addAndMakeVisible(fmEnvelopeToggle);
   fmEnvControlRow.addAndMakeVisible(fmEnvelopeClearButton);
   fmEnvControlRow.addAndMakeVisible(fmEnvelopeRandomButton);
+  fmEnvControlRow.addAndMakeVisible(fmEnvelopeLoadFileButton);
   fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMinSlider);
   fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMinLabel);
   fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMaxSlider);
@@ -660,12 +668,14 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   addAndMakeVisible(dutyCycleRatioDepthLabel);
   addAndMakeVisible(dutyCycleRatioEnvelopeClearButton);
   addAndMakeVisible(dutyCycleRatioEnvelopeRandomButton);
+  addAndMakeVisible(dutyCycleRatioEnvelopeLoadFileButton);
   addAndMakeVisible(dutyCycleRatioEnvControlRow);
   addAndMakeVisible(dutyCycleRatioEnvRangeRow);
   // 将子控件添加到 dutyCycleRatio 容器中
   dutyCycleRatioEnvControlRow.addAndMakeVisible(dutyCycleRatioEnvelopeToggle);
   dutyCycleRatioEnvControlRow.addAndMakeVisible(dutyCycleRatioEnvelopeClearButton);
   dutyCycleRatioEnvControlRow.addAndMakeVisible(dutyCycleRatioEnvelopeRandomButton);
+  dutyCycleRatioEnvControlRow.addAndMakeVisible(dutyCycleRatioEnvelopeLoadFileButton);
   dutyCycleRatioEnvRangeRow.addAndMakeVisible(dutyCycleRatioEnvelopeYMinSlider);
   dutyCycleRatioEnvRangeRow.addAndMakeVisible(dutyCycleRatioEnvelopeYMinLabel);
   dutyCycleRatioEnvRangeRow.addAndMakeVisible(dutyCycleRatioEnvelopeYMaxSlider);
@@ -683,12 +693,14 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   addAndMakeVisible(dutyCycleClusterDepthLabel);
   addAndMakeVisible(dutyCycleClusterEnvelopeClearButton);
   addAndMakeVisible(dutyCycleClusterEnvelopeRandomButton);
+  addAndMakeVisible(dutyCycleClusterEnvelopeLoadFileButton);
   addAndMakeVisible(dutyCycleClusterEnvControlRow);
   addAndMakeVisible(dutyCycleClusterEnvRangeRow);
   // 将子控件添加到 dutyCycleCluster 容器中
   dutyCycleClusterEnvControlRow.addAndMakeVisible(dutyCycleClusterEnvelopeToggle);
   dutyCycleClusterEnvControlRow.addAndMakeVisible(dutyCycleClusterEnvelopeClearButton);
   dutyCycleClusterEnvControlRow.addAndMakeVisible(dutyCycleClusterEnvelopeRandomButton);
+  dutyCycleClusterEnvControlRow.addAndMakeVisible(dutyCycleClusterEnvelopeLoadFileButton);
   dutyCycleClusterEnvRangeRow.addAndMakeVisible(dutyCycleClusterEnvelopeYMinSlider);
   dutyCycleClusterEnvRangeRow.addAndMakeVisible(dutyCycleClusterEnvelopeYMinLabel);
   dutyCycleClusterEnvRangeRow.addAndMakeVisible(dutyCycleClusterEnvelopeYMaxSlider);
@@ -1200,7 +1212,7 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
       auto result = fc.getResult();
       if (!result.existsAsFile())
         return;
-
+        
       juce::AudioFormatManager formatManager;
       formatManager.registerBasicFormats();
       std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(result));
@@ -1230,6 +1242,53 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
       juce::MessageManager::callAsync([this, waveData] { pgWaveformEnvelopeCanvas.setEnvelopeData(waveData); });
     });
   };
+  // ===============================================================================================
+
+  // 通用音频文件加载到 envelope 的 lambda
+  auto loadAudioToEnvelope = [this](EnvelopeCanvas &canvas) {
+    auto chooser = std::make_shared<juce::FileChooser>("Load audio file as envelope", juce::File::getSpecialLocation(juce::File::userDesktopDirectory), "*.wav;*.aiff;*.aif;*.mp3;*.flac;*.ogg");
+    chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, [this, chooser, &canvas](const juce::FileChooser &fc) {
+      auto result = fc.getResult();
+      if (!result.existsAsFile())
+        return;
+
+      juce::AudioFormatManager formatManager;
+      formatManager.registerBasicFormats();
+      std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(result));
+      if (!reader)
+        return;
+
+      constexpr int targetSize = EnvelopeCanvas::ENVELOPE_SIZE;
+      int64 numSrcSamples = reader->lengthInSamples;
+      if (numSrcSamples <= 0)
+        return;
+
+      juce::AudioBuffer<float> srcBuffer(1, (int)std::min(numSrcSamples, (int64)reader->sampleRate));
+      reader->read(&srcBuffer, 0, srcBuffer.getNumSamples(), 0, true, false);
+
+      std::array<float, targetSize> waveData;
+      const float *src = srcBuffer.getReadPointer(0);
+      int srcLen = srcBuffer.getNumSamples();
+      auto range = canvas.getYAxisRange();
+      for (int i = 0; i < targetSize; ++i) {
+        float srcIdx = static_cast<float>(i) * (srcLen - 1) / (targetSize - 1);
+        int idx0 = static_cast<int>(srcIdx);
+        int idx1 = std::min(idx0 + 1, srcLen - 1);
+        float frac = srcIdx - idx0;
+        float sample = src[idx0] + frac * (src[idx1] - src[idx0]);
+        // 将 [-1, 1] 映射到 canvas 当前 Y 轴范围
+        float mapped = range.first + (sample + 1.0f) * 0.5f * (range.second - range.first);
+        waveData[i] = juce::jlimit(range.first, range.second, mapped);
+      }
+
+      juce::MessageManager::callAsync([&canvas, waveData] { canvas.setEnvelopeData(waveData); });
+    });
+  };
+
+  ampEnvelopeLoadFileButton.onClick = [this, loadAudioToEnvelope] { loadAudioToEnvelope(ampEnvelopeCanvas); };
+  fmEnvelopeLoadFileButton.onClick = [this, loadAudioToEnvelope] { loadAudioToEnvelope(fmEnvelopeCanvas); };
+  dutyCycleRatioEnvelopeLoadFileButton.onClick = [this, loadAudioToEnvelope] { loadAudioToEnvelope(dutyCycleRatioEnvelopeCanvas); };
+  dutyCycleClusterEnvelopeLoadFileButton.onClick = [this, loadAudioToEnvelope] { loadAudioToEnvelope(dutyCycleClusterEnvelopeCanvas); };
   // ===============================================================================================
 
   // burst mask text editor回车，没有attachment，需要手动更新synth状态

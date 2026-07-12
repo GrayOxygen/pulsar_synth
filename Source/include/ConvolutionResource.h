@@ -201,10 +201,11 @@ public:
     const int numChannels = outputBuffer.getNumChannels();
     const int numSamples = outputBuffer.getNumSamples();
 
-    outputBuffer.clear();
     if (sampleSourceBuffer.getNumSamples() <= 0 || pulsarBuffer.getNumSamples() < numSamples) {
       return false;
     }
+    
+    outputBuffer.clear();
 
     // Initialize pulsar convolution if needed
     if (pulsarConvolution == nullptr) {

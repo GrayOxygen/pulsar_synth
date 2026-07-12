@@ -69,6 +69,11 @@ private:
   WaveformGrain waveformGrains[MAX_WAVEFORM_GRAINS];
   int waveformGrainWriteIdx = 0;
 
+  //===========================cellular automaton modulation===========================
+  // Simple 1D CA (8 cells, Rule 90), for post-pulsar amplitude and pitch offset
+  uint8_t caState = 0x01; // single seed cell
+  float caPitchOffset = 1.0f;
+
   //===========================common properties===========================
   std::shared_ptr<CommonVoiceSate> commonVoiceSate;
   SnapShot snapShot;
@@ -278,6 +283,8 @@ public:
    * get output gain by converting db value
    * @return output gain
    */
+  float getPulseFadeGain() const;
+
   float getOutputGain();
 
   /**

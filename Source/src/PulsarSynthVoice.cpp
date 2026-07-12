@@ -141,26 +141,44 @@ void PulsarSynthVoice::processBlockSamples(juce::AudioSampleBuffer &outputBuffer
   auto *rightWritePtr = commonVoiceSate->pulseBuffer.getWritePointer(1);
   for (int sampleIndex = startSample; sampleIndex < (startSample + numSamples); sampleIndex++) {
     int i = sampleIndex - startSample;
+
+    // // Simple 1D cellular automaton (8 cells, Rule 90: XOR of neighbors)
+    // // Evolve every 4 samples for a rhythmic modulation feel
+    // if ((i & 3) == 0) {
+    //   uint8_t next = 0;             // 一维数组的cells
+    //   for (int b = 0; b < 8; ++b) { // 遍历所有cell
+    //     int left = (caState >> ((b + 7) & 7)) & 1;
+    //     int right = (caState >> ((b + 1) & 7)) & 1;
+    //     next |= ((left ^ right) << b);
+    //   }
+    //   caState = next;
+    // }
+    // int active = 0;
+    // for (int j = 0; j < 8; ++j)
+    //   active += (caState >> j) & 1;
+    // float caAmp = 0.5f + 0.5f * (active / 8.0f);   // 0.5 ~ 1.0 amplitude modulation
+    // caPitchOffset = 0.9f + 0.2f * (active / 8.0f); // 0.9 ~ 1.1 pitch offset
+
     auto result = this->processSample();
     leftWritePtr[i] = result.first;
     rightWritePtr[i] = result.first;
   }
 
-  const int impulseMode = static_cast<int>(commonVoiceSate->impulseSwitchParam->load());
-  if (impulseMode == static_cast<int>(why::ImpulseSwitchEnum::Template)) { // template file as IR,  pulseBuffer as source
-    commonVoiceSate->convolutionResource->processSample(commonVoiceSate->pulseBuffer);
-  } else if (impulseMode == static_cast<int>(why::ImpulseSwitchEnum::Sample)) {
-    // each pulsar spawns a grain
-    commonVoiceSate->convolutionResource->setPulsarProcessingMode(why::PulsarProcessingMode::CurtisRoads);
-    // 设置输出平滑程度 (0.0 = 无平滑, 0.9 = 强平滑)
-    commonVoiceSate->convolutionResource->setPulsarSmoothing(0.5f);
-    juce::AudioBuffer<float> workingBuffer;
-    workingBuffer.makeCopyOf(commonVoiceSate->pulseBuffer);
-    commonVoiceSate->convolutionResource->processGrainConvolution(workingBuffer, commonVoiceSate->pulseBuffer,
-                                                                  commonVoiceSate->grainSizeParam->load(), // sample object duration: 50ms
-                                                                  100.0f,                                  // 平均pulsar周期(ms)
-                                                                  commonVoiceSate->grainWetParam->load()); // wet mix: 100%
-  }
+  // const int impulseMode = static_cast<int>(commonVoiceSate->impulseSwitchParam->load());
+  // if (impulseMode == static_cast<int>(why::ImpulseSwitchEnum::Template)) { // template file as IR,  pulseBuffer as source
+  //   commonVoiceSate->convolutionResource->processSample(commonVoiceSate->pulseBuffer);
+  // } else if (impulseMode == static_cast<int>(why::ImpulseSwitchEnum::Sample)) {
+  // }
+  // each pulsar spawns a grain
+  // commonVoiceSate->convolutionResource->setPulsarProcessingMode(why::PulsarProcessingMode::CurtisRoads);
+  // // 设置输出平滑程度 (0.0 = 无平滑, 0.9 = 强平滑)
+  // commonVoiceSate->convolutionResource->setPulsarSmoothing(0.5f);
+  // juce::AudioBuffer<float> workingBuffer;
+  // workingBuffer.makeCopyOf(commonVoiceSate->pulseBuffer);
+  // commonVoiceSate->convolutionResource->processGrainConvolution(workingBuffer, commonVoiceSate->pulseBuffer,
+  //                                                               commonVoiceSate->grainSizeParam->load(), // sample object duration: 50ms
+  //                                                               500.0f,                                  // 平均pulsar周期(ms)
+  //                                                               commonVoiceSate->grainWetParam->load()); // wet mix: 100%
 
   // cache the output gain once per block instead of recomputing std::pow per sample/channel
   const float outputGain = getOutputGain();
@@ -509,9 +527,28 @@ void PulsarSynthVoice::changeStage() {
     pulsarStageIndexInTrainDutyCycle++;
     // spawn a waveform grain: capture fmModulation at trigger time as fixed phase increment
     {
+      // Simple 1D cellular automaton (8 cells, Rule 90: XOR of neighbors)
+      // Evolve every 4 samples for a rhythmic modulation feel
+
+      uint8_t next = 0;             // 一维数组的cells
+      for (int b = 0; b < 8; ++b) { // 遍历所有cell
+        int left = (caState >> ((b + 7) & 7)) & 1;
+        int right = (caState >> ((b + 1) & 7)) & 1;
+        //   (Rule 30)
+        int current = (caState >> b) & 1;
+        next |= ((left ^ (current | right)) << b);
+      }
+      caState = next;
+      int active = 0;
+      for (int j = 0; j < 8; ++j)
+        active += (caState >> j) & 1;
+      float speedOffset = 0.5f + 1.5f * (static_cast<float>(active) / 8.0f);   // 0.5 ~ 2.0
+      float caPitchOffset = 0.9f + 0.2f * (static_cast<float>(active) / 8.0f); // 0.9 ~ 1.1 pitch offset
+
       // 经过duty cycle ratio and cluster 处理后的单个最小波形频率
-      float triggerFreq = snapShot.fundamentalFreq * calcFormantLfoInterpolation(1.0f * envIndex / 2048, commonVoiceSate->formantFreqLfoDepthParam->load());
+      float triggerFreq = snapShot.fundamentalFreq * caPitchOffset * calcFormantLfoInterpolation(1.0f * envIndex / 2048, commonVoiceSate->formantFreqLfoDepthParam->load());
       float phaseInc = (triggerFreq > 0.0f) ? triggerFreq / static_cast<float>(getSampleRate()) : 1.0f / static_cast<float>(getSampleRate());
+      phaseInc = phaseInc * speedOffset;
       waveformGrains[waveformGrainWriteIdx] = {0.0f, phaseInc, true, currentStateDurationSampleNum};
       waveformGrainWriteIdx = (waveformGrainWriteIdx + 1) % MAX_WAVEFORM_GRAINS;
     }
@@ -529,9 +566,28 @@ void PulsarSynthVoice::changeStage() {
     pulsarStageIndexInTrainDutyCycle = 0;
     // spawn a waveform grain: capture fmModulation at trigger time as fixed phase increment
     {
-      // 经过duty cycle ratio and cluster处理后的单个最小波形频率
-      float triggerFreq = snapShot.fundamentalFreq * calcFormantLfoInterpolation(1.0f * envIndex / 2048, commonVoiceSate->formantFreqLfoDepthParam->load());
+      // Simple 1D cellular automaton (8 cells, Rule 90: XOR of neighbors)
+      // Evolve every 4 samples for a rhythmic modulation feel
+
+      uint8_t next = 0;             // 一维数组的cells
+      for (int b = 0; b < 8; ++b) { // 遍历所有cell
+        int left = (caState >> ((b + 7) & 7)) & 1;
+        int right = (caState >> ((b + 1) & 7)) & 1;
+        //   (Rule 30)
+        int current = (caState >> b) & 1;
+        next |= ((left ^ (current | right)) << b);
+      }
+      caState = next;
+      int active = 0;
+      for (int j = 0; j < 8; ++j)
+        active += (caState >> j) & 1;
+      float speedOffset = 0.5f + 1.5f * (static_cast<float>(active) / 8.0f);   // 0.5 ~ 2.0
+      float caPitchOffset = 0.9f + 0.2f * (static_cast<float>(active) / 8.0f); // 0.9 ~ 1.1 pitch offset
+
+      // 经过duty cycle ratio and cluster 处理后的单个最小波形频率
+      float triggerFreq = snapShot.fundamentalFreq * caPitchOffset * calcFormantLfoInterpolation(1.0f * envIndex / 2048, commonVoiceSate->formantFreqLfoDepthParam->load());
       float phaseInc = (triggerFreq > 0.0f) ? triggerFreq / static_cast<float>(getSampleRate()) : 1.0f / static_cast<float>(getSampleRate());
+      phaseInc = phaseInc * speedOffset;
       waveformGrains[waveformGrainWriteIdx] = {0.0f, phaseInc, true, currentStateDurationSampleNum};
       waveformGrainWriteIdx = (waveformGrainWriteIdx + 1) % MAX_WAVEFORM_GRAINS;
     }
@@ -552,6 +608,20 @@ void PulsarSynthVoice::calcNewPulsarFreq(float pulsarDutyCycleRatio, float &puls
   pulsarModFreq = cluster * pulsarModFreq;
 }
 
+float PulsarSynthVoice::getPulseFadeGain() const {
+  if (currentStateDurationSampleNum <= 0)
+    return 1.0f;
+
+  // Hann 窗口：0.5 * (1 - cos(2*pi * pos / (N-1)))
+  int pos = hasPassedSampleNumInsideTrain;
+  int N = currentStateDurationSampleNum;
+  if (N == 1)
+    return 1.0f;
+
+  float hann = 0.5f * (1.0f - std::cos(2.0f * juce::MathConstants<float>::pi * static_cast<float>(pos) / static_cast<float>(N - 1)));
+  return hann;
+}
+
 float PulsarSynthVoice::calSampleByState(bool passMaskFlag, bool existMask) {
   switch (currentState) {
   case why::PulsarStateEnum::Pulse:
@@ -564,7 +634,7 @@ float PulsarSynthVoice::calSampleByState(bool passMaskFlag, bool existMask) {
     if (!passMaskFlag) {
       return 0;
     }
-    return calcActualPulse();
+    return calcActualPulse() * getPulseFadeGain();
   case why::PulsarStateEnum::InterTrainSilence:
     return 0.0f;
   }
@@ -622,13 +692,13 @@ std::pair<float, float> PulsarSynthVoice::processSample() {
   calcNewPulsarFreq(snapShot.dutyCycleRatio, newPulsarFreq, silenceToPulseFlag, static_cast<int>(snapShot.dutyCycleCluster));
   setCurrentPulsarDutyCycleFreq(newPulsarFreq);
 
-  // Modify the adsr time: Note that after masking, silence maybe also be pulse.
-  if (silenceToPulseFlag) { // 如果mask后，当前silence也变成了pulse，也重新应用adsr
-    refreshPulsaretAdsr(static_cast<int>(snapShot.pulsarSilenceTime));
-    // } else if (snapShot.dutyCycleCluster > 1) { // pulsarset后，dutycyle也变了，adsr也需要改变
-    //   refreshPulsaretAdsr(static_cast<int>(snapShot.dutyCycleTime / snapShot.dutyCycleCluster));
-  }
-  
+  // // Modify the adsr time: Note that after masking, silence maybe also be pulse.
+  // if (silenceToPulseFlag) { // 如果mask后，当前silence也变成了pulse，也重新应用adsr
+  //   refreshPulsaretAdsr(static_cast<int>(snapShot.pulsarSilenceTime));
+  //   // } else if (snapShot.dutyCycleCluster > 1) { // pulsarset后，dutycyle也变了，adsr也需要改变
+  //   //   refreshPulsaretAdsr(static_cast<int>(snapShot.dutyCycleTime / snapShot.dutyCycleCluster));
+  // }
+
   // Trigger the release phase: Within the application duration, there should still be room to apply the release; otherwise, it will not be triggered
   if (!isTriggeredReleaseFlag && pulsarAdsr.isActive() && currentStateDurationSampleNum - hasPassedSampleNumInsideTrain <= pulsarAdsrParams.release * getSampleRate()) {
     pulsarAdsr.noteOff();

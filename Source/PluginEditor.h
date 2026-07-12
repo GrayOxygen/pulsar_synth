@@ -153,6 +153,7 @@ private:
   juce::Label ampEnvelopeYMaxLabel;
   juce::TextButton ampEnvelopeClearButton{"Clear"};      // 清空包络
   juce::TextButton ampEnvelopeRandomButton{"Randomize"}; // 随机生成包络
+  juce::TextButton ampEnvelopeLoadFileButton{"Load File"}; // 从音频文件加载波形
   juce::Component ampEnvControlRow;                      // 开关+按钮容器
   juce::Component ampEnvRangeRow;                        // Y轴范围滑块容器
   juce::Label ampLfoDepthLabel;                          // 调制深度
@@ -170,6 +171,7 @@ private:
   juce::Label fmEnvelopeYMaxLabel;
   juce::TextButton fmEnvelopeClearButton{"Clear"};      // 清空包络
   juce::TextButton fmEnvelopeRandomButton{"Randomize"}; // 随机生成包络
+  juce::TextButton fmEnvelopeLoadFileButton{"Load File"}; // 从音频文件加载波形
   juce::Component fmEnvControlRow;                      // FM 开关+按钮容器
   juce::Component fmEnvRangeRow;                        // FM Y轴范围滑块容器
   juce::Label fmLfoDepthLabel;                          // 调制深度
@@ -187,6 +189,7 @@ private:
   juce::Label dutyCycleRatioEnvelopeYMaxLabel;
   juce::TextButton dutyCycleRatioEnvelopeClearButton{"Clear"};      // 清空包络
   juce::TextButton dutyCycleRatioEnvelopeRandomButton{"Randomize"}; // 随机生成包络
+  juce::TextButton dutyCycleRatioEnvelopeLoadFileButton{"Load File"}; // 从音频文件加载波形
   juce::Component dutyCycleRatioEnvControlRow;                      //   开关+按钮容器
   juce::Component dutyCycleRatioEnvRangeRow;                        //   Y轴范围滑块容器
   juce::Label dutyCycleRatioDepthLabel;                             // 调制深度
@@ -204,6 +207,7 @@ private:
   juce::Label dutyCycleClusterEnvelopeYMaxLabel;
   juce::TextButton dutyCycleClusterEnvelopeClearButton{"Clear"};      // 清空包络
   juce::TextButton dutyCycleClusterEnvelopeRandomButton{"Randomize"}; // 随机生成包络
+  juce::TextButton dutyCycleClusterEnvelopeLoadFileButton{"Load File"}; // 从音频文件加载波形
   juce::Component dutyCycleClusterEnvControlRow;                      //   开关+按钮容器
   juce::Component dutyCycleClusterEnvRangeRow;                        //   Y轴范围滑块容器
   juce::Label dutyCycleClusterDepthLabel;                             // 调制深度
