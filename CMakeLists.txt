@@ -236,10 +236,12 @@ if(CMAKE_BUILD_TYPE AND WIN32)
 endif()
 
 
-target_compile_options(pulsar_synth PRIVATE
-    /MP
-    /utf-8
-)
+if(WIN32 AND MSVC)
+    target_compile_options(pulsar_synth PRIVATE
+        /MP
+        /utf-8
+    )
+endif()
 ##
 #if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 #    # 在 Debug 模式下启用 -O1 优化（比 -O0 快，但仍保留调试信息）
