@@ -66,28 +66,6 @@ public:
     // refresh and load impulse file,
     int impulseSwitchIndex = static_cast<int>(*apvts.getRawParameterValue(why::ParameterID::impulseSwitch));
 
-    // show the lastest template impulse option，and save convolution resource
-    int index = static_cast<int>(*apvts.getRawParameterValue(why::ParameterID::impulseTemplateFile));
-
-    if (impulseSwitchIndex == static_cast<int>(why::ImpulseSwitchEnum::Template)) {
-      getConvolutionResource()->saveTemplateImpulse(index + 1);
-    }
-    
-    // Display the latest sample impulse option and (must) directly load the
-    // file into the convolution resource (because switch the impulse menu
-    // option to no longer save the file)
-    if (!apvts.state.getProperty(why::PropertyID::sampleImpulsePath).isVoid()) {
-      juce::String samplePath = apvts.state.getProperty(why::PropertyID::sampleImpulsePath).toString();
-      if (samplePath.isNotEmpty()) {
-        juce::File file(samplePath);
-        if (file.existsAsFile()) {
-          // 文件存在，则保存资源文件到convolution resource中（全局的）
-          getConvolutionResource()->saveLastSampleFileAsBlock(file);
-          getConvolutionResource()->loadSampleSourceFile(file);
-        }
-      }
-    }
-
     // update current play mode
     int currentPlayModeIndex = static_cast<int>(*apvts.getRawParameterValue(why::ParameterID::playMode));
     setCurrentPlayModeEnum(apvts, currentPlayModeIndex);
@@ -109,31 +87,6 @@ public:
   }
 
   /**
-   * init convolution
-   *
-   * Note: When opening the DAW, prepareToPlay may be triggered multiple times.
-   * If there is an initialization operation, idempotence must be guaranteed
-   *
-   * @param sampleRate sample rate
-   * @param samplesPerBlock samples per block
-   * @param numChannels nums of channel
-   */
-  void initConvolution(double sampleRate, int samplesPerBlock, int numChannels) {
-    // 防止prepareToPlay多次触发更新，保证幂等性
-    if (!convolutionResource) {
-      this->convolutionResource = std::make_shared<ConvolutionResource>(sampleRate, samplesPerBlock, numChannels);
-    }
-
-    for (std::shared_ptr<PulsarSynth> tempSynth : pulsarSynths) {
-      for (int i = 0; i < tempSynth->getNumVoices(); ++i) {
-        juce::SynthesiserVoice *voice = tempSynth->getVoice(i);
-        PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
-        pulsarVoice->getCommonVoiceSate()->convolutionResource = convolutionResource;
-      }
-    }
-  }
-
-  /**
    * init synth, sound, voice； 目前已改回只有一个synth
    * @param apvts value tree state
    */
@@ -148,13 +101,13 @@ public:
 
     PulsarSynthVoice *v = dynamic_cast<PulsarSynthVoice *>(pulsarSynth->getVoice(0));
     v->setCommonVoiceSate(commonVoiceSate);
-    v->connectParameters(apvts);
+    v->mappingParams(apvts);
 
     pulsarSynths.push_back(pulsarSynth);
   }
 
   /**
-   * init convolution and build train
+   * init    train
    * @param sampleRate sample rate
    * @param samplesPerBlock samples per block
    * @param numChannels num channels
@@ -162,9 +115,6 @@ public:
    */
   void buildTrain(double sampleRate, int samplesPerBlock, int numChannels, juce::AudioPlayHead *playHead) {
     pulsarSynth->setCurrentPlaybackSampleRate(sampleRate);
-
-    this->initConvolution(sampleRate, samplesPerBlock, numChannels);
-
     pulsarSynth->initTrain(sampleRate, sampleBuffer, playHead);
   }
 
@@ -182,12 +132,6 @@ public:
     }
   }
 
-  /**
-   * get the common shared convolution resource
-   * @return convolution resource
-   */
-  [[nodiscard]] std::shared_ptr<ConvolutionResource> &getConvolutionResource() { return convolutionResource; }
-
 private:
   // Single synth, DAW-transport (Auto) triggered
   std::shared_ptr<PulsarSynth> pulsarSynth = std::make_shared<PulsarSynth>(why::PlayModeEnum::Auto);
@@ -196,8 +140,6 @@ private:
   // 当前触发播放的方式
   why::PlayModeEnum currentPlayModeEnum;
 
-  // All voices under the synth share one impulse source
-  std::shared_ptr<ConvolutionResource> convolutionResource;
   // All voices under the synth share one commonVoiceSate
   std::shared_ptr<CommonVoiceSate> commonVoiceSate;
 

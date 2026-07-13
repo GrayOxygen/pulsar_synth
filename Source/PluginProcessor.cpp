@@ -106,8 +106,7 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
 
   // 设置 Limiter 参数
   limiter.setThreshold(-0.1f); // 阈值设为 -0.1 dB，留出一点安全余量（Headroom）
-  limiter.setRelease(100.0f);  // 释放时间设为 100ms，让声音平滑过渡，避免泵浦效应
-  // 注意：Limiter 的攻击时间（Attack）通常极短（如 1-5ms），JUCE 内部已默认处理，一般无需手动设置
+  limiter.setRelease(100.0f);  // 释放时间设为 100ms，让声音平滑过渡
 
   // 初始化train
   pulsarSynthEngine.buildTrain(sampleRate, samplesPerBlock, getTotalNumOutputChannels(), getPlayHead());
@@ -116,7 +115,7 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
   highPassFilter.prepare(spec);
 
   // 使用公共 API 设置系数（ProcessorDuplicator 通过 *state 共享系数给所有声道）
-  *highPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 20.0f, 0.1f);
+  *highPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 20.0f, 2.0f);
 }
 
 void AudioPluginAudioProcessor::releaseResources() {
@@ -148,7 +147,7 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout &layout
 
 void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages) {
   juce::ignoreUnused(midiMessages);
-  
+
   juce::ScopedNoDenormals noDenormals;
   int totalNumInputChannels = getTotalNumInputChannels();
   int totalNumOutputChannels = getTotalNumOutputChannels();
@@ -162,7 +161,7 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
   // limit & dc filter
   juce::dsp::AudioBlock<float> block(buffer);
   juce::dsp::ProcessContextReplacing<float> context(block);
-  
+
   // 对音频块应用高通滤波
   highPassFilter.process(juce::dsp::ProcessContextReplacing<float>(block));
   limiter.process(context);
@@ -267,7 +266,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
 
   // train
   params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID(why::ParameterID::trainLen, 1), "Train Period", 1, 8, 1.0));
-  params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID(why::ParameterID::trainDutyCycleLen, 1), "Train Duty Cycle", 1, 64 * 100, 0));
+  params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID(why::ParameterID::trainDutyCycleLen, 1), "Train Duty Cycle", 1, 64, 0));
   params.push_back(std::make_unique<juce::AudioParameterInt>(juce::ParameterID(why::ParameterID::trainSilenceLen, 1), "Train Silence", 0, 64, 0));
 
   // masking

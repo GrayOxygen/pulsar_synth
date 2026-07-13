@@ -157,4 +157,18 @@ std::string generateBinaryString(int length);
  * @return play modes
  */
 juce::StringArray getPlayModeArray();
+
+/**
+ * Simple 1D Perlin noise generator for smooth PRF modulation
+ */
+class PerlinNoise {
+public:
+  PerlinNoise();
+  float noise(float x) const;
+private:
+  int permutation[512];
+  static float fade(float t);
+  static float lerp(float t, float a, float b);
+  static float grad(int hash, float x);
+};
 } // namespace why

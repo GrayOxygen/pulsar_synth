@@ -27,13 +27,13 @@ public:
   void paint(juce::Graphics &) override;
 
   void topFlexBox(juce::FlexBox &flexBoxTop, std::shared_ptr<juce::FlexBox> trainLenFlexBox, std::shared_ptr<juce::FlexBox> trainDutyCycleFlexBox,
-                  std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox, std::shared_ptr<juce::FlexBox> bpmFlexBox, std::shared_ptr<juce::FlexBox> playModeAndImpulseFlexBox);
+                  std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox, std::shared_ptr<juce::FlexBox> bpmFlexBox);
 
-  void bottomFlexBox(juce::FlexBox &bottomFlexBox, std::shared_ptr<juce::FlexBox> grainSizeFlexBox, std::shared_ptr<juce::FlexBox> grainWetFlexBox, std::shared_ptr<juce::FlexBox> attackFlexBox,
-                     std::shared_ptr<juce::FlexBox> decayFlexBox, std::shared_ptr<juce::FlexBox> sustainFlexBox, std::shared_ptr<juce::FlexBox> releaseFlexBox);
-
-  void midFlexBox(juce::FlexBox &midFlexBox, std::shared_ptr<juce::FlexBox> maskOptionFlexBox, std::shared_ptr<juce::FlexBox> burstMaskFlexBox, std::shared_ptr<juce::FlexBox> euclidStepFlexBox,
-                  std::shared_ptr<juce::FlexBox> euclidHitFlexBox, std::shared_ptr<juce::FlexBox> stochasticMaskFlexBox);
+  void midFlexBox(juce::FlexBox &midFlexBox, std::shared_ptr<juce::FlexBox> triggerFlexBox, std::shared_ptr<juce::FlexBox> maskOptionFlexBox,
+                  std::shared_ptr<juce::FlexBox> burstMaskFlexBox, std::shared_ptr<juce::FlexBox> euclidStepFlexBox,
+                  std::shared_ptr<juce::FlexBox> euclidHitFlexBox, std::shared_ptr<juce::FlexBox> stochasticMaskFlexBox,
+                  std::shared_ptr<juce::FlexBox> attackFlexBox, std::shared_ptr<juce::FlexBox> decayFlexBox,
+                  std::shared_ptr<juce::FlexBox> sustainFlexBox, std::shared_ptr<juce::FlexBox> releaseFlexBox);
 
   void resized() override;
 
@@ -57,42 +57,8 @@ public:
    */
   void refreshUIFromPreset();
 
-  //=======methods related to impulse file=======
-  /**
-   * open file window and select impulse file
-   */
-  void openFileChooser();
-
-  /**
-   * Save the impulse file to the convolution resource memory of synth
-   * @param file impulse file，as juce default surpport format like .wav, .mp3
-   */
-  void saveFileIntoSynth(const juce::File &file);
-
-  /**
-   * When sample impulse is selected, the sample file is loaded as impulse response
-   */
-  void loadSampleImpulseWhenSelected();
-
-  /**
-   * init template impulse option
-   */
-  void initTemplateImpulseComboboxNames();
-
-  /**
-   * When template impulse is selected, the template file is loaded as impulse response
-   */
-  void loadTemplateImpulseWhenSelected();
-
-  /**
-   * Save template impulse to synth. If template impulse is selected,
-   * it will be directly loaded as impulse response
-   *
-   * @param selectedId
-   */
-  void saveTemplateImpulseThenLoadAfterSelect(int selectedId);
-
   void rebalanceStepHitValueDisplay();
+  void updateEnvelopeLengthDisplay();
 
 private:
   // This reference is provided as a quick way for your editor to access the processor object that created it.
@@ -111,6 +77,9 @@ private:
   // play mode
   juce::Label playModeLabel;
   juce::ComboBox playModeCombobox;
+  // envelope length display
+  juce::Label envelopeBeatLabel;
+  juce::Label envelopeBarLabel;
   std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> playModeComboboxAttachment;
 
   // train
@@ -130,11 +99,12 @@ private:
   // ========================== Pg Waveform 包络绘制组件 ==========================
   EnvelopeCanvas pgWaveformEnvelopeCanvas;
   juce::Label pgWaveformEnvelopeLabel;
-  juce::ToggleButton pgWaveformEnvelopeToggle{"Use Drawn Waveform"}; // 启用/禁用绘图波形
   juce::TextButton pgWaveformEnvelopeClearButton{"Clear"};           // 清空（重置为 sine）
   juce::TextButton pgWaveformEnvelopeRandomButton{"Randomize"};      // 随机绘图
   juce::TextButton pgWaveformLoadFileButton{"Load File"};            // 从音频文件加载波形
   juce::Component pgWaveformEnvControlRow;                           // 开关+按钮容器
+  juce::Slider pgWaveformEnvelopeScaleSlider;                        // 缩放
+  juce::Label pgWaveformEnvelopeScaleLabel;
 
   // juce::Slider pulsarDutyCycleClusterLenSlider;
   // juce::Label pulsarDutyCycleClusterLenLabel;
@@ -146,7 +116,6 @@ private:
   // ========================== AM 包络绘制组件 ==========================
   EnvelopeCanvas ampEnvelopeCanvas;
   juce::Label ampEnvelopeLabel;
-  juce::ToggleButton ampEnvelopeToggle{"Use AM Envelope"}; // 启用/禁用包络
   juce::Slider ampEnvelopeYMinSlider;                      // Y轴最小值
   juce::Label ampEnvelopeYMinLabel;
   juce::Slider ampEnvelopeYMaxSlider; // Y轴最大值
@@ -156,6 +125,8 @@ private:
   juce::TextButton ampEnvelopeLoadFileButton{"Load File"}; // 从音频文件加载波形
   juce::Component ampEnvControlRow;                      // 开关+按钮容器
   juce::Component ampEnvRangeRow;                        // Y轴范围滑块容器
+  juce::Slider ampEnvelopeScaleSlider;                   // 缩放
+  juce::Label ampEnvelopeScaleLabel;
   juce::Label ampLfoDepthLabel;                          // 调制深度
   juce::Slider ampLfoDepthSlider;
 
@@ -164,7 +135,6 @@ private:
   // ========================== FM 包络绘制组件 ==========================
   EnvelopeCanvas fmEnvelopeCanvas;
   juce::Label fmEnvelopeLabel;
-  juce::ToggleButton fmEnvelopeToggle{"Use FM Envelope"}; // 启用/禁用 FM 包络
   juce::Slider fmEnvelopeYMinSlider;                      // Y轴最小值 (semitones)
   juce::Label fmEnvelopeYMinLabel;
   juce::Slider fmEnvelopeYMaxSlider; // Y轴最大值 (semitones)
@@ -174,6 +144,8 @@ private:
   juce::TextButton fmEnvelopeLoadFileButton{"Load File"}; // 从音频文件加载波形
   juce::Component fmEnvControlRow;                      // FM 开关+按钮容器
   juce::Component fmEnvRangeRow;                        // FM Y轴范围滑块容器
+  juce::Slider fmEnvelopeScaleSlider;                   // 缩放
+  juce::Label fmEnvelopeScaleLabel;
   juce::Label fmLfoDepthLabel;                          // 调制深度
   juce::Slider fmLfoDepthSlider;
 
@@ -182,7 +154,6 @@ private:
   // ========================== pulsar duty cycle ratio 包络绘制组件  ==========================
   EnvelopeCanvas dutyCycleRatioEnvelopeCanvas;
   juce::Label dutyCycleRatioEnvelopeLabel;
-  juce::ToggleButton dutyCycleRatioEnvelopeToggle{"Use Duty Cycle Ratio Envelope"}; // 启用/禁用   包络
   juce::Slider dutyCycleRatioEnvelopeYMinSlider;                                    // Y轴最小值
   juce::Label dutyCycleRatioEnvelopeYMinLabel;
   juce::Slider dutyCycleRatioEnvelopeYMaxSlider; // Y轴最大值
@@ -192,6 +163,8 @@ private:
   juce::TextButton dutyCycleRatioEnvelopeLoadFileButton{"Load File"}; // 从音频文件加载波形
   juce::Component dutyCycleRatioEnvControlRow;                      //   开关+按钮容器
   juce::Component dutyCycleRatioEnvRangeRow;                        //   Y轴范围滑块容器
+  juce::Slider dutyCycleRatioEnvelopeScaleSlider;                   // 缩放
+  juce::Label dutyCycleRatioEnvelopeScaleLabel;
   juce::Label dutyCycleRatioDepthLabel;                             // 调制深度
   juce::Slider dutyCycleRatioDepthSlider;
 
@@ -200,7 +173,6 @@ private:
   // ========================== pulsar duty cycle cluster 包络绘制组件  ==========================
   EnvelopeCanvas dutyCycleClusterEnvelopeCanvas;
   juce::Label dutyCycleClusterEnvelopeLabel;
-  juce::ToggleButton dutyCycleClusterEnvelopeToggle{"Use Duty Cycle Cluster Envelope"}; // 启用/禁用   包络
   juce::Slider dutyCycleClusterEnvelopeYMinSlider;                                      // Y轴最小值
   juce::Label dutyCycleClusterEnvelopeYMinLabel;
   juce::Slider dutyCycleClusterEnvelopeYMaxSlider; // Y轴最大值 (semitones)
@@ -210,20 +182,12 @@ private:
   juce::TextButton dutyCycleClusterEnvelopeLoadFileButton{"Load File"}; // 从音频文件加载波形
   juce::Component dutyCycleClusterEnvControlRow;                      //   开关+按钮容器
   juce::Component dutyCycleClusterEnvRangeRow;                        //   Y轴范围滑块容器
+  juce::Slider dutyCycleClusterEnvelopeScaleSlider;                   // 缩放
+  juce::Label dutyCycleClusterEnvelopeScaleLabel;
   juce::Label dutyCycleClusterDepthLabel;                             // 调制深度
   juce::Slider dutyCycleClusterDepthSlider;
 
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> dutyCycleClusterDepthAttachment;
-
-  // granular
-  juce::Slider grainSizeSlider;
-  juce::Label grainSizeLabel;
-
-  juce::Slider grainWetSlider;
-  juce::Label grainWetLabel;
-
-  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> grainSizeSliderAttachment;
-  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> grainWetSliderAttachment;
 
   // envelope
   juce::Slider attackSlider;
@@ -262,22 +226,6 @@ private:
   std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> maskOptionComboBoxAttachment;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> euclidStepDialAttachment;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> euclidHitDialAttachment;
-
-  // convolution impulse
-  juce::Label impulseSwitchLabel;
-  juce::ComboBox impulseSwitchComboBox; // 0 disable 1 enable
-
-  juce::Label impulseTemplateLabel;
-  juce::ComboBox impulseTemplateFileComboBox;
-
-  juce::TextEditor sampleImpulsePathTextEditor; // impulse file path
-  juce::TextButton selectSampleImpulseFileButton;
-
-  std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> impulseSwitchComboBoxAttachment;
-  std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> impulseTemplateFileComboBoxAttachment;
-
-  // open file chooser window and select file
-  std::unique_ptr<juce::FileChooser> fileChooser;
 
   AudioPluginAudioProcessor &processorRef;
   JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AudioPluginAudioProcessorEditor)

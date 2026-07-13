@@ -52,7 +52,8 @@ public:
       juce::SynthesiserVoice *voice = getVoice(i);
       // 将其转换为自定义的 PulsarSynthVoice
       PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
-      bool bpmChangedFlag = pulsarVoice->updateBpmDirectly(bpm);
+      if (why::bpm.load() != bpm)
+        why::bpm.store(bpm);
       pulsarVoice->setEnterNextTrain(true);
     }
   }
@@ -151,6 +152,17 @@ public:
   }
 
   /**
+   * Set AM envelope scale
+   */
+  void setAmpEnvelopeScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->ampEnvelopeScale.store(scale);
+      }
+    }
+  }
+
+  /**
    * Set AM envelope Y axis range
    */
   void setAmpEnvelopeYRange(float yMin, float yMax) {
@@ -199,6 +211,17 @@ public:
   }
 
   /**
+   * Set FM envelope scale
+   */
+  void setFmEnvelopeScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmEnvelopeScale.store(scale);
+      }
+    }
+  }
+
+  /**
    * Set FM envelope Y axis range (semitones)
    */
   void setFmEnvelopeYRange(float yMin, float yMax) {
@@ -242,6 +265,17 @@ public:
     if (getNumVoices() > 0) {
       if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
         voice->getCommonVoiceSate()->useDutyCycleRatioEnvelope.store(useEnvelope);
+      }
+    }
+  }
+
+  /**
+   * Set Duty Cycle Ratio envelope scale
+   */
+  void setDutyCycleRatioEnvelopeScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeScale.store(scale);
       }
     }
   }
@@ -296,6 +330,17 @@ public:
   }
 
   /**
+   * Set Duty Cycle Cluster envelope scale
+   */
+  void setDutyCycleClusterEnvelopeScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeScale.store(scale);
+      }
+    }
+  }
+
+  /**
    * Set Duty Cycle Cluster envelope Y axis range (semitones)
    */
   void setDutyCycleClusterEnvelopeYRange(float yMin, float yMax) {
@@ -337,6 +382,14 @@ public:
     if (getNumVoices() > 0) {
       if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
         voice->getCommonVoiceSate()->usePgWaveformEnvelope.store(useEnvelope);
+      }
+    }
+  }
+
+  void setPgWaveformEnvelopeScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->pgWaveformEnvelopeScale.store(scale);
       }
     }
   }

@@ -41,6 +41,12 @@ private:
   // The adsr applied to the original pulsar duty cycle will be applied to the entire pulsar cluster not subdivision if there is a pulsar cluster
   juce::ADSR pulsarAdsr;
   juce::ADSR::Parameters pulsarAdsrParams;
+
+  // Perlin noise for smooth PRF modulation
+  why::PerlinNoise perlinNoise;
+  double perlinTime = 0.0;
+  // Perlin envelope skew: modulates Attack/Decay ratio per grain (1.0 = neutral)
+  float envelopeSkew = 1.0f;
   // Whether the release phase has been triggered is used to achieve active
   // release triggering. It is triggered when a specified duration is reached before the end of the current stage, but this judgment is made to avoid repeated triggering
   bool isTriggeredReleaseFlag = false;
@@ -50,6 +56,9 @@ private:
   int pulsarStageIndexInTrainDutyCycle = 0;
   // pulsaret phase
   float pulsaretPhase = 0.0f;
+  // envelope scan across the whole train period (0..2048 mapped to train progress)
+  int trainTotalSamples = 0;
+  int trainSampleCounter = 0;
   // per-voice LFO modulator (independent phase per voice/instance)
   LfoModulator lfoModulator;
 
@@ -59,12 +68,13 @@ private:
   std::atomic<bool> enterNextTrain{false};
 
   //===========================waveform grain pool===========================
-  static constexpr int MAX_WAVEFORM_GRAINS = 128;
+  static constexpr int MAX_WAVEFORM_GRAINS = 8;
   struct WaveformGrain {
     float phase = 0.0f;
     float phaseInc = 0.0f;
     bool active = false;
     int remainSamples = 0;
+    float amplitude = 0;
   };
   WaveformGrain waveformGrains[MAX_WAVEFORM_GRAINS];
   int waveformGrainWriteIdx = 0;
@@ -88,7 +98,6 @@ public:
 
   void renderNextBlock(juce::AudioSampleBuffer &outputBuffer, int startSample, int numSamples) override;
   void saveSnapShot();
-  void refreshSnapShot();
   void refreshPulsarInSnapShot();
   void renderNextBlockDirectly(juce::AudioSampleBuffer &outputBuffer, juce::AudioPlayHead *audioPlayHead, int startSample, int numSamples);
 
@@ -128,12 +137,6 @@ public:
    * @param audioPlayHead audio play head to get play position
    */
   void initSynthVoice(double sampleRate, std::unique_ptr<juce::AudioBuffer<float>> &sampleBuffer, juce::AudioPlayHead *audioPlayHead);
-
-  /**
-   * init audip parameter to synth voice
-   * @param apvts
-   */
-  void connectParameters(juce::AudioProcessorValueTreeState &apvts);
 
   /**
    * Mapping the parameters maintained by juce to the parameters of synth
@@ -184,6 +187,7 @@ public:
    * whether the mask exist
    */
   void mask(bool &maskPassFlag, bool &existMask);
+  bool applyMaskString(const std::string &maskStr, bool &existMask, bool &maskPassFlag);
 
   /**
    * enter to the next stage
@@ -224,9 +228,10 @@ public:
    * @param pulsarModFreq the newest frequency for sample calculation
    */
   float calcActualPulse();
+  void spawnGrain();
+  float getPerlinPrfModulation() const;
   float getCurrentDutyCycleRatio(float phase, float depth);
   float getCurrentDutyCycleCluster(float phase, float depth);
-  float getCurrentSampleFromWaveformEnvelope(float phase);
   /**
    * Smoothly transition different waveforms in the waveform table to apply FM
    * modulation with different waveform characteristics, or use fm envelope data
@@ -254,30 +259,18 @@ public:
    * @return envelope value
    */
   float getAmpEnvelopeValueAtPhase(float phase) const;
-
-  /**
-   * Get FM envelope value at given phase using linear interpolation
-   * @param phase pulsaret phase (0.0 - 1.0)
-   * @return envelope value (semitones offset)
-   */
   float getFmEnvelopeValueAtPhase(float phase) const;
   float getDutyCycleRatioEnvelopeValueAtPhase(float phase) const;
   float getDutyCycleClusterEnvelopeValueAtPhase(float phase) const;
   float getWaveformEnvelopeValueAtPhase(float phase) const;
 
   /**
-   * Get Cluster envelope value at given phase using linear interpolation
+   * Generic envelope lookup using linear interpolation over ENVELOPE_SIZE points
+   * @param data envelope data array
    * @param phase pulsaret phase (0.0 - 1.0)
-   * @return envelope value (cluster multiplier)
+   * @return interpolated envelope value
    */
-  float getClusterEnvelopeValueAtPhase(float phase) const;
-
-  /**
-   * Get Duty Ratio envelope value at given phase using linear interpolation
-   * @param phase pulsaret phase (0.0 - 1.0)
-   * @return envelope value (duty ratio 0.0 - 1.0)
-   */
-  float getDutyRatioEnvelopeValueAtPhase(float phase) const;
+  float getEnvelopeValueAtPhase(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data, float phase, float scale = 1.0f) const;
 
   /**
    * get output gain by converting db value
@@ -287,12 +280,6 @@ public:
 
   float getOutputGain();
 
-  /**
-   * Just update bpm
-   * @param bpm new bpm
-   * @return true: changed a different bpm false:no need to update
-   */
-  bool updateBpmDirectly(float bpm);
   [[nodiscard]] std::shared_ptr<CommonVoiceSate> &getCommonVoiceSate() { return commonVoiceSate; }
 
   void setCommonVoiceSate(std::shared_ptr<CommonVoiceSate> &commonVoiceSate) { this->commonVoiceSate = commonVoiceSate; }

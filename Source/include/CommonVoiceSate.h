@@ -5,7 +5,6 @@
 #ifndef SHAREDVOICESTATE_H
 #define SHAREDVOICESTATE_H
 #include "Commons.h"
-#include "ConvolutionResource.h"
 #include "EnvelopeCanvas.h"
 #include <array>
 
@@ -73,6 +72,7 @@ public:
   std::atomic<float> ampEnvelopeYMin{0.01f};
   std::atomic<float> ampEnvelopeYMax{1.0f};
   std::atomic<bool> useAmpEnvelope{true}; // 是否使用包络代替 LFO
+  std::atomic<float> ampEnvelopeScale{1.0f}; // 缩放因子，保持形状不变
 
   std::atomic<float> *ampLfoDepthParam;
 
@@ -81,6 +81,7 @@ public:
   std::atomic<float> fmEnvelopeYMin{-24.0f}; // 默认 0
   std::atomic<float> fmEnvelopeYMax{24.0f};  // 默认 +24 semitones
   std::atomic<bool> useFmEnvelope{true};     // 是否使用包络代替 LFO
+  std::atomic<float> fmEnvelopeScale{1.0f}; // 缩放因子，保持形状不变
 
   std::atomic<float> *formantFreqLfoDepthParam;
 
@@ -89,6 +90,7 @@ public:
   std::atomic<float> dutyCycleRatioEnvelopeYMin{0.01f};
   std::atomic<float> dutyCycleRatioEnvelopeYMax{1.0f};
   std::atomic<bool> useDutyCycleRatioEnvelope{true};
+  std::atomic<float> dutyCycleRatioEnvelopeScale{1.0f}; // 缩放因子，保持形状不变
 
   std::atomic<float> *dutyCycleRatioDepthParam;
 
@@ -97,10 +99,12 @@ public:
   std::atomic<float> dutyCycleClusterEnvelopeYMin{1.0f};
   std::atomic<float> dutyCycleClusterEnvelopeYMax{16.0f};
   std::atomic<bool> useDutyCycleClusterEnvelope{true};
+  std::atomic<float> dutyCycleClusterEnvelopeScale{1.0f}; // 缩放因子，保持形状不变
 
   // Pg Waveform 包络数据 - 2048 个 samples，Y轴范围 [-1, 1]，用户绘制的一个周期波形
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> pgWaveformEnvelopeData;
   std::atomic<bool> usePgWaveformEnvelope{true};
+  std::atomic<float> pgWaveformEnvelopeScale{1.0f}; // 缩放因子，保持形状不变
 
   std::atomic<float> *dutyCycleClusterDepthParam;
 
@@ -127,25 +131,8 @@ public:
   std::atomic<float> *grainSizeParam;
   std::atomic<float> *grainWetParam;
 
-  //===========================Convolution===========================
-  // store impulse file data, initialize this field when initializing synth.
-  // All synth and all voices share a ConvolutionResource, so use shared_ptr
-  std::shared_ptr<ConvolutionResource> convolutionResource;
-
   //=========pulse buffer: batch process samples and then can perform convolution with impulse response at one time=========
   juce::AudioBuffer<float> pulseBuffer;
-
-  // 累积整个 train duty cycle 的 pulsar 输出，作为较长的 IR 传给
-  // processSampleSourceWithPulsarIr，使卷积效果更明显
-  juce::AudioBuffer<float> pulsarIrAccumulatorBuffer;
-  int pulsarIrAccWritePos = 0;
-  int pulsarIrAccTargetSize = 0;
-
-  juce::AudioBuffer<float> pulsarLinearIrBuffer;
-
-  bool pulsarIrReady = false;
-  int pulsarIrAccumulatedSamples = 0;
-  int irReloadCounter = 0;
 
   // Multiple voices may generate and modify the stochastic mask simultaneously.
   // To ensure their sequential execution, and they are generated only after the
@@ -161,6 +148,11 @@ public:
     // generate random mask, 它的长度是train duty cycle（即pulsar
     // period个数）长度的两倍
     int totalPeriodNum = trainDutyCycleLenParam->load();
+    if (totalPeriodNum <= 0) {
+      stochasticMaskStr = "";
+      previousTrainDutyCycleLen4GenStocMask = 0;
+      return;
+    }
     if (previousTrainDutyCycleLen4GenStocMask == totalPeriodNum) {
       return;
     }
