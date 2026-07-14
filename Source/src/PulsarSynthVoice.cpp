@@ -58,17 +58,12 @@ void PulsarSynthVoice::saveSnapShot() {
   snapShot.dutyCycleTime = snapShot.dutyCycleRatio * snapShot.pulsarPeriodTime;
   snapShot.pulsarSilenceTime = (1 - snapShot.dutyCycleRatio) * snapShot.pulsarPeriodTime;
 
-  float sampleRate = (float)why::sampleRate.load();
-  if (sampleRate <= 0.0f)
-    sampleRate = 44100.0f;
+  snapShot.pulsarFreq = 1.0 / snapShot.dutyCycleTime;
+  float sampleRate = getSampleRate();
   snapShot.pulsarDutyCycleSamples = std::max(1.0f, snapShot.dutyCycleRatio * snapShot.pulsarPeriodTime * sampleRate);
   snapShot.pulsarIntraSilenceSamples = std::max(1.0f, snapShot.pulsarPeriodTime * sampleRate - snapShot.pulsarDutyCycleSamples);
   snapShot.interTrainSilenceSamples = std::max(1.0f, snapShot.trainSilenceTime * sampleRate);
   snapShot.trainDutyCycleSamples = std::max(1.0f, snapShot.trainDutyCycleTime * sampleRate);
-
-  trainTotalSamples = static_cast<int>(snapShot.trainDutyCycleSamples);
-  if (trainTotalSamples <= 0)
-    trainTotalSamples = 1;
 }
 
 // 只更新快照中的pulsar数据，因为pulsar period长度已定，但duty cycle raito, duty cycle cluster可以变化，每个pulsar阶段切换都要更新
@@ -77,10 +72,9 @@ void PulsarSynthVoice::refreshPulsarInSnapShot() {
   snapShot.dutyCycleCluster = getCurrentDutyCycleCluster(1.0f * envIndex / 2048, commonVoiceSate->dutyCycleClusterDepthParam->load());
   snapShot.dutyCycleTime = snapShot.dutyCycleRatio * snapShot.pulsarPeriodTime;
   snapShot.pulsarSilenceTime = (1 - snapShot.dutyCycleRatio) * snapShot.pulsarPeriodTime;
+  snapShot.pulsarFreq = 1.0 / snapShot.dutyCycleTime;
 
-  float sr = (float)why::sampleRate.load();
-  if (sr <= 0.0f)
-    sr = 44100.0f;
+  float sr = getSampleRate();
   snapShot.pulsarDutyCycleSamples = std::max(1.0f, snapShot.dutyCycleRatio * snapShot.pulsarPeriodTime * sr);
   snapShot.pulsarIntraSilenceSamples = std::max(1.0f, snapShot.pulsarPeriodTime * sr - snapShot.pulsarDutyCycleSamples);
 }
@@ -96,9 +90,9 @@ void PulsarSynthVoice::renderNextBlockDirectly(juce::AudioSampleBuffer &outputBu
       isActive = true;
       soundOffWhenSwitchPlayMode = false;
 
-      resetTrain();
       // envelope坐标会一直延续下去，不随train变化而变化，从新播放时才重置
       envIndex = 0;
+      resetTrain();
     }
 
     if (!isNowPlaying && wasPlayingLastFrame) {
@@ -152,7 +146,6 @@ void PulsarSynthVoice::resetTrainInitialSate() {
   pulsarStageIndexInTrainDutyCycle = 0;
   pulsaretPhase = 0.0f;
   // envIndex = 0;
-  trainSampleCounter = 0;
   firstTrain = true;
   for (auto &g : waveformGrains) {
     g.active = false;
@@ -187,15 +180,9 @@ void PulsarSynthVoice::initSynthVoice(double sampleRate, std::unique_ptr<juce::A
 
 void PulsarSynthVoice::mappingParams(const juce::AudioProcessorValueTreeState &apvts) {
   commonVoiceSate->bpm = apvts.getRawParameterValue(why::ParameterID::bpm);
-  // grain size & grain wet
-  commonVoiceSate->grainSizeParam = apvts.getRawParameterValue(why::ParameterID::grainSize);
-  commonVoiceSate->grainWetParam = apvts.getRawParameterValue(why::ParameterID::grainWet);
 
   // output
   commonVoiceSate->outputGainParam = apvts.getRawParameterValue(why::ParameterID::outputGain);
-
-  // play mode
-  commonVoiceSate->playModeParam = apvts.getRawParameterValue(why::ParameterID::playMode);
 
   // train
   commonVoiceSate->trainLenParam = apvts.getRawParameterValue(why::ParameterID::trainLen);
@@ -255,21 +242,9 @@ std::mutex parameterMutex;
 void PulsarSynthVoice::mappingOneParam(const juce::AudioProcessorValueTreeState &apvts, juce::String parameterID, float newValue) {
   std::lock_guard<std::mutex> lock(parameterMutex);
 
-  if (parameterID == why::ParameterID::grainSize) {
-    commonVoiceSate->grainSizeParam = apvts.getRawParameterValue(why::ParameterID::grainSize);
-  }
-  if (parameterID == why::ParameterID::grainWet) {
-    commonVoiceSate->grainWetParam = apvts.getRawParameterValue(why::ParameterID::grainWet);
-  }
-
   // output
   if (parameterID == why::ParameterID::outputGain) {
     commonVoiceSate->outputGainParam->store(newValue);
-  }
-
-  // play mode
-  if (parameterID == why::ParameterID::playMode) {
-    commonVoiceSate->playModeParam->store(newValue);
   }
 
   // train
@@ -357,18 +332,28 @@ void PulsarSynthVoice::parameterChanged(juce::AudioProcessorValueTreeState &apvt
   mappingOneParam(apvts, parameterID, newValue);
 
   // Wait for the next pulsar silence or train interval silence to start a new train，只做标记：可以进入下一个train
-  if (parameterID == why::ParameterID::trainDutyCycleLen || parameterID == why::ParameterID::trainSilenceLen || parameterID == why::ParameterID::trainLen || parameterID == why::ParameterID::bpm ||
-      parameterID == why::ParameterID::dutyCycleRatioDepth || parameterID == why::ParameterID::dutyCycleClusterDepth) {
-    setEnterNextTrain(true);
-    if (parameterID == why::ParameterID::trainDutyCycleLen) {
-      // 根据train长度生成对应随机mask
-      commonVoiceSate->generateStochasticMask();
-      isGeneratedStochasticMask = true;
-      if (isGeneratedStochasticMask) {
-        if (apvts.state.getProperty(why::PropertyID::stochasticMask) != commonVoiceSate->stochasticMaskStr.data()) {
-          apvts.state.setProperty(why::PropertyID::stochasticMask, commonVoiceSate->stochasticMaskStr.data(), nullptr);
+  if (parameterID == why::ParameterID::trainDutyCycleLen || parameterID == why::ParameterID::trainSilenceLen || parameterID == why::ParameterID::trainLen || parameterID == why::ParameterID::bpm) {
+    // if train params were changed
+    if (snapShot.bpm != commonVoiceSate->bpm->load() || snapShot.trainSilenceParam != commonVoiceSate->trainSilenceParam->load() || snapShot.trainLenParam != commonVoiceSate->trainLenParam->load() ||
+        snapShot.trainDutyCycleLenParam != commonVoiceSate->trainDutyCycleLenParam->load()) {
+      setEnterNextTrain(true);
+
+      if (parameterID == why::ParameterID::trainDutyCycleLen) {
+        // 根据train长度生成对应随机mask
+        commonVoiceSate->generateStochasticMask();
+        isGeneratedStochasticMask = true;
+        if (isGeneratedStochasticMask) {
+          if (apvts.state.getProperty(why::PropertyID::stochasticMask) != commonVoiceSate->stochasticMaskStr.data()) {
+            apvts.state.setProperty(why::PropertyID::stochasticMask, commonVoiceSate->stochasticMaskStr.data(), nullptr);
+          }
         }
       }
+    }
+  }
+  if (parameterID == why::ParameterID::dutyCycleRatioDepth || parameterID == why::ParameterID::dutyCycleClusterDepth) {
+    if (snapShot.dutyCycleRatio != getCurrentDutyCycleRatio(1.0f * envIndex / 2048, commonVoiceSate->dutyCycleRatioDepthParam->load()) || snapShot.dutyCycleCluster !=
+            getCurrentDutyCycleCluster(1.0f * envIndex / 2048, commonVoiceSate->dutyCycleClusterDepthParam->load())) {
+      refreshPulsarInSnapShot();
     }
   }
 }
@@ -384,8 +369,6 @@ void PulsarSynthVoice::reloadPreset(juce::AudioProcessorValueTreeState &apvts) {
 void PulsarSynthVoice::refreshPulsaretAdsr(float pulsaretTime) {
   // Only push the sample rate to the ADSR when it actually changes (avoid redundant work on the audio thread)
   double sr = getSampleRate();
-  if (sr <= 0.0)
-    sr = 44100.0;
   pulsarAdsr.setSampleRate(sr);
 
   float attack = commonVoiceSate->attackParam->load();
@@ -462,21 +445,15 @@ void PulsarSynthVoice::spawnGrain() {
   for (int j = 0; j < 8; ++j)
     active += (caState >> j) & 1;
   float caPitchOffset = 0.9f + 0.3f * (static_cast<float>(active) / 8.0f);
+  float startPhaseOffset = 0.0f + 1.0f * (static_cast<float>(active) / 8.0f);
 
-  float envPhase = 1.0f * envIndex / 2048;
-  float triggerFreq = snapShot.fundamentalFreq * calcFormantLfoInterpolation(envPhase, commonVoiceSate->formantFreqLfoDepthParam->load()) //
-                      * getCurrentDutyCycleCluster(envPhase, commonVoiceSate->dutyCycleClusterDepthParam->load())                         //
-                      * caPitchOffset                                                                                                     //
-                      / getCurrentDutyCycleRatio(envPhase, commonVoiceSate->dutyCycleRatioDepthParam->load())                             //
-      ;
-  float phaseInc = (triggerFreq > 0.0f) ? triggerFreq / static_cast<float>(getSampleRate()) : 1.0f / static_cast<float>(getSampleRate());
-  waveformGrains[waveformGrainWriteIdx] = {0, phaseInc, true, currentStateDurationSampleNum, //
-                                           calcAmpLfoInterpolation(envPhase, commonVoiceSate->ampLfoDepthParam->load())};
+  float baseFreq = snapShot.pulsarFreq * caPitchOffset;
+  waveformGrains[waveformGrainWriteIdx] = {startPhaseOffset, 0, true, currentStateDurationSampleNum, baseFreq};
   waveformGrainWriteIdx = (waveformGrainWriteIdx + 1) % MAX_WAVEFORM_GRAINS;
 
-  envIndex++;
-  if (envIndex >= 2048)
-    envIndex = 2047;
+  // envIndex++;
+  // if (envIndex >= 2048)
+  //   envIndex = envIndex - 2048;
 }
 
 /**
@@ -510,8 +487,6 @@ void PulsarSynthVoice::changeStage() {
     currentStateDurationSampleNum = snapShot.pulsarDutyCycleSamples;
     endPosInTrainSamples = snapShot.pulsarDutyCycleSamples;
     pulsarStageIndexInTrainDutyCycle = 0; // reset mask only after full train finishes
-    envIndex = 0;                         // reset envelope scan after full train finishes
-    trainSampleCounter = 0;               // new train starts, reset envelope scan
     spawnGrain();
     break;
   }
@@ -556,6 +531,7 @@ float PulsarSynthVoice::calSampleByState(bool passMaskFlag, bool existMask) {
     if (!passMaskFlag) {
       return 0;
     }
+    // return calcActualPulse();
     return calcActualPulse() * getPulseFadeGain();
   case why::PulsarStateEnum::InterTrainSilence:
     return 0.0f;
@@ -577,14 +553,6 @@ std::pair<float, float> PulsarSynthVoice::processSample() {
 
   // Advance Perlin noise time for smooth PRF modulation
   perlinTime += 100 * (1.0 / getSampleRate());
-
-  // Map envelope index to train progress (0..2048 across train duty cycle)
-  // if (trainTotalSamples > 0) {
-  //   int wrappedCounter = trainSampleCounter % trainTotalSamples;
-  //   envIndex = static_cast<int>((wrappedCounter / static_cast<float>(trainTotalSamples)) * 2048.0f);
-  //   if (envIndex >= 2048)
-  //     envIndex = 2047;
-  // }
 
   // Enter next stage
   if (hasPassedSampleNumInsideTrain >= currentStateDurationSampleNum) {
@@ -634,7 +602,9 @@ std::pair<float, float> PulsarSynthVoice::processSample() {
   float s = calSampleByState(passMaskFlag, existMask);
 
   hasPassedSampleNumInsideTrain++;
-  trainSampleCounter++;
+  envIndex++;
+  if (envIndex >= 2048)
+    envIndex = envIndex - 2048;
   return {s, newPulsarFreq};
 }
 
@@ -643,12 +613,17 @@ inline float formantFreqToDrive(float f) {
   return 1.0f + f * 8.0f;
 }
 
-inline float gaussianEnvelope(float t, float sigma = 0.1f) {
+inline float gaussianEnvelope(float t, float sigma = 0.4f) {
   // t: 0.0 - 1.0
   // sigma: 控制宽度 (0.05 ~ 0.4 常用)
   const float x = t - 0.5f;
   const float denom = 2.0f * sigma * sigma;
   return std::exp(-(x * x) / denom);
+}
+
+inline float hannWindow(float phase) {
+  phase = juce::jlimit(0.0f, 1.0f, phase);
+  return 0.5f * (1.0f - std::cos(2.0f * juce::MathConstants<float>::pi * phase));
 }
 
 float PulsarSynthVoice::calcActualPulse() {
@@ -658,15 +633,26 @@ float PulsarSynthVoice::calcActualPulse() {
   int activeCount = 0;
   float s = 0;
 
+  float envPhase = 1.0f * envIndex / 2048;
+
   for (auto &g : waveformGrains) {
     if (!g.active)
       continue;
+
+    // 获取实时envelope; 每个sample，对应一个envelope点，确定fm，am，dc ratio，dc cluster，然后用确定的freq扫描waveform
+    float triggerFreq = g.baseFreq                                                                                  //
+                        * calcFormantLfoInterpolation(envPhase, commonVoiceSate->formantFreqLfoDepthParam->load())  //
+                        * getCurrentDutyCycleCluster(envPhase, commonVoiceSate->dutyCycleClusterDepthParam->load()) //
+                        / getCurrentDutyCycleRatio(envPhase, commonVoiceSate->dutyCycleRatioDepthParam->load())     //
+        ;
+    float phaseInc = (triggerFreq > 0.0f) ? triggerFreq / static_cast<float>(getSampleRate()) : 1.0f / static_cast<float>(getSampleRate());
+
     float raw = commonVoiceSate->usePgWaveformEnvelope.load() ? getWaveformEnvelopeValueAtPhase(g.phase) : 0.0f;
     raw = juce::jlimit(-1.0f, 1.0f, raw);
-    const float hann = gaussianEnvelope(g.phase);
-    grainSum += raw * hann * g.amplitude;
+    const float window = gaussianEnvelope(g.phase);
+    grainSum += raw * window * calcAmpLfoInterpolation(envPhase, commonVoiceSate->ampLfoDepthParam->load());
     activeCount++;
-    g.phase += g.phaseInc;
+    g.phase += phaseInc;
     if (g.phase >= 1.0f)
       g.phase -= 1;
     // 如果播够一个pulsar duty cycle
@@ -675,17 +661,7 @@ float PulsarSynthVoice::calcActualPulse() {
     }
   }
   waveformSample = activeCount > 0 ? grainSum / static_cast<float>(activeCount) : 0.0f;
-  // float envPhase = 1.0f * envIndex / 2048;
-  float hann2 = gaussianEnvelope(pulsaretPhase);
-  s = waveformSample * pulsarAdsr.getNextSample() * hann2;
-  // s = waveformSample * calcAmpLfoInterpolation(pulsaretPhase, commonVoiceSate->ampLfoDepthParam->load()); // AM - 使用 envIndex 从包络采样
-  // // *pulsarAdsr.getNextSample() * hann;
-
-  // // // 针对duty cycle做AM，duty cycle内播放的是overlap-add grains，此处也只能针对大范围处理
-  pulsaretPhase += static_cast<float>(snapShot.fundamentalFreq) / getSampleRate();
-  if (pulsaretPhase >= 1.0f) {
-    pulsaretPhase = pulsaretPhase - 1.0f;
-  }
+  s = waveformSample * pulsarAdsr.getNextSample() * gaussianEnvelope(envPhase);
   return s;
 }
 
@@ -697,11 +673,11 @@ float PulsarSynthVoice::getCurrentDutyCycleCluster(float phase, float depth) {
   if (commonVoiceSate->useDutyCycleClusterEnvelope.load()) {
     float envelopeValue = getDutyCycleClusterEnvelopeValueAtPhase(phase);
     // envelopeValue 范围是 yMin - yMax，需要归一化到合适的调制范围
-    float yMin = commonVoiceSate->dutyCycleClusterEnvelopeYMin.load();
-    float yMax = commonVoiceSate->dutyCycleClusterEnvelopeYMax.load();
-    float modFactor = juce::jmap(envelopeValue, yMin, yMax, 1.0f, 16.0f);
+    // float yMin = commonVoiceSate->dutyCycleClusterEnvelopeYMin.load();
+    // float yMax = commonVoiceSate->dutyCycleClusterEnvelopeYMax.load();
+    // float modFactor = juce::jmap(envelopeValue, yMin, yMax, 1.0f, 16.0f);
     // 将 envelopeValue 转换为调制系数
-    return static_cast<float>(std::round(depth * modFactor));
+    return depth * envelopeValue < 1.0f ? 1.0f : static_cast<float>(std::round(depth * envelopeValue));
   }
 
   return 1.0f;
@@ -714,10 +690,10 @@ float PulsarSynthVoice::getCurrentDutyCycleRatio(float phase, float depth) {
 
   if (commonVoiceSate->useDutyCycleRatioEnvelope.load()) {
     float envelopeValue = getDutyCycleRatioEnvelopeValueAtPhase(phase);
-    float yMin = commonVoiceSate->dutyCycleRatioEnvelopeYMin.load();
-    float yMax = commonVoiceSate->dutyCycleRatioEnvelopeYMax.load();
-    float modFactor = juce::jmap(envelopeValue, yMin, yMax, 0.01f, 1.0f);
-    return depth * modFactor;
+    // float yMin = commonVoiceSate->dutyCycleRatioEnvelopeYMin.load();
+    // float yMax = commonVoiceSate->dutyCycleRatioEnvelopeYMax.load();
+    // float modFactor = juce::jmap(envelopeValue, yMin, yMax, 0.01f, 1.0f);
+    return depth * envelopeValue;
   }
 
   return 0.01f;
@@ -725,7 +701,7 @@ float PulsarSynthVoice::getCurrentDutyCycleRatio(float phase, float depth) {
 
 float PulsarSynthVoice::calcFormantLfoInterpolation(float phase, float depth) {
   if (depth <= 0.0f) {
-    return 0.0f;
+    return 1.0f;
   }
 
   // 如果启用了 FM 包络，从包络数据采样
@@ -737,30 +713,30 @@ float PulsarSynthVoice::calcFormantLfoInterpolation(float phase, float depth) {
     float semitones = juce::jlimit(yMin, yMax, envelopeValue);
     // 每八度12个semitone，频率比 = 2^(semitones/12)
     float freqRatio = std::pow(2.0f, semitones / 12.0f);
-    // ratio∈[0.25,4.0]
     return freqRatio * depth;
   }
-  return 0;
+  return 1.0f;
 }
 
 float PulsarSynthVoice::calcAmpLfoInterpolation(float phase, float depth) {
   // 如果 depth 为 0，不应用 AM
   if (depth <= 0.0f) {
-    return 1;
+    return 0;
   }
 
   // 如果启用了包络，从包络数据采样
   if (commonVoiceSate->useAmpEnvelope.load()) {
     // phase: 0.0 - 1.0，映射到 2048 个点
     float envelopeValue = getAmpEnvelopeValueAtPhase(phase);
-    // // envelopeValue 范围是 yMin - yMax，需要归一化到合适的调制范围
-    float yMin = commonVoiceSate->ampEnvelopeYMin.load();
-    float yMax = commonVoiceSate->ampEnvelopeYMax.load();
-    // 将 envelopeValue 转换为调制系数 (0.0 - 1.0 范围)
-    float modFactor = juce::jmap(envelopeValue, yMin, yMax, 0.0f, 1.0f);
-    return (1.0f - depth + depth * modFactor);
+    // // // envelopeValue 范围是 yMin - yMax，需要归一化到合适的调制范围
+    // float yMin = commonVoiceSate->ampEnvelopeYMin.load();
+    // float yMax = commonVoiceSate->ampEnvelopeYMax.load();
+    // // 将 envelopeValue 转换为调制系数 (0.0 - 1.0 范围)
+    // float modFactor = juce::jmap(envelopeValue, yMin, yMax, 0.0f, 1.0f);
+    // return (1.0f - depth + depth * envelopeValue);
+    return depth * envelopeValue;
   }
-  return 1;
+  return 0;
 }
 
 float PulsarSynthVoice::getEnvelopeValueAtPhase(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data, float phase, float scale) const {

@@ -20,27 +20,7 @@ public:
    * @return the pulsar synth
    */
   std::shared_ptr<PulsarSynth> &getCurrentPulsarSynth() { return pulsarSynth; }
-
-  [[nodiscard]] why::PlayModeEnum &getCurrentPlayModeEnum() { return currentPlayModeEnum; }
-
-  /**
-   * Set the current playback mode and pause all sounds each time you set it
-   *
-   * @param apvts value tree
-   * @param index play mode enum value
-   */
-  void setCurrentPlayModeEnum(juce::AudioProcessorValueTreeState &apvts, int index) {
-    stopTheWorld();
-    if (index == static_cast<int>(why::PlayModeEnum::Auto)) {
-      this->currentPlayModeEnum = why::PlayModeEnum::Auto;
-    }
-    if (index == static_cast<int>(why::PlayModeEnum::NotSelected)) {
-      this->currentPlayModeEnum = why::PlayModeEnum::NotSelected;
-    }
-    if (apvts.state.getProperty(why::PropertyID::currentPlayModeEnum) != juce::String(static_cast<int>(this->currentPlayModeEnum))) {
-      apvts.state.setProperty(why::PropertyID::currentPlayModeEnum, static_cast<int>(this->currentPlayModeEnum), nullptr);
-    }
-  }
+ 
 
   /**
    * Stop all sounds: the user needs to start DAW transport again to play
@@ -52,9 +32,7 @@ public:
    * @param func the target func
    */
   void executeCurSynthCallback(const std::function<void(std::shared_ptr<PulsarSynth> &)> &func) {
-    if (currentPlayModeEnum == why::PlayModeEnum::Auto) {
-      func(pulsarSynth);
-    }
+       func(pulsarSynth); 
   }
 
   /**
@@ -64,11 +42,7 @@ public:
    */
   void reloadSynthPreset(juce::AudioProcessorValueTreeState &apvts) {
     // refresh and load impulse file,
-    int impulseSwitchIndex = static_cast<int>(*apvts.getRawParameterValue(why::ParameterID::impulseSwitch));
-
-    // update current play mode
-    int currentPlayModeIndex = static_cast<int>(*apvts.getRawParameterValue(why::ParameterID::playMode));
-    setCurrentPlayModeEnum(apvts, currentPlayModeIndex);
+    int impulseSwitchIndex = static_cast<int>(*apvts.getRawParameterValue(why::ParameterID::impulseSwitch)); 
 
     // update to the latest state of synth: like mapping the values of all
     // parameters and properties to synth, etc
@@ -127,19 +101,14 @@ public:
    */
   void processSample(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &midiMessages, juce::AudioPlayHead *playHead) {
     juce::ignoreUnused(midiMessages);
-    if (getCurrentPlayModeEnum() == why::PlayModeEnum::Auto) {
-      pulsarSynth->renderNextBlockDirectly(buffer, playHead, 0, buffer.getNumSamples());
-    }
+       pulsarSynth->renderNextBlockDirectly(buffer, playHead, 0, buffer.getNumSamples()); 
   }
 
 private:
   // Single synth, DAW-transport (Auto) triggered
-  std::shared_ptr<PulsarSynth> pulsarSynth = std::make_shared<PulsarSynth>(why::PlayModeEnum::Auto);
+  std::shared_ptr<PulsarSynth> pulsarSynth = std::make_shared<PulsarSynth>( );
   std::vector<std::shared_ptr<PulsarSynth>> pulsarSynths;
-
-  // 当前触发播放的方式
-  why::PlayModeEnum currentPlayModeEnum;
-
+  
   // All voices under the synth share one commonVoiceSate
   std::shared_ptr<CommonVoiceSate> commonVoiceSate;
 

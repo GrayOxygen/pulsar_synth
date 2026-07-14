@@ -8,7 +8,6 @@ void EnvelopeCanvas::paint(juce::Graphics &g) {
   drawGrid(g);
   drawEnvelope(g);
 }
-
 void EnvelopeCanvas::resized() { repaint(); }
 
 void EnvelopeCanvas::mouseDown(const juce::MouseEvent &event) {

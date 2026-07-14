@@ -57,8 +57,7 @@ public:
    */
   void refreshUIFromPreset();
 
-  void rebalanceStepHitValueDisplay();
-  void updateEnvelopeLengthDisplay();
+  void rebalanceStepHitValueDisplay(); 
 
 private:
   // This reference is provided as a quick way for your editor to access the processor object that created it.
@@ -73,15 +72,7 @@ private:
   // bpm
   juce::Slider bpmSlider;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> bpmAttachment;
-
-  // play mode
-  juce::Label playModeLabel;
-  juce::ComboBox playModeCombobox;
-  // envelope length display
-  juce::Label envelopeBeatLabel;
-  juce::Label envelopeBarLabel;
-  std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> playModeComboboxAttachment;
-
+ 
   // train
   juce::Slider trainLenSlider;
   juce::Label trainLenLabel;

@@ -52,7 +52,6 @@ public:
 
   // parameters to receive values from AudioProcessorValueTreeState，thread safe
   std::atomic<float> *outputGainParam;
-  std::atomic<float> *playModeParam;
   // How many pulsar periods does the train duty cycle consist of
   std::atomic<float> *trainDutyCycleLenParam;
   // How many pulsar periods does the train interval silence consist of
@@ -125,11 +124,7 @@ public:
   std::string stochasticMaskStr = "";
 
   // mask menu option
-  std::atomic<float> *impulseSwitchParam;
-
-  // parameters to receive values from AudioProcessorValueTreeState，thread safe
-  std::atomic<float> *grainSizeParam;
-  std::atomic<float> *grainWetParam;
+  std::atomic<float> *impulseSwitchParam; 
 
   //=========pulse buffer: batch process samples and then can perform convolution with impulse response at one time=========
   juce::AudioBuffer<float> pulseBuffer;
@@ -191,6 +186,7 @@ public:
   float trainSilenceTime;
   float pulsarPeriodTime;
   float fundamentalFreq; // 发射频率
+  float pulsarFreq; // pulsar频率
 
   float dutyCycleRatio;
   float dutyCycleCluster;

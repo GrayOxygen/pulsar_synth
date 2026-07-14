@@ -132,7 +132,7 @@ void AudioPluginAudioProcessorEditor::resized() {
 
   ampEnvelopeFlexBox.items.add(juce::FlexItem(ampEnvelopeLabel).withFlex(0.5).withMaxHeight(18));
   ampEnvelopeFlexBox.items.add(juce::FlexItem(ampEnvControlRow).withFlex(0.5).withMaxHeight(24));
-  ampEnvelopeFlexBox.items.add(juce::FlexItem(ampEnvRangeRow).withFlex(0.5).withMaxHeight(24));
+  ampEnvelopeFlexBox.items.add(juce::FlexItem(ampEnvRangeRow).withFlex(0.5).withMaxHeight(32));
   ampEnvelopeFlexBox.items.add(juce::FlexItem(ampEnvelopeCanvas).withFlex(2.0).withMinHeight(120));
   amFmRowFlexBox.items.add(juce::FlexItem(ampEnvelopeFlexBox).withFlex(1.0f));
 
@@ -149,7 +149,7 @@ void AudioPluginAudioProcessorEditor::resized() {
   fmEnvelopeFlexBox.alignContent = juce::FlexBox::AlignContent::flexStart;
   fmEnvelopeFlexBox.items.add(juce::FlexItem(fmEnvelopeLabel).withFlex(0.5).withMaxHeight(18));
   fmEnvelopeFlexBox.items.add(juce::FlexItem(fmEnvControlRow).withFlex(0.5).withMaxHeight(24));
-  fmEnvelopeFlexBox.items.add(juce::FlexItem(fmEnvRangeRow).withFlex(0.5).withMaxHeight(24));
+  fmEnvelopeFlexBox.items.add(juce::FlexItem(fmEnvRangeRow).withFlex(0.5).withMaxHeight(32));
   fmEnvelopeFlexBox.items.add(juce::FlexItem(fmEnvelopeCanvas).withFlex(2.0).withMinHeight(120));
   amFmRowFlexBox.items.add(juce::FlexItem(fmEnvelopeFlexBox).withFlex(1.0f));
 
@@ -172,7 +172,7 @@ void AudioPluginAudioProcessorEditor::resized() {
   dutyCycleRatioEnvelopeFlexBox.alignContent = juce::FlexBox::AlignContent::flexStart;
   dutyCycleRatioEnvelopeFlexBox.items.add(juce::FlexItem(dutyCycleRatioEnvelopeLabel).withFlex(0.5).withMaxHeight(18));
   dutyCycleRatioEnvelopeFlexBox.items.add(juce::FlexItem(dutyCycleRatioEnvControlRow).withFlex(0.5).withMaxHeight(24));
-  dutyCycleRatioEnvelopeFlexBox.items.add(juce::FlexItem(dutyCycleRatioEnvRangeRow).withFlex(0.5).withMaxHeight(24));
+  dutyCycleRatioEnvelopeFlexBox.items.add(juce::FlexItem(dutyCycleRatioEnvRangeRow).withFlex(0.5).withMaxHeight(32));
   dutyCycleRatioEnvelopeFlexBox.items.add(juce::FlexItem(dutyCycleRatioEnvelopeCanvas).withFlex(2.0).withMinHeight(120));
   pulsarLengthRowFlexBox.items.add(juce::FlexItem(dutyCycleRatioEnvelopeFlexBox).withFlex(1.0f));
 
@@ -188,7 +188,7 @@ void AudioPluginAudioProcessorEditor::resized() {
   dutyCycleClusterEnvelopeFlexBox.alignContent = juce::FlexBox::AlignContent::flexStart;
   dutyCycleClusterEnvelopeFlexBox.items.add(juce::FlexItem(dutyCycleClusterEnvelopeLabel).withFlex(0.5).withMaxHeight(18));
   dutyCycleClusterEnvelopeFlexBox.items.add(juce::FlexItem(dutyCycleClusterEnvControlRow).withFlex(0.5).withMaxHeight(24));
-  dutyCycleClusterEnvelopeFlexBox.items.add(juce::FlexItem(dutyCycleClusterEnvRangeRow).withFlex(0.5).withMaxHeight(24));
+  dutyCycleClusterEnvelopeFlexBox.items.add(juce::FlexItem(dutyCycleClusterEnvRangeRow).withFlex(0.5).withMaxHeight(32));
   dutyCycleClusterEnvelopeFlexBox.items.add(juce::FlexItem(dutyCycleClusterEnvelopeCanvas).withFlex(2.0).withMinHeight(120));
   pulsarLengthRowFlexBox.items.add(juce::FlexItem(dutyCycleClusterEnvelopeFlexBox).withFlex(1.0f));
 
@@ -217,7 +217,7 @@ void AudioPluginAudioProcessorEditor::resized() {
   // 为 Pg Waveform 包络容器内的控件设置布局
   auto pgWaveformControlBounds = pgWaveformEnvControlRow.getLocalBounds();
   int pgCtrlW = pgWaveformControlBounds.getWidth();
-  int pgLabelW = 30;
+  int pgLabelW = 100;
   int pgBtnW = (pgCtrlW - pgLabelW * 2) / 3;
   pgWaveformEnvelopeClearButton.setBounds(pgWaveformControlBounds.removeFromLeft(pgBtnW));
   pgWaveformEnvelopeRandomButton.setBounds(pgWaveformControlBounds.removeFromLeft(pgBtnW));
@@ -311,9 +311,7 @@ void AudioPluginAudioProcessorEditor::refreshUIFromPreset() {
     if (stochasticMaskTextEditor.getText() != stochasticMaskText) {
       stochasticMaskTextEditor.setText(stochasticMaskText, juce::dontSendNotification);
     }
-  }
-
-  updateEnvelopeLengthDisplay();
+  } 
 }
 
 /**
@@ -384,8 +382,7 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
  * @param trainDutyCycleFlexBox train duty cyle flexbox in a row
  * @param trainSilenceLenFlexBox train silence length flexbox in a row
  * @param bpmFlexBox bpm flexbox in a row
- * @param playModeAndImpulseFlexBox  a flexbox includes play mode and impulse
- * file ui elements in a row
+  * file ui elements in a row
  */
 void AudioPluginAudioProcessorEditor::topFlexBox(juce::FlexBox &flexBoxTop, std::shared_ptr<juce::FlexBox> trainLenFlexBox, std::shared_ptr<juce::FlexBox> trainDutyCycleFlexBox,
                                                  std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox, std::shared_ptr<juce::FlexBox> bpmFlexBox) {
@@ -444,11 +441,7 @@ void AudioPluginAudioProcessorEditor::midFlexBox(juce::FlexBox &midFlexBox, std:
 
   triggerFlexBox->flexDirection = juce::FlexBox::Direction::column;
   triggerFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
-  triggerFlexBox->items.add(juce::FlexItem(playModeLabel).withFlex(1.0).withMaxWidth(100).withMaxHeight(20));
-  triggerFlexBox->items.add(juce::FlexItem(playModeCombobox).withFlex(1.0).withMaxHeight(20));
-  triggerFlexBox->items.add(juce::FlexItem(envelopeBeatLabel).withFlex(1.0).withMaxHeight(18));
-  triggerFlexBox->items.add(juce::FlexItem(envelopeBarLabel).withFlex(1.0).withMaxHeight(18));
-  midFlexBox.items.add(juce::FlexItem(*triggerFlexBox).withFlex(1.0f));
+    // midFlexBox.items.add(juce::FlexItem(*triggerFlexBox).withFlex(1.0f));
 
   maskOptionFlexBox->flexDirection = juce::FlexBox::Direction::row;
   maskOptionFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
@@ -515,11 +508,7 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   // output gain
   addAndMakeVisible(outputGainLabel);
   addAndMakeVisible(outputGainSlider);
-
-  // play mode
-  addAndMakeVisible(playModeLabel);
-  addAndMakeVisible(playModeCombobox);
-
+ 
   // bpm
   addAndMakeVisible(bpmSlider);
 
@@ -531,9 +520,7 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   addAndMakeVisible(trainLenLabel);
   addAndMakeVisible(trainDutyCycleLenLabel);
   addAndMakeVisible(trainSilenceLenLabel);
-
-  addAndMakeVisible(envelopeBeatLabel);
-  addAndMakeVisible(envelopeBarLabel);
+ 
 
   // Pg Waveform 包络控件
   addAndMakeVisible(pgWaveformEnvelopeCanvas);
@@ -598,7 +585,7 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMaxLabel);
   fmEnvRangeRow.addAndMakeVisible(fmEnvelopeScaleSlider);
   fmEnvRangeRow.addAndMakeVisible(fmEnvelopeScaleLabel);
-
+  
   // dutyCycleRatio 包络控件
   addAndMakeVisible(dutyCycleRatioEnvelopeCanvas);
   addAndMakeVisible(dutyCycleRatioEnvelopeLabel);
@@ -682,17 +669,8 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   outputGainSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
   outputGainSlider.setTextValueSuffix(" (db)");
 
-  outputGainLabel.setText("Output", juce::dontSendNotification);
-
-  // play mode
-  // item id不能为0，但是parameter获取到的值是从0开始
-  playModeCombobox.addItem("Off", static_cast<int>(why::PlayModeEnum::NotSelected) + 1);
-  playModeCombobox.addItem("Auto", static_cast<int>(why::PlayModeEnum::Auto) + 1);
-  // setSelectId也会触发event回调，所以重新打开插件窗口，会触发event事件，没必要，因为该combobox绑定了attachment，会自动更新为最新
-  //  playModeCombobox.setSelectedId(1);
-
-  playModeLabel.setText("Trigger", juce::dontSendNotification);
-
+  outputGainLabel.setText("Output", juce::dontSendNotification); 
+ 
   // bpm
   bpmSlider.setRange(30.0, 300.0, 1.0); // 合理BPM范围
   bpmSlider.setTextValueSuffix(" BPM");
@@ -719,13 +697,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   trainSilenceLenSlider.setTextValueSuffix(" (count)");
 
   trainSilenceLenLabel.setText("Train Silence", juce::dontSendNotification);
-
-  // Envelope length display
-  envelopeBeatLabel.setText("Env: -- beats", juce::dontSendNotification);
-  envelopeBeatLabel.setFont(juce::Font(12.0f, juce::Font::plain));
-  envelopeBarLabel.setText("Env: -- bars", juce::dontSendNotification);
-  envelopeBarLabel.setFont(juce::Font(12.0f, juce::Font::plain));
-
+ 
   // ========================== Pg Waveform 包络绘制控件样式 ==========================
   pgWaveformEnvelopeLabel.setText("Pg Waveform (Drawn)", juce::dontSendNotification);
   pgWaveformEnvelopeCanvas.setYAxisRange(-1.0f, 1.0f);
@@ -946,8 +918,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   stochasticMaskTextEditor.setReturnKeyStartsNewLine(false); // 按回车不换行（默认也是 false）
   stochasticMaskTextEditor.setInputRestrictions(0, "01");    // 限制只输入0或1
   stochasticMaskTextEditor.setTextToShowWhenEmpty("Generated mask will be here", juce::Colours::grey);
-
-  updateEnvelopeLengthDisplay();
+ 
 }
 
 /**
@@ -958,9 +929,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
 void AudioPluginAudioProcessorEditor::connectUIAndAudioParameter() {
   // 绑定UI与Parameter
   outputGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::outputGain, outputGainSlider);
-
-  playModeComboboxAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(processorRef.apvts, why::ParameterID::playMode, playModeCombobox);
-
+ 
   bpmAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::bpm, bpmSlider);
 
   // train
@@ -1228,19 +1197,12 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   // euclid联动设置：始终保持hit<=step
   euclidStepSlider.onValueChange = [&] { rebalanceStepHitValueDisplay(); };
   euclidHitSlider.onValueChange = [&] { rebalanceStepHitValueDisplay(); };
-
-  playModeCombobox.onChange = [&] { processorRef.getPulsarSynthEngine().setCurrentPlayModeEnum(processorRef.apvts, playModeCombobox.getSelectedItemIndex()); };
-
+ 
   // 强制更新synth依赖的bpm
   bpmSlider.onValueChange = [&] {
     processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->forceRefreshBpmAndRebuildTrain(bpmSlider.getValue()); });
   };
-
-  // Update envelope length display when train parameters change
-  trainLenSlider.onValueChange = [&] { updateEnvelopeLengthDisplay(); };
-  trainDutyCycleLenSlider.onValueChange = [&] { updateEnvelopeLengthDisplay(); };
-  trainSilenceLenSlider.onValueChange = [&] { updateEnvelopeLengthDisplay(); };
-
+ 
   maskOptionComboBox.onChange = [&] {
     // 只在选中stochastic mask时才展示生成的随机mask
     if (maskOptionComboBox.getSelectedItemIndex() == static_cast<int>(why::MaskOptionEnum::StochasticMask)) {
@@ -1277,19 +1239,6 @@ void AudioPluginAudioProcessorEditor::rebalanceStepHitValueDisplay() {
   if (hitValue > stepValue)
     euclidHitSlider.setValue(stepValue,
                              juce::dontSendNotification); // 避免无限触发
-}
-
-void AudioPluginAudioProcessorEditor::updateEnvelopeLengthDisplay() {
-  float trainLen = trainLenSlider.getValue();
-  float trainDutyCycle = trainDutyCycleLenSlider.getValue();
-  float trainSilence = trainSilenceLenSlider.getValue();
-  float totalPulsars = trainDutyCycle + trainSilence;
-  if (totalPulsars <= 0.0f)
-    totalPulsars = 1.0f;
-  float envelopeBeats = 2048.0f * trainLen / totalPulsars;
-  float envelopeBars = envelopeBeats / 4.0f;
-  envelopeBeatLabel.setText("Env: " + juce::String(envelopeBeats, 1) + " beats", juce::dontSendNotification);
-  envelopeBarLabel.setText("Env: " + juce::String(envelopeBars, 2) + " bars", juce::dontSendNotification);
 }
 
 /**

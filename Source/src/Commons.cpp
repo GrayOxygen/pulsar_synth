@@ -78,11 +78,7 @@ std::map<int, juce::String> resourceIdToName = {
     {63, "577454 wood.wav"},
     {64, "I love you in chinese.wav"},
 };
-
-juce::StringArray getPlayModeArray() {
-  juce::StringArray names = {"Off", "Auto"};
-  return names;
-}
+ 
 
 juce::StringArray getImpulseSwitchArray() {
   juce::StringArray names = {"Off", "Template", "Sample Source"};

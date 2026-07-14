@@ -21,14 +21,7 @@
  */
 class PulsarSynth : public juce::Synthesiser {
 public:
-  PulsarSynth() {};
-
-  PulsarSynth(why::PlayModeEnum myPlayModeEnum) { this->myPlayModeEnum = myPlayModeEnum; };
-
-  [[nodiscard]] why::PlayModeEnum &getMyPlayModeEnum() { return myPlayModeEnum; }
-
-  void setMyPlayModeEnum(why::PlayModeEnum myPlayModeEnum) { this->myPlayModeEnum = myPlayModeEnum; }
-
+  PulsarSynth() {}; 
   /**
    * When switching the play mode, turn off all sounds.
    * The auto mode will be played in the playback of the next daw, and the midi mode will be played in the next note
@@ -429,8 +422,5 @@ public:
       pulsarVoice->renderNextBlockDirectly(buffer, audioPlayHead, start, numSamples);
     }
   }
-
-private:
-  // which play mode is
-  why::PlayModeEnum myPlayModeEnum;
+ 
 };

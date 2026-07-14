@@ -213,9 +213,7 @@ void AudioPluginAudioProcessor::setStateInformation(const void *data, int sizeIn
   apvts.replaceState(juce::ValueTree::fromXml(*theParams));
   // 刷新synth状态
   getPulsarSynthEngine().reloadSynthPreset(apvts);
-  // 手动触发parameterChanged监听
-  parameterChanged(juce::String(why::ParameterID::playMode), static_cast<float>(getPulsarSynthEngine().getCurrentPlayModeEnum()));
-  // 广播通知editor恢复ui状态：如preset选了sample
+    // 广播通知editor恢复ui状态：如preset选了sample
   // impulse就要立即加载，而不用等到editor创建
   // 此时，editor可能尚未创建或已销毁，如第一次打开daw尚未打开窗口时，而editor使用listener来接收，则会因找不到而报错，所以选择广播
   // 另外，数据类更新放到processor中，editor处理ui变动，实现解耦是最佳实践
@@ -252,10 +250,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
   // 在ableton中，param设置的parameter name，会在Device Parameters
   // window中展示（未打开插件窗口） output gain
   params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::outputGain, 1), "Output Gain", -60.0, 6.0, 0.0));
-
-  // play mode ; 默认选择 index，combobox的id不为0，但index是从0开始算
-  params.push_back(std::make_unique<juce::AudioParameterChoice>(juce::ParameterID(why::ParameterID::playMode, 1), "Play Mode", why::getPlayModeArray(), 0));
-
+ 
   // bpm
   params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::bpm, 1), "Bpm", 20, 300, 120));
 
@@ -288,10 +283,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
   params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::pulsarSustain, 1), "Pulsar Sustain", 0.01, 1.0, 1.0));
   params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::pulsarRelease, 1), "Pulsar Release", 0.0, 1.0, 0.0));
 
-  // granular
-  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::grainSize, 1), "Grain Size (ms)", 10.0, 1000.0, 100.0));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::grainWet, 1), "Grain Wet (ms)", 0.0, 1.0, 1.0));
-
   return {params.begin(), params.end()};
 }
 
@@ -314,7 +305,7 @@ void AudioPluginAudioProcessor::parameterChanged(const juce::String &parameterID
     pulsarSynthEngine.executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) {
       bool isGeneratedStochasticMaskFlag = false;
       synth->parameterChanged(apvts, parameterID, newValue, isGeneratedStochasticMaskFlag);
-
+      
       // UI变更，通过广播实现，不要用setproperty，会触发propertyvalue监听，但editor不存在则调用报错，但广播则不会
       sendChangeMessage();
     });

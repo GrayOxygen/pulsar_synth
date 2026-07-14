@@ -68,14 +68,14 @@ private:
   std::atomic<bool> enterNextTrain{false};
 
   //===========================waveform grain pool===========================
-  static constexpr int MAX_WAVEFORM_GRAINS = 8;
+  static constexpr int MAX_WAVEFORM_GRAINS = 32;
   struct WaveformGrain {
     float phase = 0.0f;
     float phaseInc = 0.0f;
     bool active = false;
     int remainSamples = 0;
-    float amplitude = 0;
-  };
+    float baseFreq = 0.0f;
+   };
   WaveformGrain waveformGrains[MAX_WAVEFORM_GRAINS];
   int waveformGrainWriteIdx = 0;
 

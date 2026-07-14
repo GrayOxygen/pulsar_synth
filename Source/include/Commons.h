@@ -55,14 +55,7 @@ enum class ImpulseSwitchEnum { Off = 0, Template = 1, Sample = 2 };
  * mask combobox option
  */
 enum class MaskOptionEnum { Off = 0, BurstMask = 1, EuclidMask = 2, StochasticMask = 3 };
-
-/**
- * play mode
- */
-enum class PlayModeEnum {
-  NotSelected = 0, // no sound
-  Auto = 1         // triggered by playback of DAW
-};
+ 
 
 /**
  * audio parameter name
@@ -91,10 +84,7 @@ struct ParameterID {
   static constexpr const char *pulsarDecay = "pulsarDecay";
   static constexpr const char *pulsarSustain = "pulsarSustain";
   static constexpr const char *pulsarRelease = "pulsarRelease";
-  static constexpr const char *playMode = "playMode";
-  static constexpr const char *grainSize = "grainSize";
-  static constexpr const char *grainWet = "grainWet";
-};
+  };
 
 // Some UI elements cannot be bound to audio parameters, so preset and UI
 // updates cannot be automated. Instead, the state is saved manually using
@@ -103,8 +93,7 @@ struct PropertyID {
   static constexpr const char *burstMask = "burstMask";
   static constexpr const char *stochasticMask = "stochasticMask";
   static constexpr const char *sampleImpulsePath = "sampleImpulsePath";
-  static constexpr const char *currentPlayModeEnum = "currentPlayModeEnum";
-};
+ };
 
 /**
  * c++ enumeration does not support directly obtaining all the names of the
@@ -149,15 +138,7 @@ void setRandomIndexToOne(std::string &binaryString);
  * @return 如00011101
  */
 std::string generateBinaryString(int length);
-
-/**
- * c++ enumeration does not support directly obtaining all the names of the
- * enumeration as in java, so a separate method is used to solve it
- *
- * @return play modes
- */
-juce::StringArray getPlayModeArray();
-
+  
 /**
  * Simple 1D Perlin noise generator for smooth PRF modulation
  */
