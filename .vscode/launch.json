@@ -1,16 +1,18 @@
 {
     "version": "0.2.0",
-    "configurations": [ // 不能用c++官方的调试，只能在visual studio里用，所以，调试改用lldb
+    "configurations": [
         {
-            "name": "Attach Reaper (LLDB)",
+            "name": "Debug Standalone App",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/pulsar_synth_artefacts/Debug/Standalone/Pulsar Wang.app/Contents/MacOS/Pulsar Wang",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Attach to DAW",
             "type": "lldb",
             "request": "attach",
-            "pid": "${command:pickProcess}",
-            "program": "G:/apps/REAPER/reaper.exe",
-            "cwd": "G:/apps/REAPER",
-            "sourceLanguages": [
-                "cpp"
-            ]
+            "pid": "${command:pickProcess}"
         }
     ]
 }

@@ -39,10 +39,12 @@ include_directories(${CMAKE_SOURCE_DIR}/Source/)
 ########################自定义########################
 
 # JUCE path configuration
-# Default Windows path, can be overridden with -DPULSAR_JUCE_DIR=...
-set(DEFAULT_JUCE_DIR "E:/env/juce-7.0.12-windows/JUCE")
-# 确保这一行存在，并且路径是你电脑里真实的 JUCE 路径
-set(JUCE_DIR "E:/env/juce-7.0.12-windows/JUCE")
+# Default path based on platform
+if(APPLE)
+    set(DEFAULT_JUCE_DIR "/Applications/JUCE")
+elseif(WIN32)
+    set(DEFAULT_JUCE_DIR "E:/env/juce-7.0.12-windows/JUCE")
+endif()
 
 set(JUCE_DIR "$ENV{PULSAR_JUCE_DIR}")
 if(NOT JUCE_DIR)
@@ -176,7 +178,7 @@ target_compile_definitions(pulsar_synth
 # )
 
 # 指定参数是否输出resources 看setting中cmake的cmake.configureArgs
-option(EMBED_RESOURCES "Embed wav resources" OFF)
+option(EMBED_RESOURCES "Embed wav resources" ON)
  
 if(EMBED_RESOURCES) 
     file(GLOB_RECURSE RESOURCE_FILES
@@ -220,9 +222,15 @@ target_include_directories(pulsar_synth PRIVATE
 )
 
 if(TARGET pulsar_synth_Standalone)
-    install(TARGETS pulsar_synth_Standalone
-        RUNTIME DESTINATION bin
-    )
+    if(APPLE)
+        install(TARGETS pulsar_synth_Standalone
+            BUNDLE DESTINATION .
+        )
+    else()
+        install(TARGETS pulsar_synth_Standalone
+            RUNTIME DESTINATION bin
+        )
+    endif()
 endif()
 
 set(PULSAR_ARTEFACTS_DIR "${CMAKE_BINARY_DIR}/pulsar_synth_artefacts")
