@@ -115,7 +115,7 @@ void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerB
   highPassFilter.prepare(spec);
 
   // 使用公共 API 设置系数（ProcessorDuplicator 通过 *state 共享系数给所有声道）
-  *highPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 20.0f, 2.0f);
+  *highPassFilter.state = *juce::dsp::IIR::Coefficients<float>::makeHighPass(sampleRate, 30.0f, 2.0f);
 }
 
 void AudioPluginAudioProcessor::releaseResources() {
@@ -163,8 +163,8 @@ void AudioPluginAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, j
   juce::dsp::ProcessContextReplacing<float> context(block);
 
   // 对音频块应用高通滤波
-  highPassFilter.process(juce::dsp::ProcessContextReplacing<float>(block));
-  limiter.process(context);
+  // highPassFilter.process(juce::dsp::ProcessContextReplacing<float>(block));
+  // limiter.process(context);
 }
 
 //==============================================================================
@@ -273,9 +273,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout AudioPluginAudioProcessor::c
 
   //   modulation depth
   params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::ampLfoDepth, 1), "AM LFO Depth", 0.0, 1.0, 0.0));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::formantFreqLfoDepth, 1), "FM LFO Depth", 0.0, 1.0, 0.0));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::dutyCycleRatioDepth, 1), "Duty Cycle Ratio Depth", 0.0, 1.0, 1.0));
-  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::dutyCycleClusterDepth, 1), "Duty Cycle Cluster Depth", 0.0, 1.0, 1.0));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::formantFreqLfoDepth, 1), "FM LFO Depth", 0.01, 1.0, 0.0));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::dutyCycleRatioDepth, 1), "Duty Cycle Ratio Depth", 0.01, 1.0, 1.0));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::dutyCycleClusterDepth, 1), "Duty Cycle Cluster Depth", 0.01, 1.0, 1.0));
+  params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::fmLfoDepth, 1), "FM Lfo Depth", 0.01, 1.0, 1.0));
 
   // envelope
   params.push_back(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID(why::ParameterID::pulsarAttack, 1), "Pulsar Attack", 0.0, 1.0, 0.0));
@@ -305,7 +306,7 @@ void AudioPluginAudioProcessor::parameterChanged(const juce::String &parameterID
     pulsarSynthEngine.executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) {
       bool isGeneratedStochasticMaskFlag = false;
       synth->parameterChanged(apvts, parameterID, newValue, isGeneratedStochasticMaskFlag);
-      
+
       // UI变更，通过广播实现，不要用setproperty，会触发propertyvalue监听，但editor不存在则调用报错，但广播则不会
       sendChangeMessage();
     });

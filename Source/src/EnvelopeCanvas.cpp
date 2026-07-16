@@ -34,20 +34,57 @@ void EnvelopeCanvas::setEnvelopeData(const std::array<float, EnvelopeCanvas::ENV
 
 std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> EnvelopeCanvas::getEnvelopeData() const { return envelopeData; }
 
-float EnvelopeCanvas::getEnvelopeValueAtPhase(float phase) const {
-  // phase: 0.0 - 1.0, clamp and wrap
-  phase = std::fmod(std::abs(phase), 1.0f);
+// float EnvelopeCanvas::getEnvelopeValueAtPhase(float phase) const {
+//   // phase: 0.0 - 1.0, clamp and wrap
+//   phase = std::fmod(std::abs(phase), 1.0f);
 
-  constexpr int size = ENVELOPE_SIZE;
-  float indexF = phase * (size - 1);
-  int index = static_cast<int>(indexF);
-  float frac = indexF - index;
+//   constexpr int size = ENVELOPE_SIZE;
+//   float indexF = phase * (size - 1);
+//   int index = static_cast<int>(indexF);
+//   float frac = indexF - index;
 
-  // 线性插值
-  float val1 = envelopeData[std::min(index, size - 1)];
-  float val2 = envelopeData[std::min(index + 1, size - 1)];
+//   // 线性插值
+//   float val1 = envelopeData[std::min(index, size - 1)];
+//   float val2 = envelopeData[std::min(index + 1, size - 1)];
 
-  return val1 + frac * (val2 - val1);
+//   return val1 + frac * (val2 - val1); 
+// }
+// loop crossfade: 保证waveform扫描到尾部后回到头部，不会出现明显咔哒声
+float EnvelopeCanvas::getEnvelopeValueAtPhase(float phase) const
+{
+    phase = std::fmod(std::abs(phase), 1.0f);
+    
+    constexpr int size = ENVELOPE_SIZE;
+    constexpr float crossfadeRatio = 0.1f;   // 最后3%进行crossfade
+
+    auto sampleAt = [&](float p)
+    {
+        p = std::fmod(std::abs(p), 1.0f);
+
+        float indexF = p * (size - 1);
+        int index = static_cast<int>(indexF);
+        float frac = indexF - index;
+
+        float v1 = envelopeData[index];
+        float v2 = envelopeData[(index + 1) % size];
+
+        return v1 + frac * (v2 - v1);
+    };
+
+    // 普通区域
+    if (phase < 1.0f - crossfadeRatio)
+        return sampleAt(phase);
+
+    // 最后crossfade区域
+    float t = (phase - (1.0f - crossfadeRatio)) / crossfadeRatio;
+
+    float tail = sampleAt(phase);
+
+    // 映射到开头
+    float headPhase = (phase - (1.0f - crossfadeRatio)) / crossfadeRatio;
+    float head = sampleAt(headPhase);
+
+    return tail * (1.0f - t) + head * t;
 }
 
 void EnvelopeCanvas::setYAxisRange(float minVal, float maxVal) {
@@ -212,7 +249,7 @@ void EnvelopeCanvas::drawEnvelope(juce::Graphics &g) {
   }
 
   // 更细的线条
-  g.strokePath(path, juce::PathStrokeType(0.1f));
+  g.strokePath(path, juce::PathStrokeType(0.01f));
 
   // 填充区域
   path.lineTo(static_cast<float>(getWidth()), static_cast<float>(getHeight()));
@@ -228,7 +265,7 @@ void EnvelopeCanvas::drawEnvelope(juce::Graphics &g) {
   for (int i = 0; i < size; i += pointSpacing) {
     float x = static_cast<float>(i) / (size - 1) * getWidth();
     float y = static_cast<float>(valueToY(envelopeData[i]));
-    g.fillEllipse(x - 1.5f, y - 1.5f, 3.0f, 3.0f);
+    g.fillEllipse(x - 1.5f, y - 1.5f, 1.0f, 1.0f);
   }
 }
 

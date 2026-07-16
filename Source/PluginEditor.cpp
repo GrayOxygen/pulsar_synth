@@ -112,7 +112,7 @@ void AudioPluginAudioProcessorEditor::resized() {
 
   this->midFlexBox(midFlexBox, row10, row11, row12, row13, row14, row15, attackFlexBox, decayFlexBox, sustainFlexBox, releaseFlexBox);
 
-  // AM/FM 包络行 - 在最底部单独一行，水平均分
+  // ================== AM/FM 包络行 - 在最底部单独一行，水平均分 ==================
   juce::FlexBox amFmRowFlexBox;
   amFmRowFlexBox.flexDirection = juce::FlexBox::Direction::row;
   amFmRowFlexBox.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
@@ -140,20 +140,20 @@ void AudioPluginAudioProcessorEditor::resized() {
   juce::FlexBox formantLfoDepthFlexBox;
   formantLfoDepthFlexBox.flexDirection = juce::FlexBox::Direction::column;
   formantLfoDepthFlexBox.alignContent = juce::FlexBox::AlignContent::flexStart;
-  formantLfoDepthFlexBox.items.add(juce::FlexItem(fmLfoDepthLabel).withFlex(1).withMaxHeight(20));
-  formantLfoDepthFlexBox.items.add(juce::FlexItem(fmLfoDepthSlider).withFlex(2.0));
+  formantLfoDepthFlexBox.items.add(juce::FlexItem(fmEnvelopeDepthLabel).withFlex(1).withMaxHeight(20));
+  formantLfoDepthFlexBox.items.add(juce::FlexItem(fmEnvelopeDepthSlider).withFlex(2.0));
   amFmRowFlexBox.items.add(juce::FlexItem(formantLfoDepthFlexBox).withFlex(0.3f));
 
   juce::FlexBox fmEnvelopeFlexBox;
   fmEnvelopeFlexBox.flexDirection = juce::FlexBox::Direction::column;
   fmEnvelopeFlexBox.alignContent = juce::FlexBox::AlignContent::flexStart;
   fmEnvelopeFlexBox.items.add(juce::FlexItem(fmEnvelopeLabel).withFlex(0.5).withMaxHeight(18));
-  fmEnvelopeFlexBox.items.add(juce::FlexItem(fmEnvControlRow).withFlex(0.5).withMaxHeight(24));
-  fmEnvelopeFlexBox.items.add(juce::FlexItem(fmEnvRangeRow).withFlex(0.5).withMaxHeight(32));
+  fmEnvelopeFlexBox.items.add(juce::FlexItem(fmEnvelopeControlRow).withFlex(0.5).withMaxHeight(24));
+  fmEnvelopeFlexBox.items.add(juce::FlexItem(fmEnvelopeRangeRow).withFlex(0.5).withMaxHeight(32));
   fmEnvelopeFlexBox.items.add(juce::FlexItem(fmEnvelopeCanvas).withFlex(2.0).withMinHeight(120));
   amFmRowFlexBox.items.add(juce::FlexItem(fmEnvelopeFlexBox).withFlex(1.0f));
 
-  // duty cycle ratio/pulsar cluster 包络行 - 在最底部单独一行，水平均分
+  // ================== duty cycle ratio/pulsar cluster 包络行 - 在最底部单独一行，水平均分 ==================
   juce::FlexBox pulsarLengthRowFlexBox;
   pulsarLengthRowFlexBox.flexDirection = juce::FlexBox::Direction::row;
   pulsarLengthRowFlexBox.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
@@ -192,7 +192,29 @@ void AudioPluginAudioProcessorEditor::resized() {
   dutyCycleClusterEnvelopeFlexBox.items.add(juce::FlexItem(dutyCycleClusterEnvelopeCanvas).withFlex(2.0).withMinHeight(120));
   pulsarLengthRowFlexBox.items.add(juce::FlexItem(dutyCycleClusterEnvelopeFlexBox).withFlex(1.0f));
 
-  // Pg Waveform 包络行
+  // ================== fm lfo 行 ==================
+  juce::FlexBox amFmLfoRowFlexBox;
+  amFmLfoRowFlexBox.flexDirection = juce::FlexBox::Direction::row;
+  amFmLfoRowFlexBox.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+  amFmLfoRowFlexBox.alignContent = juce::FlexBox::AlignContent::flexStart;
+
+  juce::FlexBox fmLfoDepthFlexBox;
+  fmLfoDepthFlexBox.flexDirection = juce::FlexBox::Direction::column;
+  fmLfoDepthFlexBox.alignContent = juce::FlexBox::AlignContent::flexStart;
+  fmLfoDepthFlexBox.items.add(juce::FlexItem(fmLfoDepthLabel).withFlex(1).withMaxHeight(20));
+  fmLfoDepthFlexBox.items.add(juce::FlexItem(fmLfoDepthSlider).withFlex(2.0));
+  amFmLfoRowFlexBox.items.add(juce::FlexItem(fmLfoDepthFlexBox).withFlex(0.3f));
+
+  juce::FlexBox fmLfoFlexBox;
+  fmLfoFlexBox.flexDirection = juce::FlexBox::Direction::column;
+  fmLfoFlexBox.alignContent = juce::FlexBox::AlignContent::flexStart;
+  fmLfoFlexBox.items.add(juce::FlexItem(fmLfoLabel).withFlex(0.5).withMaxHeight(18));
+  fmLfoFlexBox.items.add(juce::FlexItem(fmLfoControlRow).withFlex(0.5).withMaxHeight(24));
+  fmLfoFlexBox.items.add(juce::FlexItem(fmLfoRangeRow).withFlex(0.5).withMaxHeight(32));
+  fmLfoFlexBox.items.add(juce::FlexItem(fmLfoCanvas).withFlex(2.0).withMinHeight(120));
+  amFmLfoRowFlexBox.items.add(juce::FlexItem(fmLfoFlexBox).withFlex(1.0f));
+
+  // ================== Pg Waveform 包络行 ==================
   juce::FlexBox pgWaveformRowFlexBox;
   pgWaveformRowFlexBox.flexDirection = juce::FlexBox::Direction::row;
   pgWaveformRowFlexBox.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
@@ -205,13 +227,14 @@ void AudioPluginAudioProcessorEditor::resized() {
   pgWaveformEnvelopeFlexBox.items.add(juce::FlexItem(pgWaveformEnvControlRow).withFlex(0.5).withMaxHeight(24));
   pgWaveformEnvelopeFlexBox.items.add(juce::FlexItem(pgWaveformEnvelopeCanvas).withFlex(2.0).withMinHeight(80));
   pgWaveformRowFlexBox.items.add(juce::FlexItem(pgWaveformEnvelopeFlexBox).withFlex(1.0f));
-
+  
   // Overall combination, withMargin: up, right, down, left
-  mainFlexBox.items.add(juce::FlexItem(topFlexBox).withFlex(0.8).withMargin({20, 20, 0, 20}));
+  mainFlexBox.items.add(juce::FlexItem(topFlexBox).withFlex(0.5).withMargin({20, 20, 0, 20}));
   mainFlexBox.items.add(juce::FlexItem(midFlexBox).withFlex(0.9).withMargin({20, 20, 0, 20}));
-  mainFlexBox.items.add(juce::FlexItem(amFmRowFlexBox).withFlex(2.0).withMargin({20, 20, 20, 20}));
-  mainFlexBox.items.add(juce::FlexItem(pulsarLengthRowFlexBox).withFlex(2.0).withMargin({20, 20, 20, 20}));
-  mainFlexBox.items.add(juce::FlexItem(pgWaveformRowFlexBox).withFlex(2.0).withMargin({20, 20, 20, 20}));
+  mainFlexBox.items.add(juce::FlexItem(amFmRowFlexBox).withFlex(2.0).withMargin({10, 10, 20, 20}));
+  mainFlexBox.items.add(juce::FlexItem(amFmLfoRowFlexBox).withFlex(2.0).withMargin({10, 10, 20, 20}));
+  mainFlexBox.items.add(juce::FlexItem(pulsarLengthRowFlexBox).withFlex(2.0).withMargin({10, 10, 20, 20}));
+  mainFlexBox.items.add(juce::FlexItem(pgWaveformRowFlexBox).withFlex(1.5).withMargin({10, 10, 20, 20}));
   mainFlexBox.performLayout(area);
 
   // 为 Pg Waveform 包络容器内的控件设置布局
@@ -242,12 +265,12 @@ void AudioPluginAudioProcessorEditor::resized() {
   ampEnvelopeScaleSlider.setBounds(rangeBounds);
 
   // 为 FM 包络容器内的控件设置布局
-  auto fmControlBounds = fmEnvControlRow.getLocalBounds();
+  auto fmControlBounds = fmEnvelopeControlRow.getLocalBounds();
   fmEnvelopeClearButton.setBounds(fmControlBounds.removeFromLeft(fmControlBounds.getWidth() * 0.333f));
   fmEnvelopeRandomButton.setBounds(fmControlBounds.removeFromLeft(fmControlBounds.getWidth() * 0.5f));
   fmEnvelopeLoadFileButton.setBounds(fmControlBounds);
 
-  auto fmRangeBounds = fmEnvRangeRow.getLocalBounds();
+  auto fmRangeBounds = fmEnvelopeRangeRow.getLocalBounds();
   int fmLabelWidth = 30;
   int fmSliderWidth = juce::jmax(20, (fmRangeBounds.getWidth() - fmLabelWidth * 3) / 3);
   fmEnvelopeYMinLabel.setBounds(fmRangeBounds.removeFromLeft(fmLabelWidth));
@@ -256,7 +279,7 @@ void AudioPluginAudioProcessorEditor::resized() {
   fmEnvelopeYMaxSlider.setBounds(fmRangeBounds.removeFromLeft(fmSliderWidth));
   fmEnvelopeScaleLabel.setBounds(fmRangeBounds.removeFromLeft(fmLabelWidth));
   fmEnvelopeScaleSlider.setBounds(fmRangeBounds);
-
+  
   // 为 duty cycle ratio 包络容器内的控件设置布局
   auto dutyCycleRatioControlBounds = dutyCycleRatioEnvControlRow.getLocalBounds();
   dutyCycleRatioEnvelopeClearButton.setBounds(dutyCycleRatioControlBounds.removeFromLeft(dutyCycleRatioControlBounds.getWidth() * 0.333f));
@@ -288,6 +311,22 @@ void AudioPluginAudioProcessorEditor::resized() {
   dutyCycleClusterEnvelopeYMaxSlider.setBounds(dutyCycleClusterRangeBounds.removeFromLeft(clusterSliderWidth));
   dutyCycleClusterEnvelopeScaleLabel.setBounds(dutyCycleClusterRangeBounds.removeFromLeft(clusterLabelWidth));
   dutyCycleClusterEnvelopeScaleSlider.setBounds(dutyCycleClusterRangeBounds);
+  
+  // 为 FM lfo 容器内的控件设置布局
+  auto fmLfoControlBounds = fmLfoControlRow.getLocalBounds();
+  fmLfoClearButton.setBounds(fmLfoControlBounds.removeFromLeft(fmLfoControlBounds.getWidth() * 0.333f));
+  fmLfoRandomButton.setBounds(fmLfoControlBounds.removeFromLeft(fmLfoControlBounds.getWidth() * 0.5f));
+  fmLfoLoadFileButton.setBounds(fmLfoControlBounds);
+  
+  auto fmLfoRangeBounds = fmLfoRangeRow.getLocalBounds();
+  int fmLfoLabelWidth = 30;
+  int fmLfoSliderWidth = juce::jmax(20, (fmLfoRangeBounds.getWidth() - fmLfoLabelWidth * 3) / 3);
+  fmLfoYMinLabel.setBounds(fmLfoRangeBounds.removeFromLeft(fmLfoLabelWidth));
+  fmLfoYMinSlider.setBounds(fmLfoRangeBounds.removeFromLeft(fmLfoSliderWidth));
+  fmLfoYMaxLabel.setBounds(fmLfoRangeBounds.removeFromLeft(fmLfoLabelWidth));
+  fmLfoYMaxSlider.setBounds(fmLfoRangeBounds.removeFromLeft(fmLfoSliderWidth));
+  fmLfoScaleLabel.setBounds(fmLfoRangeBounds.removeFromLeft(fmLfoLabelWidth));
+  fmLfoScaleSlider.setBounds(fmLfoRangeBounds); 
 }
 
 /**
@@ -311,7 +350,7 @@ void AudioPluginAudioProcessorEditor::refreshUIFromPreset() {
     if (stochasticMaskTextEditor.getText() != stochasticMaskText) {
       stochasticMaskTextEditor.setText(stochasticMaskText, juce::dontSendNotification);
     }
-  } 
+  }
 }
 
 /**
@@ -371,6 +410,12 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
     auto envelopeData = pgWaveformEnvelopeCanvas.getEnvelopeData();
     processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setPgWaveformEnvelopeData(envelopeData); });
   }
+
+  // FM 包络画布数据变化时同步到 synth
+  if (source == &fmLfoCanvas) {
+    auto envelopeData = fmLfoCanvas.getEnvelopeData();
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setFmLfoData(envelopeData); });
+  }
 }
 
 //===================================核心逻辑
@@ -382,7 +427,7 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
  * @param trainDutyCycleFlexBox train duty cyle flexbox in a row
  * @param trainSilenceLenFlexBox train silence length flexbox in a row
  * @param bpmFlexBox bpm flexbox in a row
-  * file ui elements in a row
+ * file ui elements in a row
  */
 void AudioPluginAudioProcessorEditor::topFlexBox(juce::FlexBox &flexBoxTop, std::shared_ptr<juce::FlexBox> trainLenFlexBox, std::shared_ptr<juce::FlexBox> trainDutyCycleFlexBox,
                                                  std::shared_ptr<juce::FlexBox> trainSilenceLenFlexBox, std::shared_ptr<juce::FlexBox> bpmFlexBox) {
@@ -441,7 +486,7 @@ void AudioPluginAudioProcessorEditor::midFlexBox(juce::FlexBox &midFlexBox, std:
 
   triggerFlexBox->flexDirection = juce::FlexBox::Direction::column;
   triggerFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
-    // midFlexBox.items.add(juce::FlexItem(*triggerFlexBox).withFlex(1.0f));
+  // midFlexBox.items.add(juce::FlexItem(*triggerFlexBox).withFlex(1.0f));
 
   maskOptionFlexBox->flexDirection = juce::FlexBox::Direction::row;
   maskOptionFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
@@ -508,7 +553,7 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   // output gain
   addAndMakeVisible(outputGainLabel);
   addAndMakeVisible(outputGainSlider);
- 
+
   // bpm
   addAndMakeVisible(bpmSlider);
 
@@ -520,7 +565,6 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   addAndMakeVisible(trainLenLabel);
   addAndMakeVisible(trainDutyCycleLenLabel);
   addAndMakeVisible(trainSilenceLenLabel);
- 
 
   // Pg Waveform 包络控件
   addAndMakeVisible(pgWaveformEnvelopeCanvas);
@@ -568,24 +612,51 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
   addAndMakeVisible(fmEnvelopeYMinLabel);
   addAndMakeVisible(fmEnvelopeYMaxSlider);
   addAndMakeVisible(fmEnvelopeYMaxLabel);
-  addAndMakeVisible(fmLfoDepthSlider);
-  addAndMakeVisible(fmLfoDepthLabel);
+  addAndMakeVisible(fmEnvelopeDepthSlider);
+  addAndMakeVisible(fmEnvelopeDepthLabel);
   addAndMakeVisible(fmEnvelopeClearButton);
   addAndMakeVisible(fmEnvelopeRandomButton);
   addAndMakeVisible(fmEnvelopeLoadFileButton);
-  addAndMakeVisible(fmEnvControlRow);
-  addAndMakeVisible(fmEnvRangeRow);
+  addAndMakeVisible(fmEnvelopeControlRow);
+  addAndMakeVisible(fmEnvelopeRangeRow);
+
   // 将子控件添加到 FM 容器中
-  fmEnvControlRow.addAndMakeVisible(fmEnvelopeClearButton);
-  fmEnvControlRow.addAndMakeVisible(fmEnvelopeRandomButton);
-  fmEnvControlRow.addAndMakeVisible(fmEnvelopeLoadFileButton);
-  fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMinSlider);
-  fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMinLabel);
-  fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMaxSlider);
-  fmEnvRangeRow.addAndMakeVisible(fmEnvelopeYMaxLabel);
-  fmEnvRangeRow.addAndMakeVisible(fmEnvelopeScaleSlider);
-  fmEnvRangeRow.addAndMakeVisible(fmEnvelopeScaleLabel);
-  
+  fmEnvelopeControlRow.addAndMakeVisible(fmEnvelopeClearButton);
+  fmEnvelopeControlRow.addAndMakeVisible(fmEnvelopeRandomButton);
+  fmEnvelopeControlRow.addAndMakeVisible(fmEnvelopeLoadFileButton);
+  fmEnvelopeRangeRow.addAndMakeVisible(fmEnvelopeYMinSlider);
+  fmEnvelopeRangeRow.addAndMakeVisible(fmEnvelopeYMinLabel);
+  fmEnvelopeRangeRow.addAndMakeVisible(fmEnvelopeYMaxSlider);
+  fmEnvelopeRangeRow.addAndMakeVisible(fmEnvelopeYMaxLabel);
+  fmEnvelopeRangeRow.addAndMakeVisible(fmEnvelopeScaleSlider);
+  fmEnvelopeRangeRow.addAndMakeVisible(fmEnvelopeScaleLabel); 
+
+  // FM lfo 控件
+  addAndMakeVisible(fmLfoCanvas);
+  addAndMakeVisible(fmLfoLabel);
+  addAndMakeVisible(fmLfoYMinSlider);
+  addAndMakeVisible(fmLfoYMinLabel);
+  addAndMakeVisible(fmLfoYMaxSlider);
+  addAndMakeVisible(fmLfoYMaxLabel);
+  addAndMakeVisible(fmLfoDepthSlider);
+  addAndMakeVisible(fmLfoDepthLabel);
+  addAndMakeVisible(fmLfoClearButton);
+  addAndMakeVisible(fmLfoRandomButton);
+  addAndMakeVisible(fmLfoLoadFileButton);
+  addAndMakeVisible(fmLfoControlRow);
+  addAndMakeVisible(fmLfoRangeRow);
+
+  // 将子控件添加到 FM lfo 容器中
+  fmLfoControlRow.addAndMakeVisible(fmLfoClearButton);
+  fmLfoControlRow.addAndMakeVisible(fmLfoRandomButton);
+  fmLfoControlRow.addAndMakeVisible(fmLfoLoadFileButton);
+  fmLfoRangeRow.addAndMakeVisible(fmLfoYMinSlider);
+  fmLfoRangeRow.addAndMakeVisible(fmLfoYMinLabel);
+  fmLfoRangeRow.addAndMakeVisible(fmLfoYMaxSlider);
+  fmLfoRangeRow.addAndMakeVisible(fmLfoYMaxLabel);
+  fmLfoRangeRow.addAndMakeVisible(fmLfoScaleSlider);
+  fmLfoRangeRow.addAndMakeVisible(fmLfoScaleLabel);
+
   // dutyCycleRatio 包络控件
   addAndMakeVisible(dutyCycleRatioEnvelopeCanvas);
   addAndMakeVisible(dutyCycleRatioEnvelopeLabel);
@@ -664,13 +735,16 @@ void AudioPluginAudioProcessorEditor::makeVisible() {
  * set ui style
  */
 void AudioPluginAudioProcessorEditor::setUIStyle() {
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultFmData{};
+  defaultFmData.fill(0.0f);
+
   // output
   outputGainSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   outputGainSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
   outputGainSlider.setTextValueSuffix(" (db)");
 
-  outputGainLabel.setText("Output", juce::dontSendNotification); 
- 
+  outputGainLabel.setText("Output", juce::dontSendNotification);
+
   // bpm
   bpmSlider.setRange(30.0, 300.0, 1.0); // 合理BPM范围
   bpmSlider.setTextValueSuffix(" BPM");
@@ -697,7 +771,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   trainSilenceLenSlider.setTextValueSuffix(" (count)");
 
   trainSilenceLenLabel.setText("Train Silence", juce::dontSendNotification);
- 
+
   // ========================== Pg Waveform 包络绘制控件样式 ==========================
   pgWaveformEnvelopeLabel.setText("Pg Waveform (Drawn)", juce::dontSendNotification);
   pgWaveformEnvelopeCanvas.setYAxisRange(-1.0f, 1.0f);
@@ -753,21 +827,21 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
 
   fmEnvelopeYMinSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   fmEnvelopeYMinSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
-  fmEnvelopeYMinSlider.setRange(-24.0 * 3, 0.0, -24.0 * 3);
-  fmEnvelopeYMinSlider.setValue(0.0);
+  fmEnvelopeYMinSlider.setRange(1.0f, 1000.0f, 1.0f);
+  fmEnvelopeYMinSlider.setValue(1.0f);
   fmEnvelopeYMinLabel.setText("Min", juce::dontSendNotification);
 
   fmEnvelopeYMaxSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   fmEnvelopeYMaxSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
-  fmEnvelopeYMaxSlider.setRange(1.0, 24.0 * 3, 1);
-  fmEnvelopeYMaxSlider.setValue(24.0 * 3);
+  fmEnvelopeYMaxSlider.setRange(1000.0, 3700, 1);
+  fmEnvelopeYMaxSlider.setValue(3700);
   fmEnvelopeYMaxLabel.setText("Max", juce::dontSendNotification);
 
-  fmLfoDepthSlider.setSliderStyle(juce::Slider::LinearVertical);
-  fmLfoDepthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
-  fmLfoDepthSlider.setTextValueSuffix("");
-  fmLfoDepthSlider.setRange(0.0, 1.0, 0.01);
-  fmLfoDepthLabel.setText("FM Depth", juce::dontSendNotification);
+  fmEnvelopeDepthSlider.setSliderStyle(juce::Slider::LinearVertical);
+  fmEnvelopeDepthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+  fmEnvelopeDepthSlider.setTextValueSuffix("");
+  fmEnvelopeDepthSlider.setRange(0.0, 1.0, 0.01);
+  fmEnvelopeDepthLabel.setText("Depth", juce::dontSendNotification);
 
   fmEnvelopeScaleSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   fmEnvelopeScaleSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
@@ -778,9 +852,40 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   fmEnvelopeCanvas.setYAxisRange(-24.0f * 3, 24.0f * 3);
 
   // FM 包络默认值为 0.0（无调制）
-  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultFmData{};
-  defaultFmData.fill(0.0f);
   fmEnvelopeCanvas.setEnvelopeData(defaultFmData);
+
+  // ========================== FM lfo 绘制控件样式 ==========================
+  fmLfoLabel.setText("FM Lfo", juce::dontSendNotification);
+
+  fmLfoYMinSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+  fmLfoYMinSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
+  fmLfoYMinSlider.setRange(0.1f, 1.0f, 0.1f);
+  fmLfoYMinSlider.setValue(1.0f);
+  fmLfoYMinLabel.setText("Min", juce::dontSendNotification);
+
+  fmLfoYMaxSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+  fmLfoYMaxSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
+  fmLfoYMaxSlider.setRange(2.0, 10, 0.1);
+  fmLfoYMaxSlider.setValue(10);
+  fmLfoYMaxLabel.setText("Max", juce::dontSendNotification);
+
+  fmLfoDepthSlider.setSliderStyle(juce::Slider::LinearVertical);
+  fmLfoDepthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
+  fmLfoDepthSlider.setTextValueSuffix("");
+  fmLfoDepthSlider.setRange(0.0, 1.0, 0.01);
+  fmLfoDepthLabel.setText("Depth", juce::dontSendNotification);
+
+  fmLfoScaleSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+  fmLfoScaleSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
+  fmLfoScaleSlider.setRange(0.1, 5.0, 0.01);
+  fmLfoScaleSlider.setValue(1.0);
+  fmLfoScaleLabel.setText("Scale", juce::dontSendNotification);
+
+  fmLfoCanvas.setYAxisRange(-24.0f * 3, 24.0f * 3);
+
+  // FM 包络默认值为 0.0（无调制）
+  defaultFmData.fill(1.0f);
+  fmLfoCanvas.setEnvelopeData(defaultFmData);
 
   // ========================== pulsar duty cycle ratio 包络绘制控件样式 ==========================
   dutyCycleRatioEnvelopeLabel.setText("Duty Cycle Ratio Envelope", juce::dontSendNotification);
@@ -801,7 +906,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   dutyCycleRatioDepthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
   dutyCycleRatioDepthSlider.setTextValueSuffix("");
   dutyCycleRatioDepthSlider.setRange(0.0, 1.0, 0.0);
-  dutyCycleRatioDepthLabel.setText("Duty Cycle Ratio Depth", juce::dontSendNotification);
+  dutyCycleRatioDepthLabel.setText("Depth", juce::dontSendNotification);
 
   dutyCycleRatioEnvelopeScaleSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   dutyCycleRatioEnvelopeScaleSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
@@ -820,13 +925,13 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
 
   dutyCycleClusterEnvelopeYMinSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   dutyCycleClusterEnvelopeYMinSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
-  dutyCycleClusterEnvelopeYMinSlider.setRange(1.0, 1.0, 1.0);
+  dutyCycleClusterEnvelopeYMinSlider.setRange(0.1, 1.0, 0.01);
   dutyCycleClusterEnvelopeYMinSlider.setValue(1.0);
   dutyCycleClusterEnvelopeYMinLabel.setText("Min", juce::dontSendNotification);
 
   dutyCycleClusterEnvelopeYMaxSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   dutyCycleClusterEnvelopeYMaxSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
-  dutyCycleClusterEnvelopeYMaxSlider.setRange(2.0, 16.0, 1.0);
+  dutyCycleClusterEnvelopeYMaxSlider.setRange(2.0, 16.0, 0.01);
   dutyCycleClusterEnvelopeYMaxSlider.setValue(16.0);
   dutyCycleClusterEnvelopeYMaxLabel.setText("Max", juce::dontSendNotification);
 
@@ -834,7 +939,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   dutyCycleClusterDepthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
   dutyCycleClusterDepthSlider.setTextValueSuffix("");
   dutyCycleClusterDepthSlider.setRange(1.0, 16.0, 1);
-  dutyCycleClusterDepthLabel.setText("Cluster Depth", juce::dontSendNotification);
+  dutyCycleClusterDepthLabel.setText("Depth", juce::dontSendNotification);
 
   dutyCycleClusterEnvelopeScaleSlider.setSliderStyle(juce::Slider::LinearHorizontal);
   dutyCycleClusterEnvelopeScaleSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
@@ -918,7 +1023,6 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
   stochasticMaskTextEditor.setReturnKeyStartsNewLine(false); // 按回车不换行（默认也是 false）
   stochasticMaskTextEditor.setInputRestrictions(0, "01");    // 限制只输入0或1
   stochasticMaskTextEditor.setTextToShowWhenEmpty("Generated mask will be here", juce::Colours::grey);
- 
 }
 
 /**
@@ -929,7 +1033,7 @@ void AudioPluginAudioProcessorEditor::setUIStyle() {
 void AudioPluginAudioProcessorEditor::connectUIAndAudioParameter() {
   // 绑定UI与Parameter
   outputGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::outputGain, outputGainSlider);
- 
+
   bpmAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::bpm, bpmSlider);
 
   // train
@@ -938,9 +1042,10 @@ void AudioPluginAudioProcessorEditor::connectUIAndAudioParameter() {
   trainSilenceAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::trainSilenceLen, trainSilenceLenSlider);
 
   ampLfoDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::ampLfoDepth, ampLfoDepthSlider);
-  formantFreqLfoDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::formantFreqLfoDepth, fmLfoDepthSlider);
+  fmEnvelopeDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::formantFreqLfoDepth, fmEnvelopeDepthSlider);
   dutyCycleRatioDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::dutyCycleRatioDepth, dutyCycleRatioDepthSlider);
   dutyCycleClusterDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::dutyCycleClusterDepth, dutyCycleClusterDepthSlider);
+  fmLfoDepthAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::fmLfoDepth, fmLfoDepthSlider);
 
   attackAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::pulsarAttack, attackSlider);
   decayAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(processorRef.apvts, why::ParameterID::pulsarDecay, decaySlider);
@@ -1010,6 +1115,32 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   fmEnvelopeClearButton.onClick = [this] { fmEnvelopeCanvas.clearEnvelope(0.0f); };
   fmEnvelopeRandomButton.onClick = [this] { fmEnvelopeCanvas.randomize(); };
 
+  // fm lfo
+  fmLfoCanvas.addChangeListener(this);
+
+  // FM Y轴范围变化时更新包络画布
+  fmLfoYMinSlider.onValueChange = [this] {
+    float yMin = fmLfoYMinSlider.getValue();
+    float yMax = fmLfoYMaxSlider.getValue();
+    fmLfoCanvas.setYAxisRange(yMin, yMax);
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setFmLfoYRange(yMin, yMax); });
+  };
+
+  fmLfoYMaxSlider.onValueChange = [this] {
+    float yMin = fmLfoYMinSlider.getValue();
+    float yMax = fmLfoYMaxSlider.getValue();
+    fmLfoCanvas.setYAxisRange(yMin, yMax);
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setFmLfoYRange(yMin, yMax); });
+  };
+
+  fmLfoScaleSlider.onValueChange = [this] {
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setFmLfoScale(static_cast<float>(fmLfoScaleSlider.getValue())); });
+  };
+
+  // 清空 FM 按钮
+  fmLfoClearButton.onClick = [this] { fmLfoCanvas.clearEnvelope(1.0f); };
+  fmLfoRandomButton.onClick = [this] { fmLfoCanvas.randomize(); };
+
   // =================== duty cycle ratio 包络绘制事件：当包络被绘制时，同步到 synth ===================
   dutyCycleRatioEnvelopeCanvas.addChangeListener(this);
 
@@ -1029,7 +1160,8 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   };
 
   dutyCycleRatioEnvelopeScaleSlider.onValueChange = [this] {
-    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setDutyCycleRatioEnvelopeScale(static_cast<float>(dutyCycleRatioEnvelopeScaleSlider.getValue())); });
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback(
+        [&](std::shared_ptr<PulsarSynth> &synth) { synth->setDutyCycleRatioEnvelopeScale(static_cast<float>(dutyCycleRatioEnvelopeScaleSlider.getValue())); });
   };
 
   // 清空包络按钮
@@ -1056,7 +1188,8 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   };
 
   dutyCycleClusterEnvelopeScaleSlider.onValueChange = [this] {
-    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setDutyCycleClusterEnvelopeScale(static_cast<float>(dutyCycleClusterEnvelopeScaleSlider.getValue())); });
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback(
+        [&](std::shared_ptr<PulsarSynth> &synth) { synth->setDutyCycleClusterEnvelopeScale(static_cast<float>(dutyCycleClusterEnvelopeScaleSlider.getValue())); });
   };
 
   // 清空包络按钮
@@ -1075,7 +1208,8 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   pgWaveformEnvelopeRandomButton.onClick = [this] { pgWaveformEnvelopeCanvas.randomize(); };
 
   pgWaveformEnvelopeScaleSlider.onValueChange = [this] {
-    processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setPgWaveformEnvelopeScale(static_cast<float>(pgWaveformEnvelopeScaleSlider.getValue())); });
+    processorRef.getPulsarSynthEngine().executeCurSynthCallback(
+        [&](std::shared_ptr<PulsarSynth> &synth) { synth->setPgWaveformEnvelopeScale(static_cast<float>(pgWaveformEnvelopeScaleSlider.getValue())); });
   };
 
   pgWaveformLoadFileButton.onClick = [this] {
@@ -1096,9 +1230,7 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
       if (numSrcSamples <= 0)
         return;
 
-      int readSamples = (numSrcSamples > (int64)std::numeric_limits<int>::max() / 2)
-                            ? static_cast<int>(std::numeric_limits<int>::max() / 2)
-                            : static_cast<int>(numSrcSamples);
+      int readSamples = (numSrcSamples > (int64)std::numeric_limits<int>::max() / 2) ? static_cast<int>(std::numeric_limits<int>::max() / 2) : static_cast<int>(numSrcSamples);
       juce::AudioBuffer<float> srcBuffer(1, readSamples);
       reader->read(&srcBuffer, 0, srcBuffer.getNumSamples(), 0, true, false);
 
@@ -1138,9 +1270,7 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
       if (numSrcSamples <= 0)
         return;
 
-      int readSamples = (numSrcSamples > (int64)std::numeric_limits<int>::max() / 2)
-                            ? static_cast<int>(std::numeric_limits<int>::max() / 2)
-                            : static_cast<int>(numSrcSamples);
+      int readSamples = (numSrcSamples > (int64)std::numeric_limits<int>::max() / 2) ? static_cast<int>(std::numeric_limits<int>::max() / 2) : static_cast<int>(numSrcSamples);
       juce::AudioBuffer<float> srcBuffer(1, readSamples);
       reader->read(&srcBuffer, 0, srcBuffer.getNumSamples(), 0, true, false);
 
@@ -1167,6 +1297,8 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   fmEnvelopeLoadFileButton.onClick = [this, loadAudioToEnvelope] { loadAudioToEnvelope(fmEnvelopeCanvas); };
   dutyCycleRatioEnvelopeLoadFileButton.onClick = [this, loadAudioToEnvelope] { loadAudioToEnvelope(dutyCycleRatioEnvelopeCanvas); };
   dutyCycleClusterEnvelopeLoadFileButton.onClick = [this, loadAudioToEnvelope] { loadAudioToEnvelope(dutyCycleClusterEnvelopeCanvas); };
+  fmLfoLoadFileButton.onClick = [this, loadAudioToEnvelope] { loadAudioToEnvelope(fmLfoCanvas); };
+
   // ===============================================================================================
 
   // burst mask text editor回车，没有attachment，需要手动更新synth状态
@@ -1197,12 +1329,12 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   // euclid联动设置：始终保持hit<=step
   euclidStepSlider.onValueChange = [&] { rebalanceStepHitValueDisplay(); };
   euclidHitSlider.onValueChange = [&] { rebalanceStepHitValueDisplay(); };
- 
+
   // 强制更新synth依赖的bpm
   bpmSlider.onValueChange = [&] {
     processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->forceRefreshBpmAndRebuildTrain(bpmSlider.getValue()); });
   };
- 
+
   maskOptionComboBox.onChange = [&] {
     // 只在选中stochastic mask时才展示生成的随机mask
     if (maskOptionComboBox.getSelectedItemIndex() == static_cast<int>(why::MaskOptionEnum::StochasticMask)) {

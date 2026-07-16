@@ -54,8 +54,6 @@ private:
   // Count of pulsar stage change times, used to determine which value through the mask whether to release Before mask processing,
   // the train dutycycle is composed of multiple pulsar periods. For example, pulse silence represents 1, 2, 3, 4... 从1开始
   int pulsarStageIndexInTrainDutyCycle = 0;
-  // pulsaret phase
-  float pulsaretPhase = 0.0f;
   // envelope scan across the whole train period (0..2048 mapped to train progress)
   int trainTotalSamples = 0;
   int trainSampleCounter = 0;
@@ -68,14 +66,16 @@ private:
   std::atomic<bool> enterNextTrain{false};
 
   //===========================waveform grain pool===========================
-  static constexpr int MAX_WAVEFORM_GRAINS = 32;
+  static constexpr int MAX_WAVEFORM_GRAINS = 16;
   struct WaveformGrain {
     float phase = 0.0f;
     float phaseInc = 0.0f;
     bool active = false;
     int remainSamples = 0;
-    float baseFreq = 0.0f;
-   };
+    int totalSamples = 0;
+    int delaySamples = 0;
+    float windowPhase = 0.0f;
+  };
   WaveformGrain waveformGrains[MAX_WAVEFORM_GRAINS];
   int waveformGrainWriteIdx = 0;
 
@@ -241,7 +241,8 @@ public:
    * @param amount decide how much modulation, 0.0f - 1.0f
    * @return modulated frequency offset in semitones
    */
-  float calcFormantLfoInterpolation(float phase, float pulsarModFreq);
+  float calcFmEnvelopeInterpolation(float phase, float pulsarModFreq);
+  float calcFmLfoInterpolation(float phase, float pulsarModFreq);
 
   /**
    * Smoothly transition different waveforms in the waveform table to apply AM
@@ -263,7 +264,7 @@ public:
   float getDutyCycleRatioEnvelopeValueAtPhase(float phase) const;
   float getDutyCycleClusterEnvelopeValueAtPhase(float phase) const;
   float getWaveformEnvelopeValueAtPhase(float phase) const;
-
+  float getFmLfoValueAtPhase(float phase) const;
   /**
    * Generic envelope lookup using linear interpolation over ENVELOPE_SIZE points
    * @param data envelope data array

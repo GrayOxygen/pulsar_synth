@@ -251,6 +251,55 @@ public:
     return defaultData;
   }
 
+  
+  /**
+   * Set FM lfo scale
+   */
+  void setFmLfoScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmLfoScale.store(scale);
+      }
+    }
+  }
+
+  /**
+   * Set FM lfo Y axis range (semitones)
+   */
+  void setFmLfoYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmLfoYMin.store(yMin);
+        voice->getCommonVoiceSate()->fmLfoYMax.store(yMax);
+      }
+    }
+  }
+
+  /**
+   * Set FM lfo data (2048 samples)
+   */
+  void setFmLfoData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmLfoData = data;
+      }
+    }
+  }
+
+  /**
+   * Get FM lfo data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getFmLfoData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->fmLfoData;
+      }
+    }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(0.0f);
+    return defaultData;
+  }
+
   /**
    * Set whether to use Duty Cycle Ratio envelope instead of LFO waveform
    */

@@ -23,6 +23,9 @@ public:
     dutyCycleClusterEnvelopeData.fill(1.0f);
     // 初始化 Duty Ratio 包络数据为默认值 (0.5 = 基础值)
     dutyCycleRatioEnvelopeData.fill(0.5f);
+    
+    fmLfoData.fill(1.0f);
+
     // 初始化 Pg Waveform 包络数据为默认值 (sine: sin(2pi*x), 范围 [-1, 1])
     for (int i = 0; i < (int)pgWaveformEnvelopeData.size(); ++i) {
       float x = static_cast<float>(i) / (pgWaveformEnvelopeData.size() - 1);
@@ -77,12 +80,20 @@ public:
 
   // FM 包络数据（替代波形选择）- 2048 个 samples
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> fmEnvelopeData;
-  std::atomic<float> fmEnvelopeYMin{-24.0f}; // 默认 0
-  std::atomic<float> fmEnvelopeYMax{24.0f};  // 默认 +24 semitones
+  std::atomic<float> fmEnvelopeYMin{1.0f}; // 默认 0  
+  std::atomic<float> fmEnvelopeYMax{3700.0f};  // 默认 +24 semitones
   std::atomic<bool> useFmEnvelope{true};     // 是否使用包络代替 LFO
   std::atomic<float> fmEnvelopeScale{1.0f}; // 缩放因子，保持形状不变
 
   std::atomic<float> *formantFreqLfoDepthParam;
+
+    // FM lfo数据（替代波形选择）- 2048 个 samples
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> fmLfoData;
+  std::atomic<float> fmLfoYMin{1.0f}; // 默认 0  
+  std::atomic<float> fmLfoYMax{3700.0f};  // 默认 +24 semitones
+  std::atomic<float> fmLfoScale{1.0f}; // 缩放因子，保持形状不变
+
+  std::atomic<float> *fmLfoDepthParam;
 
   // duty cycle ratio 包络数据 - 2048 个 samples
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> dutyCycleRatioEnvelopeData;
@@ -95,7 +106,7 @@ public:
 
   // duty cycle Cluster 包络数据 - 2048 个 samples
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> dutyCycleClusterEnvelopeData;
-  std::atomic<float> dutyCycleClusterEnvelopeYMin{1.0f};
+  std::atomic<float> dutyCycleClusterEnvelopeYMin{0.1f};
   std::atomic<float> dutyCycleClusterEnvelopeYMax{16.0f};
   std::atomic<bool> useDutyCycleClusterEnvelope{true};
   std::atomic<float> dutyCycleClusterEnvelopeScale{1.0f}; // 缩放因子，保持形状不变

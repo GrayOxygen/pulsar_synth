@@ -84,6 +84,7 @@ struct ParameterID {
   static constexpr const char *pulsarDecay = "pulsarDecay";
   static constexpr const char *pulsarSustain = "pulsarSustain";
   static constexpr const char *pulsarRelease = "pulsarRelease";
+  static constexpr const char *fmLfoDepth = "fmLfoDepth"; 
   };
 
 // Some UI elements cannot be bound to audio parameters, so preset and UI
