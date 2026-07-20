@@ -709,16 +709,24 @@ int PulsarSynthVoice::getCurrentDutyCycleCluster(float phase, float depth) {
   return depth * envelopeValue;
 }
 
-float PulsarSynthVoice::getCurrentDutyCycleRatio(float phase, float depth) { 
-  float envelopeValue = getDutyCycleRatioEnvelopeValueAtPhase(phase);
-  // float yMin = commonVoiceSate->dutyCycleRatioEnvelopeYMin.load();
-  // float yMax = commonVoiceSate->dutyCycleRatioEnvelopeYMax.load();
-  // float modFactor = juce::jmap(envelopeValue, yMin, yMax, 0.01f, 1.0f);
-  return depth * envelopeValue;
+float PulsarSynthVoice::getCurrentDutyCycleRatio(float phase, float depth) {
+  if (depth <= 0.0f) {
+    return 0.01f;
+  }
+
+  if (commonVoiceSate->useDutyCycleRatioEnvelope.load()) {
+    float envelopeValue = getDutyCycleRatioEnvelopeValueAtPhase(phase);
+    // float yMin = commonVoiceSate->dutyCycleRatioEnvelopeYMin.load();
+    // float yMax = commonVoiceSate->dutyCycleRatioEnvelopeYMax.load();
+    // float modFactor = juce::jmap(envelopeValue, yMin, yMax, 0.01f, 1.0f);
+    return depth * envelopeValue;
+  }
+
+  return 0.01f;
 }
 
 float PulsarSynthVoice::calcFmEnvelopeInterpolation(float phase, float depth) {
-  return getFmEnvelopeValueAtPhase(phase) * depth; 
+  return getFmEnvelopeValueAtPhase(phase) * depth; //
 }
 
 float PulsarSynthVoice::calcAmEnvelopeInterpolation(float phase, float depth) {

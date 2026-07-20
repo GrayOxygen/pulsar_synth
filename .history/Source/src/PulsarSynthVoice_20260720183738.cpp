@@ -709,7 +709,11 @@ int PulsarSynthVoice::getCurrentDutyCycleCluster(float phase, float depth) {
   return depth * envelopeValue;
 }
 
-float PulsarSynthVoice::getCurrentDutyCycleRatio(float phase, float depth) { 
+float PulsarSynthVoice::getCurrentDutyCycleRatio(float phase, float depth) {
+  if (depth <= 0.0f) {
+    return 0.1f;
+  }
+
   float envelopeValue = getDutyCycleRatioEnvelopeValueAtPhase(phase);
   // float yMin = commonVoiceSate->dutyCycleRatioEnvelopeYMin.load();
   // float yMax = commonVoiceSate->dutyCycleRatioEnvelopeYMax.load();

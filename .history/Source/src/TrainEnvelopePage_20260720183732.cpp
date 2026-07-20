@@ -359,7 +359,7 @@ void TrainEnvelopePage::setUIStyle() {
   dutyCycleRatioDepthSlider.setSliderStyle(juce::Slider::LinearVertical);
   dutyCycleRatioDepthSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 50, 20);
   dutyCycleRatioDepthSlider.setTextValueSuffix("");
-  dutyCycleRatioDepthSlider.setRange(0.1, 1.0, 0.0);
+  dutyCycleRatioDepthSlider.setRange(0.0, 1.0, 0.0);
   dutyCycleRatioDepthLabel.setText("Depth", juce::dontSendNotification);
 
   dutyCycleRatioEnvelopeScaleSlider.setSliderStyle(juce::Slider::LinearHorizontal);

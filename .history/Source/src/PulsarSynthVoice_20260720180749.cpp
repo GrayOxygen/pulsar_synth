@@ -627,11 +627,11 @@ void PulsarSynthVoice::spawnGrain() {
   int prevGrainIdx = (waveformGrainWriteIdx + MAX_WAVEFORM_GRAINS - 1) % MAX_WAVEFORM_GRAINS;
   startPhaseOffset = static_cast<double>(waveformGrains[prevGrainIdx].phase);
 
-  waveformGrains[waveformGrainWriteIdx] = {startPhaseOffset, phaseInc, true, samples, samples, delaySamples, scale, 0, amp, 0, startPhaseOffset, phaseInc};
+  waveformGrains[waveformGrainWriteIdx] = {startPhaseOffset, phaseInc, true, samples, samples, delaySamples, scale, 0, amp, startPhaseOffset, phaseInc};
   waveformGrainWriteIdx = (waveformGrainWriteIdx + 1) % MAX_WAVEFORM_GRAINS;
 
   // 全局LFO速率跟随最新grain的时长(一个grain生命周期对应一个LFO扫描周期)，但相位全局连续
-  // lfoPhaseInc = samples > 0 ? 1.0 / static_cast<double>(samples) : 0.0;
+  lfoPhaseInc = samples > 0 ? 1.0 / static_cast<double>(samples) : 0.0;
 
   envIndex++;
   if (envIndex >= 2048)
@@ -644,9 +644,6 @@ void PulsarSynthVoice::spawnGrain() {
     if (g.remainSamples > currentStateDurationSampleNum) {
       g.samplesInCurrentStage = currentStateDurationSampleNum;
     }
-
-    // g.lfoPhaseInc = g.lfoPhaseInc * (1.0 + (g.lfoPhaseInc - 1.0) * jitterAtten);
-    g.lfoPhaseInc *= perlinMod;
   }
 }
 
@@ -657,18 +654,20 @@ float PulsarSynthVoice::calcActualPulse() {
   int activeCount = 0;
   double s = 0;
 
+  // 全局LFO：本sample所有重叠grain共用同一个LFO瞬时值，保证grain间相位相干(不互相抵消)；
+  // 每个grain各自用windowPhase查LFO会导致同一时刻不同grain瞬时频率不同，相位漂移后叠加时干涉抵消
+  double fmLfo = calcFmLfoInterpolation(static_cast<float>(lfoPhase), commonVoiceSate->fmLfoDepthParam->load());
+  double amLfo = calcAmLfoInterpolation(static_cast<float>(lfoPhase), commonVoiceSate->amLfoDepthParam->load());
+  g.lfoPhase += g.lfoPhaseInc;
+  if (g.lfoPhase >= 1.0)
+    g.lfoPhase -= 1.0;
+
   for (auto &g : waveformGrains) {
     if (!g.active || g.delaySamples-- > 0)
       continue;
 
     double raw = getWaveformEnvelopeValueAtPhase(g.phase);
     raw = juce::jlimit(-1.0, 1.0, raw);
-
-    double fmLfo = calcFmLfoInterpolation(static_cast<float>(g.lfoPhase), commonVoiceSate->fmLfoDepthParam->load());
-    double amLfo = calcAmLfoInterpolation(static_cast<float>(g.lfoPhase), commonVoiceSate->amLfoDepthParam->load());
-    g.lfoPhase += g.lfoPhaseInc;
-    if (g.lfoPhase >= 1.0)
-      g.lfoPhase -= 1.0;
 
     // 跨pulsar duty cycle window：per-grain Hann窗，50%重叠时窗和恒定(COLA)，首尾为0，grain生灭无click
     double completeWindow = hannWindow(static_cast<float>(g.windowPhase));
@@ -690,12 +689,12 @@ float PulsarSynthVoice::calcActualPulse() {
     }
   }
 
-  waveformSample = activeCount > 0 ? grainSum / std::pow(static_cast<float>(activeCount), 0.7f) : 0.0f;
+  // waveformSample = activeCount > 0 ? grainSum / std::pow(static_cast<float>(activeCount), 0.7f) : 0.0f;
   // waveformSample = juce::dsp::FastMathApproximations::tanh(waveformSample);
 
   // 平滑归一化：activeCount整数跳变会造成增益突跳(咔哒/毛糙)，用一阶平滑过渡
-  // smoothedActiveCount += 0.0005f * (static_cast<float>(std::max(1, activeCount)) - smoothedActiveCount);
-  // waveformSample = activeCount > 0 ? grainSum / std::sqrt(smoothedActiveCount) : 0.0f;
+  smoothedActiveCount += 0.0005f * (static_cast<float>(std::max(1, activeCount)) - smoothedActiveCount);
+  waveformSample = activeCount > 0 ? grainSum / std::sqrt(smoothedActiveCount) : 0.0f;
   s = waveformSample * pulsarAdsr.getNextSample();
   return s;
 }
@@ -709,16 +708,24 @@ int PulsarSynthVoice::getCurrentDutyCycleCluster(float phase, float depth) {
   return depth * envelopeValue;
 }
 
-float PulsarSynthVoice::getCurrentDutyCycleRatio(float phase, float depth) { 
-  float envelopeValue = getDutyCycleRatioEnvelopeValueAtPhase(phase);
-  // float yMin = commonVoiceSate->dutyCycleRatioEnvelopeYMin.load();
-  // float yMax = commonVoiceSate->dutyCycleRatioEnvelopeYMax.load();
-  // float modFactor = juce::jmap(envelopeValue, yMin, yMax, 0.01f, 1.0f);
-  return depth * envelopeValue;
+float PulsarSynthVoice::getCurrentDutyCycleRatio(float phase, float depth) {
+  if (depth <= 0.0f) {
+    return 0.01f;
+  }
+
+  if (commonVoiceSate->useDutyCycleRatioEnvelope.load()) {
+    float envelopeValue = getDutyCycleRatioEnvelopeValueAtPhase(phase);
+    // float yMin = commonVoiceSate->dutyCycleRatioEnvelopeYMin.load();
+    // float yMax = commonVoiceSate->dutyCycleRatioEnvelopeYMax.load();
+    // float modFactor = juce::jmap(envelopeValue, yMin, yMax, 0.01f, 1.0f);
+    return depth * envelopeValue;
+  }
+
+  return 0.01f;
 }
 
 float PulsarSynthVoice::calcFmEnvelopeInterpolation(float phase, float depth) {
-  return getFmEnvelopeValueAtPhase(phase) * depth; 
+  return getFmEnvelopeValueAtPhase(phase) * depth; //
 }
 
 float PulsarSynthVoice::calcAmEnvelopeInterpolation(float phase, float depth) {

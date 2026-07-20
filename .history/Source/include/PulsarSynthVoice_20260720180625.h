@@ -75,8 +75,7 @@ private:
     double windowPhase = 0.0f;
     float amp = 0.0f;
     int samplesInCurrentStage = 0;
-    double lfoPhase = 0.0f;
-    double lfoPhaseInc = 0.0f;
+    double lfoPhaseInc;
   };
   WaveformGrain waveformGrains[MAX_WAVEFORM_GRAINS];
   int waveformGrainWriteIdx = 0;
