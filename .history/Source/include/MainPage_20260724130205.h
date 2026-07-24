@@ -20,7 +20,6 @@ public:
                   std::shared_ptr<juce::FlexBox> euclidStepFlexBox, std::shared_ptr<juce::FlexBox> euclidHitFlexBox, std::shared_ptr<juce::FlexBox> stochasticMaskFlexBox);
 
   void rebalanceStepHitValueDisplay();
-  void applyBpmYRange();
   //==============================自定义控件==============================
   // output gain
   juce::Label outputGainLabel;
@@ -31,13 +30,7 @@ public:
   juce::Label bpmEnvelopeLabel;
   juce::TextButton bpmEnvelopeClearButton{"Clear"};   // 重置为默认bpm
   juce::TextButton bpmEnvelopeRandomButton{"Random"}; // 随机生成包络
-  juce::TextButton bpmLoadFileButton{"Load File"};    // 从音频文件加载bpm包络
   juce::Component bpmEnvControlRow;                   // 按钮容器
-  // Y轴区间控制：决定画布显示范围以及bpm包络的min/max限幅
-  juce::Label bpmYMinLabel;
-  juce::Slider bpmYMinSlider;
-  juce::Label bpmYMaxLabel;
-  juce::Slider bpmYMaxSlider;
 
   // train
   juce::Slider trainLenSlider;

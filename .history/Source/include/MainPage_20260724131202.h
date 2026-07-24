@@ -20,7 +20,6 @@ public:
                   std::shared_ptr<juce::FlexBox> euclidStepFlexBox, std::shared_ptr<juce::FlexBox> euclidHitFlexBox, std::shared_ptr<juce::FlexBox> stochasticMaskFlexBox);
 
   void rebalanceStepHitValueDisplay();
-  void applyBpmYRange();
   //==============================自定义控件==============================
   // output gain
   juce::Label outputGainLabel;

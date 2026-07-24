@@ -33,11 +33,6 @@ void MainPage::makeVisible() {
   addAndMakeVisible(bpmEnvControlRow);
   bpmEnvControlRow.addAndMakeVisible(bpmEnvelopeClearButton);
   bpmEnvControlRow.addAndMakeVisible(bpmEnvelopeRandomButton);
-  bpmEnvControlRow.addAndMakeVisible(bpmLoadFileButton);
-  bpmEnvControlRow.addAndMakeVisible(bpmYMinLabel);
-  bpmEnvControlRow.addAndMakeVisible(bpmYMinSlider);
-  bpmEnvControlRow.addAndMakeVisible(bpmYMaxLabel);
-  bpmEnvControlRow.addAndMakeVisible(bpmYMaxSlider);
 
   // train
   addAndMakeVisible(trainLenSlider);
@@ -126,7 +121,7 @@ void MainPage::topFlexBox(juce::FlexBox &flexBoxTop, std::shared_ptr<juce::FlexB
   bpmFlexBox->justifyContent = juce::FlexBox::JustifyContent::flexStart;
   bpmFlexBox->items.add(juce::FlexItem(outputGainLabel).withFlex(1).withMaxWidth(100));
   bpmFlexBox->items.add(juce::FlexItem(outputGainSlider).withFlex(2.5));
-  // bpmFlexBox->items.add(juce::FlexItem().withFlex(0.1));
+  bpmFlexBox->items.add(juce::FlexItem().withFlex(0.1));
   // bpmFlexBox->items.add(juce::FlexItem(bpmSlider).withFlex(1));
   flexBoxTop.items.add(juce::FlexItem(*bpmFlexBox).withFlex(1.0f));
 }
@@ -221,6 +216,11 @@ void MainPage::resized() {
   std::shared_ptr<juce::FlexBox> row14 = std::make_shared<juce::FlexBox>();
   std::shared_ptr<juce::FlexBox> row15 = std::make_shared<juce::FlexBox>();
 
+  auto attackFlexBox = std::make_shared<juce::FlexBox>();
+  auto decayFlexBox = std::make_shared<juce::FlexBox>();
+  auto sustainFlexBox = std::make_shared<juce::FlexBox>();
+  auto releaseFlexBox = std::make_shared<juce::FlexBox>();
+
   this->midFlexBox(midFlexBox, row10, row11, row12, row13, row14, row15);
 
   // ================== BPM 包络 + Pg Waveform 包络行 ==================
@@ -262,18 +262,11 @@ void MainPage::resized() {
   pgWaveformEnvelopeScaleLabel.setBounds(pgWaveformControlBounds.removeFromLeft(pgLabelW));
   pgWaveformEnvelopeScaleSlider.setBounds(pgWaveformControlBounds);
 
-  // 为 BPM 包络容器内的控件设置布局：Clear | Random | Load File | Min | Max
+  // 为 BPM 包络容器内的按钮设置布局
   auto bpmControlBounds = bpmEnvControlRow.getLocalBounds();
-  int bpmCtrlW = bpmControlBounds.getWidth();
-  int bpmLabelW = 32;
-  int bpmBtnW = juce::jmax(40, (bpmCtrlW - bpmLabelW * 2) / 5);
+  int bpmBtnW = bpmControlBounds.getWidth() / 2;
   bpmEnvelopeClearButton.setBounds(bpmControlBounds.removeFromLeft(bpmBtnW));
-  bpmEnvelopeRandomButton.setBounds(bpmControlBounds.removeFromLeft(bpmBtnW));
-  bpmLoadFileButton.setBounds(bpmControlBounds.removeFromLeft(bpmBtnW));
-  bpmYMinLabel.setBounds(bpmControlBounds.removeFromLeft(bpmLabelW));
-  bpmYMinSlider.setBounds(bpmControlBounds.removeFromLeft(bpmBtnW));
-  bpmYMaxLabel.setBounds(bpmControlBounds.removeFromLeft(bpmLabelW));
-  bpmYMaxSlider.setBounds(bpmControlBounds);
+  bpmEnvelopeRandomButton.setBounds(bpmControlBounds);
 }
 
 void MainPage::setUIStyle() {
@@ -289,19 +282,6 @@ void MainPage::setUIStyle() {
   std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultBpmData;
   defaultBpmData.fill(120.0f);
   bpmEnvelopeCanvas.setEnvelopeData(defaultBpmData);
-
-  // Y轴区间控制：同时决定画布显示范围和voice端的bpm限幅区间
-  bpmYMinLabel.setText("Min", juce::dontSendNotification);
-  bpmYMinSlider.setSliderStyle(juce::Slider::LinearHorizontal);
-  bpmYMinSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
-  bpmYMinSlider.setRange(10.0, 300.0, 1.0);
-  bpmYMinSlider.setValue(30.0, juce::dontSendNotification);
-
-  bpmYMaxLabel.setText("Max", juce::dontSendNotification);
-  bpmYMaxSlider.setSliderStyle(juce::Slider::LinearHorizontal);
-  bpmYMaxSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 40, 20);
-  bpmYMaxSlider.setRange(10.0, 300.0, 1.0);
-  bpmYMaxSlider.setValue(300.0, juce::dontSendNotification);
 
   // train
   trainLenSlider.setSliderStyle(juce::Slider::LinearHorizontal);
@@ -422,68 +402,6 @@ void MainPage::initUITriggerEvent() {
     bpmEnvelopeCanvas.setEnvelopeData(defaultBpmData);
   };
   bpmEnvelopeRandomButton.onClick = [this] { bpmEnvelopeCanvas.randomize(); };
-
-  // Y轴区间变化：保持min<max，同步画布显示范围+现有数据限幅+voice端限幅区间
-  bpmYMinSlider.onValueChange = [this] { applyBpmYRange(); };
-  bpmYMaxSlider.onValueChange = [this] { applyBpmYRange(); };
-
-  // 从音频文件加载bpm包络：重采样到2048点，按文件自身min/max归一化后映射到当前Y区间
-  bpmLoadFileButton.onClick = [this] {
-    auto chooser = std::make_shared<juce::FileChooser>("Load audio file as BPM envelope", juce::File::getSpecialLocation(juce::File::userDesktopDirectory), "*.wav;*.aiff;*.aif;*.mp3;*.flac;*.ogg");
-    chooser->launchAsync(juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles, [this, chooser](const juce::FileChooser &fc) {
-      auto file = fc.getResult();
-      if (!file.existsAsFile())
-        return;
-
-      juce::AudioFormatManager formatManager;
-      formatManager.registerBasicFormats();
-      std::unique_ptr<juce::AudioFormatReader> reader(formatManager.createReaderFor(file));
-      if (!reader)
-        return;
-
-      int64 numSrcSamples = reader->lengthInSamples;
-      if (numSrcSamples <= 0)
-        return;
-
-      int readSamples = (numSrcSamples > (int64)std::numeric_limits<int>::max() / 2) ? static_cast<int>(std::numeric_limits<int>::max() / 2) : static_cast<int>(numSrcSamples);
-      juce::AudioBuffer<float> srcBuffer(1, readSamples);
-      reader->read(&srcBuffer, 0, srcBuffer.getNumSamples(), 0, true, false);
-
-      const float *src = srcBuffer.getReadPointer(0);
-      int srcLen = srcBuffer.getNumSamples();
-      constexpr int targetSize = EnvelopeCanvas::ENVELOPE_SIZE;
-
-      // 重采样到2048点
-      std::array<float, targetSize> resampled;
-      for (int i = 0; i < targetSize; ++i) {
-        float srcIdx = static_cast<float>(i) * (srcLen - 1) / (targetSize - 1);
-        int idx0 = std::min(static_cast<int>(srcIdx), srcLen - 1);
-        int idx1 = std::min(idx0 + 1, srcLen - 1);
-        float frac = srcIdx - idx0;
-        resampled[i] = src[idx0] + frac * (src[idx1] - src[idx0]);
-      }
-
-      // 按文件自身幅度归一化到[0,1]，再映射到当前Y区间[min,max]
-      float vMin = resampled[0], vMax = resampled[0];
-      for (float v : resampled) {
-        vMin = std::min(vMin, v);
-        vMax = std::max(vMax, v);
-      }
-      float range = vMax - vMin;
-      float yMin = static_cast<float>(bpmYMinSlider.getValue());
-      float yMax = static_cast<float>(bpmYMaxSlider.getValue());
-      std::array<float, targetSize> bpmData;
-      for (int i = 0; i < targetSize; ++i) {
-        float norm = range > 1.0e-6f ? (resampled[i] - vMin) / range : 0.5f;
-        bpmData[i] = yMin + norm * (yMax - yMin);
-      }
-
-      juce::MessageManager::callAsync([this, bpmData] {
-        // notify=true：由PluginEditor的changeListenerCallback同步到synth
-        bpmEnvelopeCanvas.setEnvelopeData(bpmData);
-      });
-    });
-  };
 
   pgWaveformEnvelopeClearButton.onClick = [this] {
     std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> sineData;
@@ -639,29 +557,6 @@ void MainPage::initUITriggerEvent() {
       }
     }
   };
-}
-
-// Y轴区间应用：保持min<max（至少相1），更新画布显示范围，现有数据限幅到新区间，
-// 并同步voice端的限幅区间；setEnvelopeData会广播，由PluginEditor同步包络数据到synth
-void MainPage::applyBpmYRange() {
-  double minVal = bpmYMinSlider.getValue();
-  double maxVal = bpmYMaxSlider.getValue();
-  if (minVal >= maxVal) {
-    maxVal = minVal + 1.0;
-    bpmYMaxSlider.setValue(maxVal, juce::dontSendNotification);
-  }
-
-  float yMin = static_cast<float>(minVal);
-  float yMax = static_cast<float>(maxVal);
-  bpmEnvelopeCanvas.setYAxisRange(yMin, yMax);
-
-  // 现有包络数据限幅到新区间，避免数据超出显示范围
-  auto data = bpmEnvelopeCanvas.getEnvelopeData();
-  for (float &v : data)
-    v = juce::jlimit(yMin, yMax, v);
-  bpmEnvelopeCanvas.setEnvelopeData(data);
-
-  processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { synth->setBpmEnvelopeYRange(yMin, yMax); });
 }
 
 void MainPage::rebalanceStepHitValueDisplay() {

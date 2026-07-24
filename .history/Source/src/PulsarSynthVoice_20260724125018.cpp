@@ -389,7 +389,7 @@ void PulsarSynthVoice::refreshBpmInSnapShot() {
   snapShot.trainSilenceTime = snapShot.trainSilenceParam * snapShot.pulsarPeriodTime;
   snapShot.trainDutyCycleTime = snapShot.trainDutyCycleLenParam * snapShot.pulsarPeriodTime;
   snapShot.trainPeriodTime = snapShot.trainDutyCycleTime + snapShot.trainSilenceTime;
-  
+
   float sampleRate = getSampleRate();
   snapShot.interTrainSilenceSamples = std::max(1.0f, snapShot.trainSilenceTime * sampleRate);
   snapShot.trainDutyCycleSamples = std::max(1.0f, snapShot.trainDutyCycleTime * sampleRate);
