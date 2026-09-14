@@ -50,21 +50,21 @@ public:
   juce::Slider fmEnvelopeDepthSlider;
 
   // ========================== pulsar duty cycle ratio 包络绘制组件  ==========================
-  EnvelopeCanvas dutyCycleRatioEnvelopeCanvas;
-  juce::Label dutyCycleRatioEnvelopeLabel;
-  juce::Slider dutyCycleRatioEnvelopeYMinSlider; // Y轴最小值
-  juce::Label dutyCycleRatioEnvelopeYMinLabel;
-  juce::Slider dutyCycleRatioEnvelopeYMaxSlider; // Y轴最大值
-  juce::Label dutyCycleRatioEnvelopeYMaxLabel;
-  juce::TextButton dutyCycleRatioEnvelopeClearButton{"Clear"};        // 清空包络
-  juce::TextButton dutyCycleRatioEnvelopeRandomButton{"Randomize"};   // 随机生成包络
-  juce::TextButton dutyCycleRatioEnvelopeLoadFileButton{"Load File"}; // 从音频文件加载波形
-  juce::Component dutyCycleRatioEnvControlRow;                        //   开关+按钮容器
-  juce::Component dutyCycleRatioEnvRangeRow;                          //   Y轴范围滑块容器
-  juce::Slider dutyCycleRatioEnvelopeScaleSlider;                     // 缩放
-  juce::Label dutyCycleRatioEnvelopeScaleLabel;
-  juce::Label dutyCycleRatioDepthLabel; // 调制深度
-  juce::Slider dutyCycleRatioDepthSlider;
+  EnvelopeCanvas panEnvelopeCanvas;
+  juce::Label panEnvelopeLabel;
+  juce::Slider panEnvelopeYMinSlider; // Y轴最小值
+  juce::Label panEnvelopeYMinLabel;
+  juce::Slider panEnvelopeYMaxSlider; // Y轴最大值
+  juce::Label panEnvelopeYMaxLabel;
+  juce::TextButton panEnvelopeClearButton{"Clear"};        // 清空包络
+  juce::TextButton panEnvelopeRandomButton{"Randomize"};   // 随机生成包络
+  juce::TextButton panEnvelopeLoadFileButton{"Load File"}; // 从音频文件加载波形
+  juce::Component panEnvControlRow;                        //   开关+按钮容器
+  juce::Component panEnvRangeRow;                          //   Y轴范围滑块容器
+  juce::Slider panEnvelopeScaleSlider;                     // 缩放
+  juce::Label panEnvelopeScaleLabel;
+  juce::Label panDepthLabel; // 调制深度
+  juce::Slider panDepthSlider;
 
   // ========================== pulsar duty cycle cluster 包络绘制组件  ==========================
   EnvelopeCanvas dutyCycleClusterEnvelopeCanvas;
@@ -82,12 +82,12 @@ public:
   juce::Label dutyCycleClusterEnvelopeScaleLabel;
   juce::Label dutyCycleClusterDepthLabel; // 调制深度
   juce::Slider dutyCycleClusterDepthSlider;
-  juce::Slider envelopeDilationSlider; // NuPG式envelope dilation：包络时长/波形周期比例
+  juce::Slider envelopeDilationSlider; // envelope dilation：包络时长/波形周期比例
   juce::Label envelopeDilationLabel;
 
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> amEnvelopeDepthAttachment;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> fmEnvelopeDepthAttachment;
-  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> dutyCycleRatioDepthAttachment;
+  std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> panDepthAttachment;
   std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> dutyCycleClusterDepthAttachment;
 
   AudioPluginAudioProcessor &processorRef;

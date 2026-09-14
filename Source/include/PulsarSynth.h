@@ -373,10 +373,10 @@ public:
   /**
    * Set whether to use Duty Cycle Ratio envelope instead of LFO waveform
    */
-  void setUseDutyCycleRatioEnvelope(bool useEnvelope) {
+  void setUsePanEnvelope(bool useEnvelope) {
     if (getNumVoices() > 0) {
       if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
-        voice->getCommonVoiceSate()->useDutyCycleRatioEnvelope.store(useEnvelope);
+        voice->getCommonVoiceSate()->usePanEnvelope.store(useEnvelope);
       }
     }
   }
@@ -384,10 +384,10 @@ public:
   /**
    * Set Duty Cycle Ratio envelope scale
    */
-  void setDutyCycleRatioEnvelopeScale(float scale) {
+  void setPanEnvelopeScale(float scale) {
     if (getNumVoices() > 0) {
       if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
-        voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeScale.store(scale);
+        voice->getCommonVoiceSate()->panEnvelopeScale.store(scale);
       }
     }
   }
@@ -395,11 +395,11 @@ public:
   /**
    * Set Duty Cycle Ratio envelope Y axis range (semitones)
    */
-  void setDutyCycleRatioEnvelopeYRange(float yMin, float yMax) {
+  void setPanEnvelopeYRange(float yMin, float yMax) {
     if (getNumVoices() > 0) {
       if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
-        voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeYMin.store(yMin);
-        voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeYMax.store(yMax);
+        voice->getCommonVoiceSate()->panEnvelopeYMin.store(yMin);
+        voice->getCommonVoiceSate()->panEnvelopeYMax.store(yMax);
       }
     }
   }
@@ -407,10 +407,10 @@ public:
   /**
    * Set Duty Cycle Ratio envelope data (2048 samples)
    */
-  void setDutyCycleRatioEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+  void setPanEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
     if (getNumVoices() > 0) {
       if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
-        voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeData = data;
+        voice->getCommonVoiceSate()->panEnvelopeData = data;
         // voice->setEnterNextTrain(true);
       }
     }
@@ -419,10 +419,10 @@ public:
   /**
    * Get Duty Cycle Ratio envelope data
    */
-  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getDutyCycleRatioEnvelopeData() const {
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getPanEnvelopeData() const {
     if (getNumVoices() > 0) {
       if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
-        return voice->getCommonVoiceSate()->dutyCycleRatioEnvelopeData;
+        return voice->getCommonVoiceSate()->panEnvelopeData;
       }
     }
     std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
@@ -453,7 +453,22 @@ public:
   }
 
   /**
-   * Set NuPG-style envelope dilation (envelope duration / waveform cycle ratio)
+   * Set per-grain ADSR window (a/d/r = ratio of grain lifetime, s = sustain level)
+   */
+  void setGrainAdsr(float a, float d, float s, float r) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        auto state = voice->getCommonVoiceSate();
+        state->grainAdsrAttack.store(a);
+        state->grainAdsrDecay.store(d);
+        state->grainAdsrSustain.store(s);
+        state->grainAdsrRelease.store(r);
+      }
+    }
+  }
+
+  /**
+   * Set envelope dilation (envelope duration / waveform cycle ratio)
    */
   void setEnvelopeDilation(float dilation) {
     if (getNumVoices() > 0) {

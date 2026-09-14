@@ -168,9 +168,9 @@ void AudioPluginAudioProcessorEditor::changeListenerCallback(juce::ChangeBroadca
   }
 
   // duty cycle ratio 包络画布数据变化时同步到 synth
-  if (source == &trainEnvelopePage.dutyCycleRatioEnvelopeCanvas) {
+  if (source == &trainEnvelopePage.panEnvelopeCanvas) {
     processorRef.getPulsarSynthEngine().executeCurSynthCallback([&](std::shared_ptr<PulsarSynth> &synth) { //
-      synth->setDutyCycleRatioEnvelopeData(trainEnvelopePage.dutyCycleRatioEnvelopeCanvas.getEnvelopeData());
+      synth->setPanEnvelopeData(trainEnvelopePage.panEnvelopeCanvas.getEnvelopeData());
     });
   }
 
@@ -247,7 +247,7 @@ void AudioPluginAudioProcessorEditor::initUITriggerEvent() {
   mainPage.pgWaveformEnvelopeCanvas.addChangeListener(this);
   lfoPage.fmLfoCanvas.addChangeListener(this);
   lfoPage.amLfoCanvas.addChangeListener(this);
-  trainEnvelopePage.dutyCycleRatioEnvelopeCanvas.addChangeListener(this);
+  trainEnvelopePage.panEnvelopeCanvas.addChangeListener(this);
   trainEnvelopePage.dutyCycleClusterEnvelopeCanvas.addChangeListener(this);
   trainEnvelopePage.fmEnvelopeCanvas.addChangeListener(this);
   trainEnvelopePage.ampEnvelopeCanvas.addChangeListener(this);
