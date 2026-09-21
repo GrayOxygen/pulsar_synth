@@ -1,0 +1,617 @@
+//
+// Created by Mr. Wang on 2025/4/20.
+//
+#pragma once
+
+#include "Commons.h"
+#include "EnvelopeCanvas.h"
+#include "PulsarSynthVoice.h"
+#include <juce_audio_basics/juce_audio_basics.h>
+#include <juce_audio_devices/juce_audio_devices.h>
+#include <juce_audio_formats/juce_audio_formats.h>
+#include <juce_audio_plugin_client/juce_audio_plugin_client.h>
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_audio_utils/juce_audio_utils.h>
+#include <juce_core/juce_core.h>
+#include <juce_data_structures/juce_data_structures.h>
+#include <juce_dsp/juce_dsp.h>
+#include <vector>
+
+
+/**
+ * Custom synthesizers, with different play modes corresponding to different synths
+ */
+class PulsarSynth : public juce::Synthesiser {
+public:
+  PulsarSynth(){};
+  /**
+   * When switching the play mode, turn off all sounds.
+   * The auto mode will be played in the playback of the next daw, and the midi mode will be played in the next note
+   */
+  void triggerSoundOffWhenSwitchPlayMode(bool closeFlag) {
+    for (int i = 0; i < getNumVoices(); ++i) {
+      juce::SynthesiserVoice *voice = getVoice(i);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      pulsarVoice->setSoundOffWhenSwitchPlayMode(closeFlag);
+    }
+  }
+
+  /**
+   * Set BPM envelope data (960 samples)
+   * bpm采用latch方式推进：每个stage走完一次，voice自行推进到下一个点并latch新bpm，无需重建train
+   */
+  void setBpmEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->bpmEnvelopeData = data;
+      }
+    }
+  }
+
+  /**
+   * Get BPM envelope data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getBpmEnvelopeData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->bpmEnvelopeData;
+      }
+    }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(120.0f);
+    return defaultData;
+  }
+
+  /**
+   * Set BPM envelope Y axis range
+   */
+  void setBpmEnvelopeYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->bpmEnvelopeYMin.store(yMin);
+        voice->getCommonVoiceSate()->bpmEnvelopeYMax.store(yMax);
+      }
+    }
+  }
+
+  /**
+   * Initialize trian. Each voice has a separate train, and the voice also points to the same CommonVoiceState,
+   * sharing some common data
+   *
+   * @param sampleRate sample rate
+   * @param sampleBuffer  sample buffer，TODO Not used now, but retained (planned for implementing sample as pulsaret)
+   * @param audioPlayHead obtain information such as the playback position
+   */
+  void initTrain(double sampleRate, juce::AudioPlayHead *audioPlayHead) {
+    for (int i = 0; i < getNumVoices(); ++i) {
+      juce::SynthesiserVoice *voice = getVoice(i);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      pulsarVoice->initSynthVoice(sampleRate, audioPlayHead);
+    }
+  }
+
+  /**
+   * Parameter change, update voice:
+   *
+   * When AudioProcessorValueTreeState parameterChanged listening is after the callback, the method will be triggered
+   *
+   * @param apvts tree state
+   * @param parameterID  parameter id
+   * @param newValue up-to-date value
+   * @param isGeneratedStochasticMask Whether the stochasticMask was generated, this arg will be updated when func end
+   */
+  void parameterChanged(juce::AudioProcessorValueTreeState &apvts, juce::String parameterID, float newValue, bool &isGeneratedStochasticMask) {
+    for (int i = 0; i < getNumVoices(); ++i) {
+      juce::SynthesiserVoice *voice = getVoice(i);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      ;
+      pulsarVoice->parameterChanged(apvts, parameterID, newValue, isGeneratedStochasticMask);
+    }
+  }
+
+  /**
+   * Refresh the voice according to the preset
+   * @param apvts tree state
+   */
+  void reloadPreset(juce::AudioProcessorValueTreeState &apvts) {
+    for (int i = 0; i < getNumVoices(); ++i) {
+      juce::SynthesiserVoice *voice = getVoice(i);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      pulsarVoice->reloadPreset(apvts);
+    }
+  }
+
+  /**
+   * Update the burstMask of all voices, but the voices all point to the same CommonVoiceSate,
+   * so only one voice needs to be updated
+   *
+   * @param burstMask burst mask
+   */
+  void refreshBurstMask(juce::String burstMask) {
+    if (getNumVoices() > 0) {
+      juce::SynthesiserVoice *voice = getVoice(0);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      pulsarVoice->getCommonVoiceSate()->burstMask = burstMask.toStdString();
+    }
+  }
+
+  /**
+   * get stochastic mask for display
+   *
+   * @return stochastic mask
+   */
+  std::string getStochasticMaskStr() {
+    std::string result;
+    // auto模式下，仅包含一个voice，所以stochastic mask只有一个，midi模式下仅展示第一个voice的即可，实际上每个voice的可能不同
+    if (getNumVoices() <= 0) {
+      result = std::string("");
+      return result;
+    }
+
+    if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+      auto state = voice->getCommonVoiceSate();
+      if (state && !state->stochasticMaskStr.empty())
+        return state->stochasticMaskStr;
+    }
+    return "";
+  }
+
+  /**
+   * Set whether to use AM envelope instead of LFO waveform
+   */
+  void setUseAmpEnvelope(bool useEnvelope) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->useAmpEnvelope.store(useEnvelope);
+      }
+    }
+  }
+
+  /**
+   * Set AM envelope scale
+   */
+  void setAmpEnvelopeScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->ampEnvelopeScale.store(scale);
+      }
+    }
+  }
+
+  /**
+   * Set AM envelope Y axis range
+   */
+  void setAmpEnvelopeYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->ampEnvelopeYMin.store(yMin);
+        voice->getCommonVoiceSate()->ampEnvelopeYMax.store(yMax);
+      }
+    }
+  }
+
+  /**
+   * Set AM envelope data (960 samples)
+   */
+  void setAmpEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->ampEnvelopeData = data;
+      }
+    }
+  }
+
+  /**
+   * Get AM envelope data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getAmpEnvelopeData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->ampEnvelopeData;
+      }
+    }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(1.0f);
+    return defaultData;
+  }
+
+  /**
+   * Set whether to use FM envelope instead of LFO waveform
+   */
+  void setUseFmEnvelope(bool useEnvelope) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->useFmEnvelope.store(useEnvelope);
+      }
+    }
+  }
+
+  /**
+   * Set FM envelope scale
+   */
+  void setFmEnvelopeScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmEnvelopeScale.store(scale);
+      }
+    }
+  }
+
+  /**
+   * Set FM envelope Y axis range (semitones)
+   */
+  void setFmEnvelopeYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmEnvelopeYMin.store(yMin);
+        voice->getCommonVoiceSate()->fmEnvelopeYMax.store(yMax);
+      }
+    }
+  }
+
+  /**
+   * Set FM envelope data (960 samples)
+   */
+  void setFmEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmEnvelopeData = data;
+      }
+    }
+  }
+
+  /**
+   * Get FM envelope data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getFmEnvelopeData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->fmEnvelopeData;
+      }
+    }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(1.0f);
+    return defaultData;
+  }
+
+  /**
+   * Set FM lfo scale
+   */
+  void setFmLfoScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmLfoScale.store(scale);
+      }
+    }
+  }
+
+  /**
+   * Set FM lfo Y axis range (semitones)
+   */
+  void setFmLfoYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmLfoYMin.store(yMin);
+        voice->getCommonVoiceSate()->fmLfoYMax.store(yMax);
+      }
+    }
+  }
+
+  /**
+   * Set FM lfo data (960 samples)
+   */
+  void setFmLfoData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->fmLfoData = data;
+      }
+    }
+  }
+
+  /**
+   * Get FM lfo data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getFmLfoData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->fmLfoData;
+      }
+    }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(0.0f);
+    return defaultData;
+  }
+
+  /**
+   * Set AM lfo scale
+   */
+  void setAmLfoScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->amLfoScale.store(scale);
+      }
+    }
+  }
+
+  /**
+   * Set AM lfo Y axis range (semitones)
+   */
+  void setAmLfoYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->amLfoYMin.store(yMin);
+        voice->getCommonVoiceSate()->amLfoYMax.store(yMax);
+      }
+    }
+  }
+
+  /**
+   * Set AM lfo data (960 samples)
+   */
+  void setAmLfoData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->amLfoData = data;
+      }
+    }
+  }
+
+  /**
+   * Get AM lfo data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getAmLfoData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->amLfoData;
+      }
+    }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(0.0f);
+    return defaultData;
+  }
+
+  /**
+   * Set whether to use Duty Cycle Ratio envelope instead of LFO waveform
+   */
+  void setUsePanEnvelope(bool useEnvelope) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->usePanEnvelope.store(useEnvelope);
+      }
+    }
+  }
+
+  /**
+   * Set Duty Cycle Ratio envelope scale
+   */
+  void setPanEnvelopeScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->panEnvelopeScale.store(scale);
+      }
+    }
+  }
+
+  /**
+   * Set Duty Cycle Ratio envelope Y axis range (semitones)
+   */
+  void setPanEnvelopeYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->panEnvelopeYMin.store(yMin);
+        voice->getCommonVoiceSate()->panEnvelopeYMax.store(yMax);
+      }
+    }
+  }
+
+  /**
+   * Set Duty Cycle Ratio envelope data (960 samples)
+   */
+  void setPanEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->panEnvelopeData = data;
+        // voice->setEnterNextTrain(true);
+      }
+    }
+  }
+
+  /**
+   * Get Duty Cycle Ratio envelope data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getPanEnvelopeData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->panEnvelopeData;
+      }
+    }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(0.01f);
+    return defaultData;
+  }
+
+  /**
+   * Set whether to use Duty Cycle Cluster envelope instead of LFO waveform
+   */
+  void setUseDutyCycleClusterEnvelope(bool useEnvelope) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->useDutyCycleClusterEnvelope.store(useEnvelope);
+      }
+    }
+  }
+
+  /**
+   * Set Duty Cycle Cluster envelope scale
+   */
+  void setDutyCycleClusterEnvelopeScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeScale.store(scale);
+      }
+    }
+  }
+
+  /**
+   * Set per-grain ADSR window (a/d/r = ratio of grain lifetime, s = sustain level)
+   */
+  void setGrainAdsr(float a, float d, float s, float r) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        auto state = voice->getCommonVoiceSate();
+        state->grainAdsrAttack.store(a);
+        state->grainAdsrDecay.store(d);
+        state->grainAdsrSustain.store(s);
+        state->grainAdsrRelease.store(r);
+      }
+    }
+  }
+
+  /**
+   * Set envelope dilation (envelope duration / waveform cycle ratio)
+   */
+  void setEnvelopeDilation(float dilation) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->envelopeDilation.store(dilation);
+      }
+    }
+  }
+
+  /**
+   * Set Duty Cycle Cluster envelope Y axis range (semitones)
+   */
+  void setDutyCycleClusterEnvelopeYRange(float yMin, float yMax) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeYMin.store(yMin);
+        voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeYMax.store(yMax);
+      }
+    }
+  }
+
+  /**
+   * Set Duty Cycle Cluster envelope data (960 samples)
+   */
+  void setDutyCycleClusterEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeData = data;
+        // voice->setEnterNextTrain(true);
+      }
+    }
+  }
+
+  /**
+   * Get Duty Cycle Cluster envelope data
+   */
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getDutyCycleClusterEnvelopeData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->dutyCycleClusterEnvelopeData;
+      }
+    }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(1.0f);
+    return defaultData;
+  }
+
+  void setUsePgWaveformEnvelope(bool useEnvelope) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->usePgWaveformEnvelope.store(useEnvelope);
+      }
+    }
+  }
+
+  void setPgWaveformEnvelopeScale(float scale) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        voice->getCommonVoiceSate()->pgWaveformEnvelopeScale.store(scale);
+      }
+    }
+  }
+  // 计算hann加权均值(DC分量)：grain输出=波形×hann窗，此加权均值就是每个grain携带的DC，查表时减去可从源头消除DC offset
+  template <size_t S> static float calcHannWeightedMean(const std::array<float, S> &data) {
+    double num = 0.0, den = 0.0;
+    const int n = static_cast<int>(data.size());
+    for (int i = 0; i < n; ++i) {
+      double w = 0.5 * (1.0 - std::cos(2.0 * juce::MathConstants<double>::pi * i / (n - 1)));
+      num += data[i] * w;
+      den += w;
+    }
+    return static_cast<float>(den > 0.0 ? num / den : 0.0);
+  }
+
+  // UI包络点数(ENVELOPE_SIZE)与波表帧分辨率(WAVETABLE_SIZE)之间的线性重采样
+  template <size_t SrcN, size_t DstN> static std::array<float, DstN> resampleLinear(const std::array<float, SrcN> &src) {
+    std::array<float, DstN> dst{};
+    for (size_t i = 0; i < DstN; ++i) {
+      float srcIdx = DstN > 1 ? static_cast<float>(i) * (SrcN - 1) / (DstN - 1) : 0.0f;
+      size_t i0 = std::min(static_cast<size_t>(srcIdx), SrcN - 1);
+      size_t i1 = std::min(i0 + 1, SrcN - 1);
+      float frac = srcIdx - static_cast<float>(i0);
+      dst[i] = src[i0] + frac * (src[i1] - src[i0]);
+    }
+    return dst;
+  }
+
+  // 手绘波形：wavetable退化为单帧(画布96点上采样到波表分辨率2048)
+  void setPgWaveformEnvelopeData(const std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> &data) {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        auto state = voice->getCommonVoiceSate();
+        state->pgWaveformEnvelopeData = data;
+        state->pgWavetable[0] = resampleLinear<EnvelopeCanvas::ENVELOPE_SIZE, CommonVoiceSate::WAVETABLE_SIZE>(data);
+        state->pgWavetableDcOffset[0] = calcHannWeightedMean(state->pgWavetable[0]);
+        state->pgWavetableNumFrames = 1;
+      }
+    }
+  }
+
+  // wavetable scanning：加载多帧波表(帧分辨率=WAVETABLE_SIZE，与UI包络点数解耦)，
+  // 每个pulsar根据train相位扫描到不同的帧
+  void setPgWavetableData(const std::vector<std::array<float, CommonVoiceSate::WAVETABLE_SIZE>> &frames) {
+    if (frames.empty() || getNumVoices() == 0)
+      return;
+    if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+      auto state = voice->getCommonVoiceSate();
+      const int numFrames = std::min(static_cast<int>(frames.size()), CommonVoiceSate::WAVETABLE_FRAMES);
+      for (int f = 0; f < numFrames; ++f) {
+        state->pgWavetable[f] = frames[f];
+        state->pgWavetableDcOffset[f] = calcHannWeightedMean(frames[f]);
+      }
+      // UI展示第一帧(下采样到画布点数)
+      state->pgWaveformEnvelopeData = resampleLinear<CommonVoiceSate::WAVETABLE_SIZE, EnvelopeCanvas::ENVELOPE_SIZE>(frames[0]);
+      state->pgWavetableNumFrames = numFrames;
+    }
+  }
+
+  std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> getPgWaveformEnvelopeData() const {
+    if (getNumVoices() > 0) {
+      if (auto *voice = dynamic_cast<PulsarSynthVoice *>(getVoice(0))) {
+        return voice->getCommonVoiceSate()->pgWaveformEnvelopeData;
+      }
+    }
+    std::array<float, EnvelopeCanvas::ENVELOPE_SIZE> defaultData;
+    defaultData.fill(0.5f);
+    return defaultData;
+  }
+
+  /**
+   * In auto mode, the renderNextBlock does not follow the renderNextBlock of juce's synthesizer
+   * because there is no midi trigger. So write it here.
+   *
+   * @param buffer audio buffer
+   * @param audioPlayHead audio play head
+   * @param start start index
+   * @param numSamples num of samples
+   */
+  void renderNextBlockDirectly(juce::AudioBuffer<float> &buffer, juce::AudioPlayHead *audioPlayHead, int start, int numSamples) {
+    for (int i = 0; i < getNumVoices(); ++i) {
+      juce::SynthesiserVoice *voice = getVoice(i);
+      PulsarSynthVoice *pulsarVoice = dynamic_cast<PulsarSynthVoice *>(voice);
+      pulsarVoice->renderNextBlockDirectly(buffer, audioPlayHead, start, numSamples);
+    }
+  }
+};

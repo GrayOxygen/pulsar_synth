@@ -6,9 +6,9 @@
         "${workspaceFolder}/Source/include",
         "${workspaceFolder}/Source",
         "${workspaceFolder}/build/pulsar_synth_artefacts/JuceLibraryCode",
-        "E:/env/juce-7.0.12-windows/JUCE/modules",
-        "E:/env/juce-7.0.12-windows/JUCE/modules/juce_audio_processors/format_types/VST3_SDK",
-        "E:/env/juce-7.0.12-windows/JUCE/modules/juce_audio_processors/format_types/LV2_SDK"
+        "E:/env/juce-7.0.9600-windows/JUCE/modules",
+        "E:/env/juce-7.0.9600-windows/JUCE/modules/juce_audio_processors/format_types/VST3_SDK",
+        "E:/env/juce-7.0.9600-windows/JUCE/modules/juce_audio_processors/format_types/LV2_SDK"
       ],
       "defines": [
         "DEBUG=1",
@@ -36,7 +36,7 @@
           "${workspaceFolder}/Source",
           "${workspaceFolder}/Source/include",
           "${workspaceFolder}/build/pulsar_synth_artefacts/JuceLibraryCode",
-          "E:/env/juce-7.0.12-windows/JUCE/modules"
+          "E:/env/juce-7.0.9600-windows/JUCE/modules"
         ],
         "limitSymbolsToIncludedHeaders": false
       }
