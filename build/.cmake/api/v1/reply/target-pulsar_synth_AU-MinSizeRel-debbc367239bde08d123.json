@@ -1,0 +1,862 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "pulsar_synth_artefacts/MinSizeRel/AU/Pulsar Wang.component/Contents/MacOS/Pulsar Wang"
+		}
+	],
+	"backtrace" : 4,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"_juce_link_plugin_wrapper",
+			"_juce_configure_plugin_targets",
+			"juce_add_plugin",
+			"target_link_options",
+			"target_link_libraries",
+			"_juce_link_frameworks",
+			"juce_add_module",
+			"juce_add_modules",
+			"include_directories",
+			"target_include_directories",
+			"target_sources",
+			"_juce_configure_bundle"
+		],
+		"files" : 
+		[
+			"/Applications/JUCE/extras/Build/CMake/JUCEUtils.cmake",
+			"CMakeLists.txt",
+			"/Applications/JUCE/extras/Build/CMake/JUCEModuleSupport.cmake",
+			"/Applications/JUCE/modules/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 1
+			},
+			{
+				"command" : 3,
+				"file" : 1,
+				"line" : 93,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 2182,
+				"parent" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 1589,
+				"parent" : 2
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 1405,
+				"parent" : 3
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 1441,
+				"parent" : 3
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 1418,
+				"parent" : 3
+			},
+			{
+				"file" : 3
+			},
+			{
+				"command" : 8,
+				"file" : 3,
+				"line" : 33,
+				"parent" : 7
+			},
+			{
+				"command" : 7,
+				"file" : 2,
+				"line" : 686,
+				"parent" : 8
+			},
+			{
+				"command" : 6,
+				"file" : 2,
+				"line" : 619,
+				"parent" : 9
+			},
+			{
+				"command" : 5,
+				"file" : 2,
+				"line" : 341,
+				"parent" : 10
+			},
+			{
+				"command" : 6,
+				"file" : 2,
+				"line" : 619,
+				"parent" : 9
+			},
+			{
+				"command" : 5,
+				"file" : 2,
+				"line" : 341,
+				"parent" : 12
+			},
+			{
+				"command" : 9,
+				"file" : 1,
+				"line" : 36,
+				"parent" : 0
+			},
+			{
+				"command" : 9,
+				"file" : 1,
+				"line" : 37,
+				"parent" : 0
+			},
+			{
+				"command" : 10,
+				"file" : 0,
+				"line" : 1415,
+				"parent" : 3
+			},
+			{
+				"command" : 12,
+				"file" : 0,
+				"line" : 1447,
+				"parent" : 3
+			},
+			{
+				"command" : 11,
+				"file" : 0,
+				"line" : 739,
+				"parent" : 17
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-Os -DNDEBUG '-std=gnu++20' -fPIC -fvisibility=hidden -fvisibility-inlines-hidden"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wall"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wshadow-all"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wshorten-64-to-32"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wstrict-aliasing"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wuninitialized"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wunused-parameter"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wconversion"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wsign-compare"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wint-conversion"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wconditional-uninitialized"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wconstant-conversion"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wsign-conversion"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wbool-conversion"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wextra-semi"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wunreachable-code"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wcast-align"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wshift-sign-overflow"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wmissing-prototypes"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wnullable-to-nonnull-conversion"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wno-ignored-qualifiers"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wswitch-enum"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wpedantic"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wdeprecated"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wfloat-equal"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wmissing-field-initializers"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wzero-as-null-pointer-constant"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wunused-private-field"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Woverloaded-virtual"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Wreorder"
+				},
+				{
+					"backtrace" : 6,
+					"fragment" : "-Winconsistent-missing-destructor-override"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_GLOBAL_MODULE_SETTINGS_INCLUDED=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_audio_basics=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_audio_devices=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_audio_formats=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_audio_plugin_client=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_audio_processors=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_audio_utils=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_core=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_data_structures=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_dsp=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_events=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_graphics=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_gui_basics=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_MODULE_AVAILABLE_juce_gui_extra=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_STANDALONE_APPLICATION=JucePlugin_Build_Standalone"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_USE_CURL=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_VST3_CAN_REPLACE_VST2=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JUCE_WEB_BROWSER=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_AAXCategory=2048"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_AAXDisableBypass=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_AAXDisableMultiMono=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_AAXIdentifier=com.MrWang.pulsar_synth"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_AAXManufacturerCode=JucePlugin_ManufacturerCode"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_AAXProductId=JucePlugin_PluginCode"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_ARACompatibleArchiveIDs=\"\""
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_ARAContentTypes=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_ARADocumentArchiveID=\"com.MrWang.pulsar_synth.aradocumentarchive.1\""
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_ARAFactoryID=\"com.MrWang.pulsar_synth.arafactory.0.0.8\""
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_ARATransformationFlags=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_AUExportPrefix=Pulsar_WangAU"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_AUExportPrefixQuoted=\"Pulsar_WangAU\""
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_AUMainType='aumu'"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_AUManufacturerCode=JucePlugin_ManufacturerCode"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_AUSubType=JucePlugin_PluginCode"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Build_AAX=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Build_AU=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Build_AUv3=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Build_LV2=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Build_Standalone=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Build_Unity=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Build_VST3=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Build_VST=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_CFBundleIdentifier=com.MrWang.pulsar_synth"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Desc=\"Pulsar Wang\""
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_EditorRequiresKeyboardFocus=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Enable_ARA=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_IsMidiEffect=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_IsSynth=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Manufacturer=\"MrWang\""
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_ManufacturerCode=0x4a756365"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_ManufacturerEmail=\"\""
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_ManufacturerWebsite=\"\""
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Name=\"Pulsar Wang\""
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_PluginCode=0x50756c73"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_ProducesMidiOutput=0"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_VSTCategory=kPlugCategSynth"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_VSTNumMidiInputs=16"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_VSTNumMidiOutputs=16"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_VSTUniqueID=JucePlugin_PluginCode"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Version=0.0.8"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_VersionCode=0x8"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_VersionString=\"0.0.8\""
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_Vst3Category=\"Instrument|Synth\""
+				},
+				{
+					"backtrace" : 6,
+					"define" : "JucePlugin_WantsMidiInput=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "NDEBUG=1"
+				},
+				{
+					"backtrace" : 6,
+					"define" : "_NDEBUG=1"
+				},
+				{
+					"define" : "pulsar_synth_AU_EXPORTS"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 14,
+					"path" : "/Users/blueear/Documents/\u4e2a\u4eba\u7a7a\u95f4/coding/synth_dev/pulsar_synth/Source/include"
+				},
+				{
+					"backtrace" : 15,
+					"path" : "/Users/blueear/Documents/\u4e2a\u4eba\u7a7a\u95f4/coding/synth_dev/pulsar_synth/Source"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/Users/blueear/Documents/\u4e2a\u4eba\u7a7a\u95f4/coding/synth_dev/pulsar_synth/build/pulsar_synth_artefacts/JuceLibraryCode"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/Applications/JUCE/modules"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/Applications/JUCE/modules/juce_audio_processors/format_types/VST3_SDK"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/Applications/JUCE/modules/juce_audio_processors/format_types/LV2_SDK"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/Applications/JUCE/modules/juce_audio_processors/format_types/LV2_SDK/lv2"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/Applications/JUCE/modules/juce_audio_processors/format_types/LV2_SDK/serd"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/Applications/JUCE/modules/juce_audio_processors/format_types/LV2_SDK/sord"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/Applications/JUCE/modules/juce_audio_processors/format_types/LV2_SDK/sord/src"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/Applications/JUCE/modules/juce_audio_processors/format_types/LV2_SDK/sratom"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/Applications/JUCE/modules/juce_audio_processors/format_types/LV2_SDK/lilv"
+				},
+				{
+					"backtrace" : 16,
+					"path" : "/Applications/JUCE/modules/juce_audio_processors/format_types/LV2_SDK/lilv/src"
+				},
+				{
+					"backtrace" : 6,
+					"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/AU"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					6
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 6,
+			"id" : "pulsar_synth::@6890427a1f51a3e7e1df"
+		},
+		{
+			"backtrace" : 6,
+			"id" : "juce_recommended_config_flags::@b2264a885a0e6308e827"
+		},
+		{
+			"id" : "ZERO_CHECK::@b2264a885a0e6308e827"
+		},
+		{
+			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
+		}
+	],
+	"folder" : 
+	{
+		"name" : "pulsar_synth"
+	},
+	"id" : "pulsar_synth_AU::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-L/opt/homebrew/lib",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 5,
+				"fragment" : "-Xlinker",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 5,
+				"fragment" : "-adhoc_codesign",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 6,
+				"fragment" : "\"pulsar_synth_artefacts/MinSizeRel/libPulsar Wang_SharedCode.a\"",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/DiscRecording.framework",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/CoreAudio.framework",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/CoreMIDI.framework",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/AudioToolbox.framework",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/WebKit.framework",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 11,
+				"fragment" : "-weak_framework Metal",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 13,
+				"fragment" : "-weak_framework MetalKit",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/QuartzCore.framework",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/Accelerate.framework",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/Cocoa.framework",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/Foundation.framework",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/IOKit.framework",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/Security.framework",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/AudioUnit.framework",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-framework /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX15.2.sdk/System/Library/Frameworks/CoreAudioKit.framework",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "pulsar_synth_AU",
+	"nameOnDisk" : "Pulsar Wang.component/Contents/MacOS/Pulsar Wang",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"name" : "CMake Rules",
+			"sourceIndexes" : 
+			[
+				1
+			]
+		},
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				2,
+				3,
+				4,
+				5,
+				6,
+				7,
+				8,
+				9,
+				10,
+				11,
+				12
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 18,
+			"isGenerated" : true,
+			"path" : "build/pulsar_synth_artefacts/JuceLibraryCode/pulsar_synth_AU/PkgInfo",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "build/pulsar_synth_artefacts/JuceLibraryCode/pulsar_synth_AU/PkgInfo.rule",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 6,
+			"compileGroupIndex" : 0,
+			"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_AAX_utils.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 6,
+			"compileGroupIndex" : 0,
+			"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_ARA.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 6,
+			"compileGroupIndex" : 0,
+			"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_Standalone.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 6,
+			"compileGroupIndex" : 0,
+			"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_Unity.cpp",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 6,
+			"compileGroupIndex" : 0,
+			"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_AAX.mm",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 6,
+			"compileGroupIndex" : 0,
+			"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_AU_1.mm",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 6,
+			"compileGroupIndex" : 0,
+			"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_AU_2.mm",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 6,
+			"compileGroupIndex" : 0,
+			"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_AUv3.mm",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 6,
+			"compileGroupIndex" : 0,
+			"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_LV2.mm",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 6,
+			"compileGroupIndex" : 0,
+			"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_VST2.mm",
+			"sourceGroupIndex" : 2
+		},
+		{
+			"backtrace" : 6,
+			"compileGroupIndex" : 0,
+			"path" : "/Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_VST3.mm",
+			"sourceGroupIndex" : 2
+		}
+	],
+	"type" : "MODULE_LIBRARY"
+}

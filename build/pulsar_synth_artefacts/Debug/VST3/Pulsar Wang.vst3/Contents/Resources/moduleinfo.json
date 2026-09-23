@@ -1,0 +1,60 @@
+{
+  "Name": "Pulsar Wang",
+  "Version": "0.0.8",
+  "Factory Info": {
+    "Vendor": "MrWang",
+    "URL": "",
+    "E-Mail": "",
+    "Flags": {
+      "Unicode": true,
+      "Classes Discardable": false,
+      "Component Non Discardable": false,
+    },
+  },
+  "Classes": [
+    {
+      "CID": "ABCDEF019182FAEB4A75636550756C73",
+      "Category": "Audio Module Class",
+      "Name": "Pulsar Wang",
+      "Vendor": "MrWang",
+      "Version": "0.0.8",
+      "SDKVersion": "VST 3.7.12",
+      "Sub Categories": [
+        "Instrument",
+        "Synth",
+      ],
+      "Class Flags": 2,
+      "Cardinality": 2147483647,
+      "Snapshots": [
+      ],
+    },
+    {
+      "CID": "ABCDEF011234ABCD4A75636550756C73",
+      "Category": "Component Controller Class",
+      "Name": "Pulsar Wang",
+      "Vendor": "MrWang",
+      "Version": "0.0.8",
+      "SDKVersion": "VST 3.7.12",
+      "Sub Categories": [
+        "Instrument",
+        "Synth",
+      ],
+      "Class Flags": 2,
+      "Cardinality": 2147483647,
+      "Snapshots": [
+      ],
+    },
+    {
+      "CID": "ABCDEF01C0DEF00D4A75636550756C73",
+      "Category": "Plugin Compatibility Class",
+      "Name": "Pulsar Wang",
+      "Vendor": "MrWang",
+      "Version": "0.0.8",
+      "SDKVersion": "VST 3.7.12",
+      "Class Flags": 0,
+      "Cardinality": 2147483647,
+      "Snapshots": [
+      ],
+    },
+  ],
+}

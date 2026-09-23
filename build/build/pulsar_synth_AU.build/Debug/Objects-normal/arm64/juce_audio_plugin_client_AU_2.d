@@ -1,0 +1,30 @@
+dependencies: \
+  /Applications/JUCE/modules/juce_audio_plugin_client/juce_audio_plugin_client_AU_2.mm \
+  /Applications/JUCE/modules/juce_core/system/juce_TargetPlatform.h \
+  /Applications/JUCE/modules/juce_core/system/juce_CompilerWarnings.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUBase.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUBase.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUBuffer.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUUtility.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUInputElement.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUScopeElement.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/ComponentBase.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUMIDIUtility.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUOutputElement.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUPlugInDispatch.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUBuffer.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUBufferAllocator.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUEffectBase.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUEffectBase.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUSilentTimeout.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUInputElement.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUMIDIBase.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUMIDIBase.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUMIDIEffectBase.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUMIDIEffectBase.h \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUOutputElement.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUPlugInDispatch.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/AUScopeElement.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/ComponentBase.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/MusicDeviceBase.cpp \
+  /Applications/JUCE/modules/juce_audio_plugin_client/AU/AudioUnitSDK/MusicDeviceBase.h

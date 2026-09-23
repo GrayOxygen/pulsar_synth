@@ -1,0 +1,93 @@
+{
+	"backtrace" : 5,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"include"
+		],
+		"files" : 
+		[
+			"/Applications/JUCE/extras/Build/CMake/JUCEHelperTargets.cmake",
+			"/Applications/JUCE/extras/Build/CMake/JUCEModuleSupport.cmake",
+			"/Applications/JUCE/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 2
+			},
+			{
+				"command" : 1,
+				"file" : 2,
+				"line" : 50,
+				"parent" : 0
+			},
+			{
+				"file" : 1,
+				"parent" : 1
+			},
+			{
+				"command" : 1,
+				"file" : 1,
+				"line" : 56,
+				"parent" : 2
+			},
+			{
+				"file" : 0,
+				"parent" : 3
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 117,
+				"parent" : 4
+			}
+		]
+	},
+	"dependencies" : 
+	[
+		{
+			"id" : "ZERO_CHECK::@b2264a885a0e6308e827"
+		}
+	],
+	"id" : "juce_recommended_config_flags::@b2264a885a0e6308e827",
+	"name" : "juce_recommended_config_flags",
+	"paths" : 
+	{
+		"build" : "JUCE",
+		"source" : "/Applications/JUCE"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Header Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 5,
+			"path" : "/Users/blueear/Documents/\u4e2a\u4eba\u7a7a\u95f4/coding/c++/pulsar_synth/Source/include/PulsarSynthVoice.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 5,
+			"path" : "/Users/blueear/Documents/\u4e2a\u4eba\u7a7a\u95f4/coding/c++/pulsar_synth/Source/include/ConvolutionResource.h",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 5,
+			"path" : "/Users/blueear/Documents/\u4e2a\u4eba\u7a7a\u95f4/coding/c++/pulsar_synth/Source/include/PulsarSynthSound.h",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "INTERFACE_LIBRARY"
+}
