@@ -6,6 +6,9 @@
 
 > English version: [README_EN.md](README_EN.md)
 
+使用该合成器录制的专辑地址：
+https://huiyangwang.bandcamp.com/album/pulsar-studies
+
 ---
 
 ## 声音引擎
