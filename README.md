@@ -6,6 +6,9 @@ Core idea: a **Train (pulse train)** state machine organizes a number of **pulsa
 
 > 中文版见 [README.md](README.md)
 
+This album showcases the sounds produced with this synthesiser.
+https://huiyangwang.bandcamp.com/album/pulsar-studies
+
 ---
 
 ## Sound Engine
