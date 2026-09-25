@@ -1,3 +1,4 @@
 # pulsar_synth
 基于clion，cmake，juce
+
 Please check the lastest branch composition/20260601
